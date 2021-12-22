@@ -18,8 +18,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common import exceptions
 
-
-Headless = True
+main = True
+Headless = False
 
 IsLinux = platform == "linux"
 print("Linux : "+ str(IsLinux))
@@ -74,9 +74,9 @@ if IsLinux :
     LogPath= "/home/pi/MsReward/login.csv"
     TokenPath = "/home/pi/MsReward/token.txt"
 else :
-    MotPath = resource_path('./liste/liste.txt')
-    LogPath = resource_path('./login/login.csv')
-    TokenPath = resource_path('./token/token.txt')
+    MotPath = resource_path('D:\Documents\Dev\MsReward\liste/liste.txt')
+    LogPath = resource_path('D:\Documents\Dev\MsReward\login/login.csv')
+    TokenPath = resource_path('D:\Documents\Dev\MsReward/token/token.txt')
     system("")
 
 
@@ -368,6 +368,7 @@ def login() :
                 driver.find_element_by_css_selector('''[data-bind="text: str['CT_PWD_STR_KeepMeSignedInCB_Text']"]''').click()
             except :
                 pass
+        CustomSleep(3)
         pwd = driver.find_element_by_id('i0118')
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
@@ -376,12 +377,16 @@ def login() :
 
         except :
             assert('il y a eu une erreur dans le login, il faut regarder pourquoi')    #dans le cas ou ms change ses parametre de confidentialité
-        
+        CustomSleep(2)
         try : 
             driver.find_element_by_id('KmsiCheckboxField').click()
+        except Exception as e  :
+            pass
+            print(f"erreur la {e}") 
+        try : 
             driver.find_element_by_id('idSIButton9').click()
         except :
-            pass #dans le cas ou il faut verifier la connection
+            pass
         
         RGPD()
 
@@ -453,17 +458,18 @@ def BingMobileSearch(override = randint(20,25)):
                 pwd = MobileDriver.find_element_by_id('i0118')
                 send_keys_wait(pwd, _password)
                 pwd.send_keys( Keys.ENTER)
-            except :
+            except Exception as e :
                 echec += 1
                 if echec <= 3 :
-                    print(f'echec du login sur la version mobile. on reesaye ({echec}/3)')
+                    print(f'echec du login sur la version mobile. on reesaye ({echec}/3), {e}')
                     CustomSleep(uniform(5,10))
                     Mlogin(echec)
                 else :
                     LogError('recherche sur mobile impossible. On skip \n\n\n\n\n\n\n\n')
                     print(MobileDriver.page_source)
-                    return(True)
                     MobileDriver.quit()
+                    return(True)
+                    
         
         def MRGPD():
             try :
@@ -570,27 +576,20 @@ def TryPlay(nom ="inconnu"):
             CustomSleep(uniform(3,5))
 
 
-def LogPoint(account, log = False): #log des points sur discord
+def LogPoint(account="unknown", log = False): #log des points sur discord
     if not IsLinux :
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     else :
         asyncio.set_event_loop(asyncio.new_event_loop())
 
-    try : 
-        driver.get('https://account.microsoft.com/rewards/')
-    except :
-        LogError('driver ')
-
-    sleep(5)
+    elem = driver.find_element_by_css_selector('[title="Microsoft Rewards"]')
+    elem.click()
+    driver.switch_to.window(driver.window_handles[1])
+    CustomSleep(uniform(10,20))
     try :
-        point = search('<span class=\"balance ng-binding\">([^<]+)</span>', driver.page_source)[1]
+        point = search("availablePoints\":([\d]+)",driver.page_source)[1]
     except :
-        driver.find_element_by_id('raf-signin-link-id').click()
-        try :
-            point = search('<span class=\"balance ng-binding\">([^<]+)</span>', driver.page_source)[1]
-        except :
-            print(driver.page_source)
-            point = "erreur"
+        point = "erreur"
 
     CustomSleep(uniform(3,20))
     
@@ -669,15 +668,15 @@ def DailyRoutine():
 
     try : 
         BingMobileSearch()
-    except :
-        LogError('BingMobileSearch')
+    except Exception as e:
+        LogError(f'BingMobileSearch - {e}')
     print('\n')
     CustomSleep(uniform(3,20))
     
-    #try :
-    #    LogPoint(_mail)
-    #except :
-    #    LogError('LogPoint')
+    try :
+        LogPoint(_mail)
+    except :
+        LogError('LogPoint')
 
 
 
@@ -690,10 +689,10 @@ Credentials = data
 CustomSleep(2)
 
 shuffle(Credentials)
+main = True
 
 for i in Credentials :
-    driver = FirefoxPC()
-    driver.implicitly_wait(5)
+    
     
     _mail =i[0]
     _password = i[1]
@@ -701,17 +700,20 @@ for i in Credentials :
     print('\n\n')
     print(_mail)
     CustomSleep(1)
-    try :
-        DailyRoutine()
-        driver.quit()
-        print("finis")
-        CustomSleep(uniform(120,360))
-        
-    except KeyboardInterrupt :
-        print('canceled')
-        driver.quit()
-        quit()
+    if main: 
+        driver = FirefoxPC()
+        driver.implicitly_wait(5)
 
+        try :
+            DailyRoutine()
+            driver.quit()
+            print("finis")
+            CustomSleep(uniform(120,360))
+            
+        except KeyboardInterrupt :
+            print('canceled')
+            driver.quit()
+            quit()
 
 
 #pyinstaller ./main.py --onefile --noconsole --add-binary "./driver/chromedriver.exe;./driver"
