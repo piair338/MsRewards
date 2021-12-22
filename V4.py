@@ -72,7 +72,7 @@ def FirefoxPC(Headless = Headless):
 if IsLinux :
     MotPath = "/home/pi/MsReward/liste.txt"
     LogPath= "/home/pi/MsReward/login.csv"
-    TokenPath = "/home/pi/token.txt"
+    TokenPath = "/home/pi/MsReward/token.txt"
 else :
     MotPath = resource_path('./liste/liste.txt')
     LogPath = resource_path('./login/login.csv')
