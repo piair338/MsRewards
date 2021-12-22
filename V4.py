@@ -72,9 +72,11 @@ def FirefoxPC(Headless = Headless):
 if IsLinux :
     MotPath = "/home/pi/MsReward/liste.txt"
     LogPath= "/home/pi/MsReward/login.csv"
+    TokenPath = "/home/pi/token.txt"
 else :
     MotPath = resource_path('./liste/liste.txt')
     LogPath = resource_path('./login/login.csv')
+    TokenPath = resource_path('./token/token.txt')
     system("")
 
 
@@ -82,7 +84,9 @@ else :
 g =  open(MotPath, "r" , encoding="utf-8")
 Liste_de_mot=(list(g.readline().split(',')))
 g.close()
-
+g = open(TokenPath,"r")
+Token = g.readline()
+g.close
 
 
 def CustomSleep(temps):
@@ -137,7 +141,7 @@ def LogError(message,log = False):
             await client.close()
 
 
-        client.run('ODMzMjc2MDU1ODk2NDU3MjI2.YHv-zQ.sxvpqrD9bz-ZQAb8lKhy_4hwUU8')
+        client.run(Token)
 
 
 def progressBar(current, total=30, barLength = 20, name ="Progress"):
@@ -601,7 +605,7 @@ def LogPoint(account, log = False): #log des points sur discord
         await client.close()
 
 
-    client.run('ODMzMjc2MDU1ODk2NDU3MjI2.YHv-zQ.sxvpqrD9bz-ZQAb8lKhy_4hwUU8')
+    client.run(Token)
 
 
 def Fidelité():
