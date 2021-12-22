@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 from time import sleep
 from random import uniform, choice, randint,shuffle
 from re import search,findall
@@ -19,7 +20,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common import exceptions
 
 main = True
-Headless = False
+Headless = True
 
 IsLinux = platform == "linux"
 print("Linux : "+ str(IsLinux))
@@ -47,7 +48,7 @@ def FirefoxMobile(Headless = Headless):
     MobileProfile.set_preference("general.useragent.override", MOBILE_USER_AGENT)
     
 
-    return(webdriver.Firefox(options=options, firefox_profile=MobileProfile))
+    return(webdriver.Firefox(options=options, firefox_profile=MobileProfile, service_log_path=os.devnull))
 
 
 def FirefoxPC(Headless = Headless):
@@ -64,9 +65,7 @@ def FirefoxPC(Headless = Headless):
     PcProfile = webdriver.FirefoxProfile() 
     PcProfile.set_preference("general.useragent.override", PC_USER_AGENT)
     
-        
-
-    return(webdriver.Firefox(options=options, firefox_profile=PcProfile))
+    return(webdriver.Firefox(options=options, firefox_profile=PcProfile,service_log_path=os.devnull))
 
 
 if IsLinux :
@@ -689,7 +688,6 @@ Credentials = data
 CustomSleep(2)
 
 shuffle(Credentials)
-main = True
 
 for i in Credentials :
     
