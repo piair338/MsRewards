@@ -382,13 +382,12 @@ def login() :
         try :
             driver.find_element_by_id('iNext').click()
 
-        except :
-            assert('il y a eu une erreur dans le login, il faut regarder pourquoi')    #dans le cas ou ms change ses parametre de confidentialité
+        except Exception as e :
+            LogError(f'il y a eu une erreur dans le login, il faut regarder pourquoi - {e}')    #dans le cas ou ms change ses parametre de confidentialité
         CustomSleep(5)
         try : 
             driver.find_element_by_id('KmsiCheckboxField').click()
         except Exception as e  :
-            pass
             printf(f"erreur validation bouton {e}") 
         CustomSleep(5)
         try : 
