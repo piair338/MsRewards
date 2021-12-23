@@ -4,11 +4,9 @@ from time import sleep
 from random import uniform, choice, randint,shuffle
 from re import search,findall
 from os import path, sys, system
-from requests import get
 import discord
 import asyncio
-from sys import platform, exc_info
-from socket import gethostbyname
+from sys import platform
 from csv import reader
 
 from selenium import webdriver
@@ -55,9 +53,9 @@ def FirefoxMobile(Headless = Headless):
     
     MobileProfile = webdriver.FirefoxProfile() 
     MobileProfile.set_preference("general.useragent.override", MOBILE_USER_AGENT)
-    
+    options.profile = MobileProfile
 
-    return(webdriver.Firefox(options=options, firefox_profile=MobileProfile, service_log_path=os.devnull))
+    return(webdriver.Firefox(options=options, service_log_path=os.devnull))
 
 
 def FirefoxPC(Headless = Headless):
@@ -73,14 +71,15 @@ def FirefoxPC(Headless = Headless):
 
     PcProfile = webdriver.FirefoxProfile() 
     PcProfile.set_preference("general.useragent.override", PC_USER_AGENT)
+    options.profile= PcProfile
     
-    return(webdriver.Firefox(options=options, firefox_profile=PcProfile,service_log_path=os.devnull))
+    return(webdriver.Firefox(options=options,service_log_path=os.devnull))
 
 
 if IsLinux :
-    MotPath = "/home/pi/MsReward/liste.txt"
-    LogPath= "/home/pi/MsReward/login.csv"
-    TokenPath = "/home/pi/MsReward/token.txt"
+    MotPath = "./liste.txt"
+    LogPath= "./login.csv"
+    TokenPath = "./token.txt"
 else :
     MotPath = resource_path('D:\Documents\Dev\MsReward\liste/liste.txt')
     LogPath = resource_path('D:\Documents\Dev\MsReward\login/login.csv')
@@ -352,7 +351,7 @@ def AllCard(): #fonction qui repere le type de contenue et redireige sur la bonn
             if c ==20 :
                 break
             try :
-                link = findall('href="([^<]+)" title=""',driver.page_source)[3]
+                link = findall('href="([^<]+)" title=""',driver.page_source)[3] #verifie si on a toujours des cartes 
             except :
                 break
     except Exception as e:
@@ -548,40 +547,39 @@ def BingMobileSearch(override = randint(20,25)):
 def TryPlay(nom ="inconnu"):
 
     RGPD()
-    
+    def play(number, override = -1) : 
+        match number :
+            case 9 :
+                try :
+                    print(f'Quiz 8 détécté sur la page {nom}')
+                    RGPD()
+                    PlayQuiz8()
+                except Exception as e :
+                    printf(f'echec de PlayQuiz 8. Aborted {e}')
+            case 5 :
+                try :
+                    print(f'Quiz 4 détécté sur la page {nom}')
+                    RGPD()
+                    PlayQuiz4()
+                    print('Quiz 4 reussit')
+                except Exception as e :
+                    printf(f'echec de PlayQuiz 4. Aborted {e}')
+            case 3 : 
+                try :
+                    RGPD()
+                    print(f'Quiz 2 détécté sur la page {nom}')
+                    PlayQuiz2()
+                except Exception as e :
+                    printf(f'echec de PlayQuiz 2. Aborted {e}')
+            case _ :
+                LogError('probleme dans la carte : il y a un bouton play et aucun quiz')
     try :
         driver.find_element_by_id('rqStartQuiz').click() #start the quiz
-
         number = driver.page_source.count('rqAnswerOption')
-
-        if number == 9:
-            try :
-                print(f'Quiz 8 détécté sur la page {nom}')
-                RGPD()
-                PlayQuiz8()
-            except Exception as e :
-                printf(f'echec de PlayQuiz 8. Aborted {e}')
-
-        elif number == 5 :
-            try :
-                print(f'Quiz 4 détécté sur la page {nom}')
-                RGPD()
-                PlayQuiz4()
-                print('Quiz 4 reussit')
-            except Exception as e :
-                printf(f'echec de PlayQuiz 4. Aborted {e}')
-
-        elif number == 3 :
-            try :
-                RGPD()
-                print(f'Quiz 2 détécté sur la page {nom}')
-                PlayQuiz2()
-            except Exception as e :
-                printf(f'echec de PlayQuiz 2. Aborted {e}')
-
-        else :
-            LogError('probleme dans la carte : il y a un bouton play et aucun quiz')
+        play(number)
+            
     except :
+        
         if "bt_PollRadio" in driver.page_source :
             try :
                 print('Poll détected',  end ="\r")
@@ -590,6 +588,9 @@ def TryPlay(nom ="inconnu"):
                 print('Poll reussit  ')
             except Exception as e :
                 printf(f'Poll aborted {e}')
+        elif "rqQuestionState" in driver.page_source :
+            printf("recover détécté")
+            number = driver.page_source.count('rqAnswerOption')
 
         elif search("([0-9]) de ([0-9]) finalisée",driver.page_source) :
             print('fidélité')
@@ -738,7 +739,7 @@ for i in Credentials :
             driver.quit()
             timer = uniform(120,360)
             print(f"finis. attente de {timer}s")
-            CustomSleep()
+            CustomSleep(timer)
             
         except KeyboardInterrupt :
             print('canceled')
