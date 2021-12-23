@@ -27,6 +27,7 @@ def printf(txt):
     if not Log :
         print(txt)
     else :
+        CustomSleep(5)
         LogError(txt)
 
 
@@ -257,6 +258,7 @@ def PlayQuiz4():
         
         for i in range(max):
             #RGPD()
+            CustomSleep(uniform(3,5))
             txt = driver.page_source
             
             reponse = search("correctAnswer\":\"([^\"]+)", txt)[1] #je suis pas sur qu'il y ait un espace
@@ -271,7 +273,7 @@ def PlayQuiz4():
             except exceptions.ElementNotInteractableException:
                 driver.execute_script("arguments[0].click();", elem)
 
-            CustomSleep(uniform(3,5))
+            
     
     except Exception as e :
         LogError("PlayQuiz4" + str(e))
@@ -314,9 +316,9 @@ def AllCard(): #fonction qui repere le type de contenue et redireige sur la bonn
                 TryPlay(driver.title)
                 sleep(1)
                 reset()
-                printf("carte {i} ok ")
+                printf(f"carte {i} ok ")
         except Exception as e :
-            LogError(f'erreur dans la premiere partie de AllCard (les daily card). cela arrive si on relance le proramme uen deuxieme fois sur le meme compte \n {e}')
+            LogError(f'erreur dans la premiere partie de AllCard (les daily card). cela arrive si on relance le proramme une deuxieme fois sur le meme compte \n {e}')
 
     dailyCards()
 
@@ -394,7 +396,7 @@ def login() :
             driver.find_element_by_id('iNext').click()
 
         except Exception as e :
-            LogError(f'il y a eu une erreur dans le login, il faut regarder pourquoi - {e}')    #dans le cas ou ms change ses parametre de confidentialité
+            printf(f'erreur validation bouton iNext. pas forcement grave - {e}')    #dans le cas ou ms change ses parametre de confidentialité
         CustomSleep(5)
         try : 
             driver.find_element_by_id('KmsiCheckboxField').click()
@@ -407,7 +409,7 @@ def login() :
             printf(f"erreur validation bouton idSIButton9. pas forcement grave {e}") 
 
         printf("login completed")
-        CustomSleep(5)
+        
         RGPD()
 
         driver.get('https://www.bing.com/rewardsapp/flyout')
