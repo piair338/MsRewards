@@ -221,10 +221,15 @@ def PlayQuiz8(override = None):
             sleep(uniform(3,5))
             ListeOfGood =[]
             for i in range(1,9):
-                Card= driver.find_element_by_id(f'rqAnswerOption{i-1}')
-                if 'iscorrectoption="True" 'in Card.get_attribute('outerHTML') :
-                    ListeOfGood.append(f'rqAnswerOption{i-1}') #premier div = 3 ?
-                
+                try : 
+                    Card= driver.find_element_by_id(f'rqAnswerOption{i-1}')
+                    if 'iscorrectoption="True" 'in Card.get_attribute('outerHTML') :
+                        ListeOfGood.append(f'rqAnswerOption{i-1}') #premier div = 3 ?
+                except Exception as e :
+                    if override :
+                        printf(e)
+                    else :
+                        LogError(e)
             shuffle(ListeOfGood)
 
             for i in ListeOfGood :
@@ -546,14 +551,14 @@ def TryPlay(nom ="inconnu"):
     RGPD()
     def play(number, override = None) : 
         match number :
-            case 9 :
+            case 9 | 8 :
                 try :
                     print(f'Quiz 8 détécté sur la page {nom}')
                     RGPD()
                     PlayQuiz8(override)
                 except Exception as e :
                     printf(f'echec de PlayQuiz 8. Aborted {e}')
-            case 5 :
+            case 5 | 4 :
                 try :
                     print(f'Quiz 4 détécté sur la page {nom}')
                     RGPD()
@@ -561,7 +566,7 @@ def TryPlay(nom ="inconnu"):
                     print('Quiz 4 reussit')
                 except Exception as e :
                     printf(f'echec de PlayQuiz 4. Aborted {e}')
-            case 3 : 
+            case 3 | 2 : 
                 try :
                     RGPD()
                     print(f'Quiz 2 détécté sur la page {nom}')
@@ -587,10 +592,13 @@ def TryPlay(nom ="inconnu"):
                 printf(f'Poll aborted {e}')
 
         elif "rqQuestionState" in driver.page_source :
-            printf("recovery détécté")
-            number = driver.page_source.count('rqAnswerOption')
-            restant = len(findall("\"rqQuestionState.?.\" class=", driver.page_source)) - len(findall("\"rqQuestionState.?.\" class=\"filledCircle\"", driver.page_source))
-            play(number, override=restant + 1 )
+            try : 
+                number = driver.page_source.count('rqAnswerOption')
+                restant = len(findall("\"rqQuestionState.?.\" class=", driver.page_source)) - len(findall("\"rqQuestionState.?.\" class=\"filledCircle\"", driver.page_source))
+                printf(f"recovery détécté. quiz : {number}, restant : {restant +1}")
+                play(number, override=restant + 1 )
+            except Exception as e :
+                printf(e)
 
         elif search("([0-9]) de ([0-9]) finalisée",driver.page_source) :
             print('fidélité')
