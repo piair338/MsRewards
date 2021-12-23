@@ -45,15 +45,12 @@ def FirefoxMobile(Headless = Headless):
     MOBILE_USER_AGENT = ('Mozilla/5.0 (iPhone; CPU iPhone OS 14_1_2 like Mac OS X)'
                     'AppleWebKit/603.1.30 (KHTML, like Gecko)'
                     'Version/14.1 Mobile/14E304 Safari/602.1')
-
     options = Options()
     options.set_preference("browser.link.open_newwindow", 3)
     if Headless :
-        options.add_argument("-headless")
-    
+        options.add_argument("-headless") 
     options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
-
-    return(webdriver.Firefox(options=options, log_path=os.devnull))
+    return(webdriver.Firefox(options=options))
 
 
 def FirefoxPC(Headless = Headless):
@@ -68,7 +65,7 @@ def FirefoxPC(Headless = Headless):
         options.add_argument("-headless")
 
     options.set_preference("general.useragent.override", PC_USER_AGENT)
-    return(webdriver.Firefox(options=options,log_path=os.devnull))
+    return(webdriver.Firefox(options=options))
 
 
 if IsLinux :
