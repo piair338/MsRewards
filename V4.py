@@ -21,6 +21,14 @@ from selenium.common import exceptions
 
 main = True
 Headless = True
+Log = True
+
+def printf(txt):
+    if Log :
+        print(txt)
+    else :
+        LogError(txt)
+
 
 IsLinux = platform == "linux"
 print("Linux : "+ str(IsLinux))
@@ -111,7 +119,7 @@ def ListTabs():
     return(tabs)
 
 
-def LogError(message,log = False):
+def LogError(message,log = Log):
     if not IsLinux :
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         print(f'\033[93m Erreur : {str(message)}  \033[0m')
@@ -301,7 +309,7 @@ def AllCard(): #fonction qui repere le type de contenue et redireige sur la bonn
                 sleep(1)
                 driver.find_element_by_xpath(f'/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]').click()
                 sleep(1)
-                TryPlay()
+                TryPlay(driver.title)
                 sleep(1)
                 reset()
         except Exception as e :
@@ -324,7 +332,7 @@ def AllCard(): #fonction qui repere le type de contenue et redireige sur la bonn
             
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
             sleep(1)
-            TryPlay()
+            TryPlay(driver.title)
             reset(True)
             sleep(1)
             c += 1
@@ -376,17 +384,19 @@ def login() :
 
         except :
             assert('il y a eu une erreur dans le login, il faut regarder pourquoi')    #dans le cas ou ms change ses parametre de confidentialité
-        CustomSleep(2)
+        CustomSleep(5)
         try : 
             driver.find_element_by_id('KmsiCheckboxField').click()
         except Exception as e  :
             pass
-            print(f"erreur la {e}") 
+            printf(f"erreur validation bouton {e}") 
+        CustomSleep(5)
         try : 
             driver.find_element_by_id('idSIButton9').click()
         except :
             pass
-        
+        printf("login completed")
+        CustomSleep(5)
         RGPD()
 
         driver.get('https://www.bing.com/rewardsapp/flyout')
@@ -422,14 +432,13 @@ def BingPcSearch(override = randint(30,35)):
         sleep(uniform(5,20)) 
 
         try :
-            #for i in range (len(mot)+1):
-            #    send_keys_wait( driver.find_element_by_id('sb_form_q'),Keys.BACKSPACE)
             driver.find_element_by_id('sb_form_q').clear()
         except :
-            driver.refresh()
-            driver.find_element_by_id('sb_form_q').clear()
-            #for i in range (len(mot)+1):
-            #    send_keys_wait( driver.find_element_by_id('sb_form_q'),Keys.BACKSPACE)
+            try :
+                driver.refresh()
+                driver.find_element_by_id('sb_form_q').clear()
+            except Exception as e:
+                LogError(f"BingPcSearch - clear la barre de recherche - {e}")
 
     print('\n\n')
 
@@ -460,12 +469,12 @@ def BingMobileSearch(override = randint(20,25)):
             except Exception as e :
                 echec += 1
                 if echec <= 3 :
-                    print(f'echec du login sur la version mobile. on reesaye ({echec}/3), {e}')
+                    printf(f'echec du login sur la version mobile. on reesaye ({echec}/3), {e}')
                     CustomSleep(uniform(5,10))
                     Mlogin(echec)
                 else :
                     LogError('recherche sur mobile impossible. On skip \n\n\n\n\n\n\n\n')
-                    print(MobileDriver.page_source)
+                    printf(f"login impossible 3 fois de suite. {e}")
                     MobileDriver.quit()
                     return(True)
                     
@@ -487,6 +496,8 @@ def BingMobileSearch(override = randint(20,25)):
                 alert.dismiss()
             except exceptions.NoAlertPresentException as e :
                 pass
+            except Exception as e:
+                LogError(f"error sur une alerte dans le driver mobile. {e}")
 
         if not Mlogin(echec) :        
 
@@ -504,12 +515,11 @@ def BingMobileSearch(override = randint(20,25)):
 
                 sleep(uniform(5,20)) 
 
-                Alerte() #noralement le seul utile, a voir plus tard
+                Alerte() # verifie si il y a des alertes (demande de positions ....)
                 
                 for i in range (len(mot)):
                     MobileDriver.find_element_by_id('sb_form_q').clear()
-                    #send_keys_wait(MobileDriver.find_element_by_id('sb_form_q'),Keys.BACKSPACE)
-                    #CustomSleep(uniform(0, 0.5))
+
 
             MobileDriver.quit()
             
@@ -518,8 +528,8 @@ def BingMobileSearch(override = randint(20,25)):
         LogError("BingMobileSearch" + str(e))
         try :
             MobileDriver.quit()
-        except : 
-            pass
+        except Exception as e: 
+            LogError(f"can't close mobile driveerr . {e}")
 
 def TryPlay(nom ="inconnu"):
 
@@ -535,8 +545,8 @@ def TryPlay(nom ="inconnu"):
                 print(f'Quiz 8 détécté sur la page {nom}')
                 RGPD()
                 PlayQuiz8()
-            except :
-                print('echec de PlayQuiz 8. Aborted ')
+            except Exception as e :
+                printf(f'echec de PlayQuiz 8. Aborted {e}')
 
         elif number == 5 :
             try :
@@ -544,19 +554,19 @@ def TryPlay(nom ="inconnu"):
                 RGPD()
                 PlayQuiz4()
                 print('Quiz 4 reussit')
-            except :
-                print('echec de PlayQuiz 4. Aborted')
+            except Exception as e :
+                printf(f'echec de PlayQuiz 4. Aborted {e}')
 
         elif number == 3 :
             try :
                 RGPD()
                 print(f'Quiz 2 détécté sur la page {nom}')
                 PlayQuiz2()
-            except :
-                print('echec de PlayQuiz 2. Aborted ')
+            except Exception as e :
+                printf(f'echec de PlayQuiz 2. Aborted {e}')
 
         else :
-            LogError('probleme dans la carte : il y a un bouton play et une erreur')
+            LogError('probleme dans la carte : il y a un bouton play et aucun quiz')
     except :
         if "bt_PollRadio" in driver.page_source :
             try :
@@ -564,8 +574,8 @@ def TryPlay(nom ="inconnu"):
                 RGPD()
                 PlayPoll()
                 print('Poll reussit  ')
-            except :
-                print('poll Aborted  ')
+            except Exception as e :
+                printf(f'Poll aborted {e}')
 
         elif search("([0-9]) de ([0-9]) finalisée",driver.page_source) :
             print('fidélité')
@@ -626,14 +636,14 @@ def Fidelité():
             bouton.click()
             CustomSleep(uniform(3,5))
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-            TryPlay()
+            TryPlay(driver.title)
             CustomSleep(uniform(3,5))
             Close(driver.window_handles[2],SwitchTo=1)
             driver.refresh()
             CustomSleep(uniform(3,5))
 
         Close(driver.window_handles[1])
-        print('on a passer la partie fidélité')
+        printf('on a passer la partie fidélité')
     except Exception as e :
         LogError("Fidélité" + str(e))
 
@@ -680,6 +690,9 @@ def DailyRoutine():
     except :
         LogError('LogPoint')
 
+def close():
+    driver.quit()
+    quit()
 
 
 with open(LogPath) as f:
@@ -708,13 +721,13 @@ for i in Credentials :
         try :
             DailyRoutine()
             driver.quit()
-            print("finis")
-            CustomSleep(uniform(120,360))
+            timer = uniform(120,360)
+            print(f"finis. attente de {timer}s")
+            CustomSleep()
             
         except KeyboardInterrupt :
             print('canceled')
-            driver.quit()
-            quit()
+            close()
 
 
 #pyinstaller ./main.py --onefile --noconsole --add-binary "./driver/chromedriver.exe;./driver"
