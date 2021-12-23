@@ -7,7 +7,7 @@ from os import path, sys, system
 import discord
 import asyncio
 from sys import platform
-from csv import reader
+from csv import reader 
 
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
@@ -51,9 +51,7 @@ def FirefoxMobile(Headless = Headless):
     if Headless :
         options.add_argument("-headless")
     
-    MobileProfile = webdriver.FirefoxProfile() 
-    MobileProfile.set_preference("general.useragent.override", MOBILE_USER_AGENT)
-    options.profile = MobileProfile
+    options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
 
     return(webdriver.Firefox(options=options, service_log_path=os.devnull))
 
@@ -69,10 +67,7 @@ def FirefoxPC(Headless = Headless):
     if Headless :
         options.add_argument("-headless")
 
-    PcProfile = webdriver.FirefoxProfile() 
-    PcProfile.set_preference("general.useragent.override", PC_USER_AGENT)
-    options.profile= PcProfile
-    
+    options.set_preference("general.useragent.override", PC_USER_AGENT)
     return(webdriver.Firefox(options=options,service_log_path=os.devnull))
 
 
