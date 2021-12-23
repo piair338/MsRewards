@@ -516,7 +516,10 @@ def BingMobileSearch(override = randint(20,25)):
 
     except Exception as e:
         LogError("BingMobileSearch" + str(e))
-
+        try :
+            MobileDriver.quit()
+        except : 
+            pass
 
 def TryPlay(nom ="inconnu"):
 
