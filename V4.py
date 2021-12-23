@@ -171,9 +171,11 @@ def RGPD():
     driver.implicitly_wait(5)
 
 
-def PlayQuiz2():
-    
-    for j in range (10):
+def PlayQuiz2(override = None):
+    if not override :
+        override = 10
+
+    for j in range (override):
         try : 
             CustomSleep(uniform(3,5))
             
@@ -208,13 +210,14 @@ def PlayQuiz2():
             break
 
 
-def PlayQuiz8():
-
+def PlayQuiz8(override = None):
+    if not override :
+        override = 3
     try : 
         #RGPD()
         
         c = 0
-        for i in range(3):
+        for i in range(override):
             sleep(uniform(3,5))
             ListeOfGood =[]
             for i in range(1,9):
@@ -239,15 +242,17 @@ def PlayQuiz8():
         LogError("PlayQuiz8" + str(e) + str(ListeOfGood))        
     
 
-def PlayQuiz4():
-    try : #permet de gerer les truc de fidélité
-        max = int(findall("rqQuestionState([\d]{1,2})\"", driver.page_source)[-1])
-    except :
-        max = 3    
+def PlayQuiz4(override = None):
+    if not override :
+        try : #permet de gerer les truc de fidélité, qui sont plus long
+            override = int(findall("rqQuestionState([\d]{1,2})\"", driver.page_source)[-1])
+        except :
+            override = 3    
+    
     try :
         
         
-        for i in range(max):
+        for i in range(override):
             #RGPD()
             CustomSleep(uniform(3,5))
             txt = driver.page_source
@@ -257,7 +262,7 @@ def PlayQuiz4():
             
             
             print(f"validation de la reponse                                     " , end="\r")
-            print(f"validation de la reponse {i+1}/{max} {reponse}" , end="\r")
+            print(f"validation de la reponse {i+1}/{override} {reponse}" , end="\r")
             try : 
                 elem = driver.find_element_by_css_selector(f'[data-option="{reponse}"]')
                 elem.click()
@@ -284,7 +289,7 @@ def PlayPoll():
         raise ValueError(e)
 
 
-def AllCard(): #fonction qui repere le type de contenue et redireige sur la bonne fonction
+def AllCard(): #fonction qui clique sur les cartes
 
     def reset(Partie2=False): #retourne sur la page de depart apres avoir finis
         if len(driver.window_handles) == 1 :
@@ -539,20 +544,20 @@ def BingMobileSearch(override = randint(20,25)):
 def TryPlay(nom ="inconnu"):
 
     RGPD()
-    def play(number, override = -1) : 
+    def play(number, override = None) : 
         match number :
             case 9 :
                 try :
                     print(f'Quiz 8 détécté sur la page {nom}')
                     RGPD()
-                    PlayQuiz8()
+                    PlayQuiz8(override)
                 except Exception as e :
                     printf(f'echec de PlayQuiz 8. Aborted {e}')
             case 5 :
                 try :
                     print(f'Quiz 4 détécté sur la page {nom}')
                     RGPD()
-                    PlayQuiz4()
+                    PlayQuiz4(override)
                     print('Quiz 4 reussit')
                 except Exception as e :
                     printf(f'echec de PlayQuiz 4. Aborted {e}')
@@ -560,7 +565,7 @@ def TryPlay(nom ="inconnu"):
                 try :
                     RGPD()
                     print(f'Quiz 2 détécté sur la page {nom}')
-                    PlayQuiz2()
+                    PlayQuiz2(override)
                 except Exception as e :
                     printf(f'echec de PlayQuiz 2. Aborted {e}')
             case _ :
@@ -580,9 +585,12 @@ def TryPlay(nom ="inconnu"):
                 print('Poll reussit  ')
             except Exception as e :
                 printf(f'Poll aborted {e}')
+
         elif "rqQuestionState" in driver.page_source :
-            printf("recover détécté")
+            printf("recovery détécté")
             number = driver.page_source.count('rqAnswerOption')
+            restant = len(findall("\"rqQuestionState.?.\" class=", driver.page_source)) - len(findall("\"rqQuestionState.?.\" class=\"filledCircle\"", driver.page_source))
+            play(number, override=restant + 1 )
 
         elif search("([0-9]) de ([0-9]) finalisée",driver.page_source) :
             print('fidélité')
