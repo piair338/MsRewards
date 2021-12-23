@@ -138,13 +138,14 @@ def LogError(message,log = Log):
             channel = client.get_channel(861181899987484692)
             if log :
                 channel = client.get_channel(833275838837030912) #channel de log
-            await channel.send(_mail)
+            await channel.send("------------------------------------\n" + _mail)
             
             await channel.send(ListTabs())
             await channel.send(str(message))
             CustomSleep(1)
             await channel.send(file=discord.File('screenshot.png'))
             await channel.send(file=discord.File('page.html'))
+            await channel.send("------------------------------------")
             await client.close()
 
 
@@ -292,16 +293,17 @@ def PlayPoll():
 
 def AllCard(): #fonction qui repere le type de contenue et redireige sur la bonne fonction
 
-    def reset(touch=False): #retourne sur la page de depart apres avoir finis
+    def reset(Partie2=False): #retourne sur la page de depart apres avoir finis
         if len(driver.window_handles) == 1 :
             driver.get('https://www.bing.com/rewardsapp/flyout')
-            if touch :
+            if Partie2 :
                 driver.find_element_by_xpath('/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click()
         else : 
             driver.switch_to.window(driver.window_handles[1])
             print(f"on ferme la fenetre {driver.current_url}")
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
+            reset(Partie2)
 
     def dailyCards():
         try :
@@ -312,12 +314,14 @@ def AllCard(): #fonction qui repere le type de contenue et redireige sur la bonn
                 TryPlay(driver.title)
                 sleep(1)
                 reset()
+                printf("carte {i} ok ")
         except Exception as e :
             LogError(f'erreur dans la premiere partie de AllCard (les daily card). cela arrive si on relance le proramme uen deuxieme fois sur le meme compte \n {e}')
 
     dailyCards()
 
     try :    
+        
         try : 
             driver.find_element_by_xpath('/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click() #declenche la premiere partie ?
         except :
@@ -328,11 +332,18 @@ def AllCard(): #fonction qui repere le type de contenue et redireige sur la bonn
                 pass
         c = 0
         while True:
+            printf("debut de l'une des cartes")
             driver.find_element_by_xpath('/html/body/div/div/div[3]/div[2]/div[2]/div[3]/div/div[1]/a/div/div[2]').click()
-            
+            printf("carte cliqué")
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
             sleep(1)
-            TryPlay(driver.title)
+            try : 
+                titre = driver.title
+            except Exception as e :
+                titre = "inconnu"
+                LogError(f"impossible de recuperer le titre. {e}")
+
+            TryPlay(titre)
             reset(True)
             sleep(1)
             c += 1
@@ -531,6 +542,7 @@ def BingMobileSearch(override = randint(20,25)):
         except Exception as e: 
             LogError(f"can't close mobile driveerr . {e}")
 
+
 def TryPlay(nom ="inconnu"):
 
     RGPD()
@@ -588,7 +600,7 @@ def TryPlay(nom ="inconnu"):
             CustomSleep(uniform(3,5))
 
 
-def LogPoint(account="unknown", log = False): #log des points sur discord
+def LogPoint(account="unknown"): #log des points sur discord
     driver.get('https://www.bing.com/rewardsapp/flyout')
     if not IsLinux :
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -688,8 +700,8 @@ def DailyRoutine():
     
     try :
         LogPoint(_mail)
-    except :
-        LogError('LogPoint')
+    except Exception as e:
+        LogError(f'LogPoint : {e}')
 
 def close():
     driver.quit()
