@@ -1,7 +1,7 @@
 #  MsReward
 
 
-A Microsoft reward automator.
+A Microsoft reward automator.\n
 Using a discord bot to log eveything.
 Using Selenium and geckodriver.
 you have to put your credentials in the same folder as the script, in a file named `login.csv` 
