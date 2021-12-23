@@ -53,7 +53,7 @@ def FirefoxMobile(Headless = Headless):
     
     options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
 
-    return(webdriver.Firefox(options=options, service_log_path=os.devnull))
+    return(webdriver.Firefox(options=options, log_path=os.devnull))
 
 
 def FirefoxPC(Headless = Headless):
@@ -68,7 +68,7 @@ def FirefoxPC(Headless = Headless):
         options.add_argument("-headless")
 
     options.set_preference("general.useragent.override", PC_USER_AGENT)
-    return(webdriver.Firefox(options=options,service_log_path=os.devnull))
+    return(webdriver.Firefox(options=options,log_path=os.devnull))
 
 
 if IsLinux :
