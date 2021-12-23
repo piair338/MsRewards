@@ -1,7 +1,7 @@
 #  MsReward
 
 
-A Microsoft reward automator, designed to work headless on a raspberry pi.Tested with a pi 3b+ and a pi 4 2Gb .  
+A Microsoft reward automator, designed to work headless on a raspberry pi. Tested with a pi 3b+ and a pi 4 2Gb .  
 Using a discord bot to log eveything.  
 Using Selenium and geckodriver.  
 you have to put your credentials in the same folder as the script, in a file named `login.csv`   
