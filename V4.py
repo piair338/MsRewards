@@ -24,7 +24,7 @@ Headless = True
 Log = True
 
 def printf(txt):
-    if Log :
+    if not Log :
         print(txt)
     else :
         LogError(txt)
@@ -394,6 +394,7 @@ def login() :
             driver.find_element_by_id('idSIButton9').click()
         except :
             pass
+
         printf("login completed")
         CustomSleep(5)
         RGPD()
@@ -588,6 +589,7 @@ def TryPlay(nom ="inconnu"):
 
 
 def LogPoint(account="unknown", log = False): #log des points sur discord
+    driver.get('https://www.bing.com/rewardsapp/flyout')
     if not IsLinux :
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     else :
