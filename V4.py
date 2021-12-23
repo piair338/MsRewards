@@ -388,12 +388,12 @@ def login() :
         try : 
             driver.find_element_by_id('KmsiCheckboxField').click()
         except Exception as e  :
-            printf(f"erreur validation bouton {e}") 
+            printf(f"erreur validation bouton KmsiCheckboxField. pas forcement grave {e}") 
         CustomSleep(5)
         try : 
             driver.find_element_by_id('idSIButton9').click()
-        except :
-            pass
+        except Exception as e  :
+            printf(f"erreur validation bouton idSIButton9. pas forcement grave {e}") 
 
         printf("login completed")
         CustomSleep(5)
