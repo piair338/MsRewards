@@ -211,8 +211,10 @@ def PlayQuiz2(override = None):
 
 
 def PlayQuiz8(override = None):
+    
     if not override :
         override = 3
+    print(f"override : {override}")
     try : 
         #RGPD()
         
@@ -227,7 +229,7 @@ def PlayQuiz8(override = None):
                         ListeOfGood.append(f'rqAnswerOption{i-1}') #premier div = 3 ?
                 except Exception as e :
                     if override :
-                        printf(e)
+                        LogError(e)
                     else :
                         LogError(e)
             shuffle(ListeOfGood)
