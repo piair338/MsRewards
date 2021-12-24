@@ -19,7 +19,7 @@ from selenium.common import exceptions
 
 main = True
 Headless = True
-Log = True
+Log = False
 
 def printf(txt):
     if not Log :
