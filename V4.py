@@ -160,12 +160,12 @@ def Close(fenetre, SwitchTo = 0):
 def RGPD():
     driver.implicitly_wait(3)
     try :
-        driver.find_element_by_id('bnp_btn_accept').click()
+        driver.find_element(By.ID, 'bnp_btn_accept').click()
     except :
         pass
     
     try :
-        driver.find_element_by_id('bnp_hfly_cta2').click()
+        driver.find_element(By.ID, 'bnp_hfly_cta2').click()
     except :
         pass
     driver.implicitly_wait(5)
@@ -192,12 +192,12 @@ def PlayQuiz2(override = None):
 
             RGPD()
             if somme + offset == int(reponse) :
-                elem = driver.find_element_by_id('rqAnswerOption0')
+                elem = driver.find_element(By.ID, 'rqAnswerOption0')
                 elem.click()
                 progressBar(j,10, name="quiz 2")
                 
             else : 
-                elem = driver.find_element_by_id('rqAnswerOption1')
+                elem = driver.find_element(By.ID, 'rqAnswerOption1')
                 elem.click()
                 progressBar(j,10, name="quiz 2")
 
@@ -222,7 +222,7 @@ def PlayQuiz8(override = None):
             ListeOfGood =[]
             for i in range(1,9):
                 try : 
-                    Card= driver.find_element_by_id(f'rqAnswerOption{i-1}')
+                    Card= driver.find_element(By.ID, f'rqAnswerOption{i-1}')
                     if 'iscorrectoption="True" 'in Card.get_attribute('outerHTML') :
                         ListeOfGood.append(f'rqAnswerOption{i-1}') #premier div = 3 ?
                 except Exception as e :
@@ -237,7 +237,7 @@ def PlayQuiz8(override = None):
                 c+=1
                 progressBar(c,16, name="Quiz 8 ")
                 try : 
-                    elem = driver.find_element_by_id(i)
+                    elem = driver.find_element(By.ID, i)
                     elem.click()
                 except exceptions.ElementNotInteractableException as e:
                     driver.execute_script("arguments[0].click();", elem)   
@@ -269,7 +269,7 @@ def PlayQuiz4(override = None):
             print(f"validation de la reponse                                     " , end="\r")
             print(f"validation de la reponse {i+1}/{override} {reponse}" , end="\r")
             try : 
-                elem = driver.find_element_by_css_selector(f'[data-option="{reponse}"]')
+                elem = driver.find_element(By.CSS_SELECTOR, f'[data-option="{reponse}"]')
                 elem.click()
             except exceptions.ElementNotInteractableException:
                 driver.execute_script("arguments[0].click();", elem)
@@ -284,7 +284,7 @@ def PlayQuiz4(override = None):
 def PlayPoll():
     try :
         try : 
-            elem = driver.find_element_by_id(f'btoption{choice([0,1])}')
+            elem = driver.find_element(By.ID, f'btoption{choice([0,1])}')
             elem.click()
         except exceptions.ElementNotInteractableException as e:
             driver.execute_script("arguments[0].click();", elem)
@@ -300,7 +300,7 @@ def AllCard(): #fonction qui clique sur les cartes
         if len(driver.window_handles) == 1 :
             driver.get('https://www.bing.com/rewardsapp/flyout')
             if Partie2 :
-                driver.find_element_by_xpath('/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click()
+                driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click()
         else : 
             driver.switch_to.window(driver.window_handles[1])
             print(f"on ferme la fenetre {driver.current_url}")
@@ -312,7 +312,7 @@ def AllCard(): #fonction qui clique sur les cartes
         try :
             for i in range(3):
                 sleep(1)
-                driver.find_element_by_xpath(f'/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]').click()
+                driver.find_element(By.XPATH, f'/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]').click()
                 sleep(1)
                 TryPlay(driver.title)
                 sleep(1)
@@ -326,17 +326,17 @@ def AllCard(): #fonction qui clique sur les cartes
     try :    
         
         try : 
-            driver.find_element_by_xpath('/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click() #declenche la premiere partie ?
+            driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click() #declenche la premiere partie ?
         except :
             reset()
             try :
-                driver.find_element_by_xpath('/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click()#declenche la deuxieme partie ?
+                driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click()#declenche la deuxieme partie ?
             except :
                 pass
         c = 0
         while True:
             printf("debut de l'une des cartes")
-            driver.find_element_by_xpath('/html/body/div/div/div[3]/div[2]/div[2]/div[3]/div/div[1]/a/div/div[2]').click()
+            driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[3]/div/div[1]/a/div/div[2]').click()
             printf("carte cliqué")
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
             sleep(1)
@@ -372,40 +372,40 @@ def login() :
 
         try :
 
-            driver.find_element_by_css_selector(f'[title="Rejoindre"]').click()
+            driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click()
 
         except :
 
-            driver.find_element_by_css_selector(f'[title="Join now"]').click()
+            driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()
         
-        mail = driver.find_element_by_id('i0116')
+        mail = driver.find_element(By.ID, 'i0116')
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
         
         try :
-            driver.find_element_by_id('idChkBx_PWD_KMSI0Pwd').click()
+            driver.find_element(By.ID, 'idChkBx_PWD_KMSI0Pwd').click()
         except :
             try :
-                driver.find_element_by_css_selector('''[data-bind="text: str['CT_PWD_STR_KeepMeSignedInCB_Text']"]''').click()
+                driver.find_element(By.CSS_SELECTOR, '''[data-bind="text: str['CT_PWD_STR_KeepMeSignedInCB_Text']"]''').click()
             except :
                 pass
         CustomSleep(3)
-        pwd = driver.find_element_by_id('i0118')
+        pwd = driver.find_element(By.ID, 'i0118')
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
         try :
-            driver.find_element_by_id('iNext').click()
+            driver.find_element(By.ID, 'iNext').click()
 
         except Exception as e :
             printf(f'erreur validation bouton iNext. pas forcement grave - {e}')    #dans le cas ou ms change ses parametre de confidentialité
         CustomSleep(5)
         try : 
-            driver.find_element_by_id('KmsiCheckboxField').click()
+            driver.find_element(By.ID, 'KmsiCheckboxField').click()
         except Exception as e  :
             printf(f"erreur validation bouton KmsiCheckboxField. pas forcement grave {e}") 
         CustomSleep(5)
         try : 
-            driver.find_element_by_id('idSIButton9').click()
+            driver.find_element(By.ID, 'idSIButton9').click()
         except Exception as e  :
             printf(f"erreur validation bouton idSIButton9. pas forcement grave {e}") 
 
@@ -427,30 +427,30 @@ def BingPcSearch(override = randint(30,35)):
     CustomSleep(uniform(1,2))
     RGPD()
     CustomSleep(uniform(1,1.5))
-    send_keys_wait( driver.find_element_by_id('sb_form_q'),Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE)
+    send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE)
     
     
     for i in range(override):
         mot = str(Liste_de_mot[randint(0,9999)] )
         try :
-            send_keys_wait( driver.find_element_by_id('sb_form_q'),mot)
-            driver.find_element_by_id('sb_form_q').send_keys(Keys.ENTER)
+            send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),mot)
+            driver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
         except :
             sleep(10)
             driver.refresh()
             sleep(10)
-            send_keys_wait( driver.find_element_by_id('sb_form_q'),mot)
-            driver.find_element_by_id('sb_form_q').send_keys(Keys.ENTER)
+            send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),mot)
+            driver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
 
         progressBar(i,override, name="PC")
         sleep(uniform(5,20)) 
 
         try :
-            driver.find_element_by_id('sb_form_q').clear()
+            driver.find_element(By.ID, 'sb_form_q').clear()
         except :
             try :
                 driver.refresh()
-                driver.find_element_by_id('sb_form_q').clear()
+                driver.find_element(By.ID, 'sb_form_q').clear()
             except Exception as e:
                 LogError(f"BingPcSearch - clear la barre de recherche - {e}")
 
@@ -467,17 +467,17 @@ def BingMobileSearch(override = randint(20,25)):
                 MobileDriver.get(f'https://www.bing.com/search?q={choice([x for x in range (999999)])}&form=QBLH&sp=-1&pq=test&sc=8-4&qs=n&sk=&cvid=1DB80744B71E40B8896F5C1AD2DE95E9')
                 CustomSleep(uniform(3,5))
 
-                MobileDriver.find_element_by_id('mHamburger').click()
+                MobileDriver.find_element(By.ID, 'mHamburger').click()
                 CustomSleep(uniform(1,2))
-                MobileDriver.find_element_by_id('hb_s').click()
+                MobileDriver.find_element(By.ID, 'hb_s').click()
                 CustomSleep(uniform(1,2))
 
-                mail = MobileDriver.find_element_by_id('i0116')
+                mail = MobileDriver.find_element(By.ID, 'i0116')
                 send_keys_wait(mail, _mail)
                 mail.send_keys( Keys.ENTER)
                 CustomSleep(uniform(1,2))
-                #MobileDriver.find_element_by_id('idLbl_PWD_KMSI_Cb').click()
-                pwd = MobileDriver.find_element_by_id('i0118')
+                #MobileDriver.find_element(By.ID, 'idLbl_PWD_KMSI_Cb').click()
+                pwd = MobileDriver.find_element(By.ID, 'i0118')
                 send_keys_wait(pwd, _password)
                 pwd.send_keys( Keys.ENTER)
             except Exception as e :
@@ -495,12 +495,12 @@ def BingMobileSearch(override = randint(20,25)):
         
         def MRGPD():
             try :
-                MobileDriver.find_element_by_id('bnp_btn_accept').click()
+                MobileDriver.find_element(By.ID, 'bnp_btn_accept').click()
             except :
                 pass
 
             try :
-                MobileDriver.find_element_by_id('bnp_hfly_cta2').click()
+                MobileDriver.find_element(By.ID, 'bnp_hfly_cta2').click()
             except :
                 pass        
         
@@ -518,13 +518,13 @@ def BingMobileSearch(override = randint(20,25)):
             CustomSleep(uniform(1,2))
             MRGPD()
             CustomSleep(uniform(1,1.5))
-            send_keys_wait( MobileDriver.find_element_by_id('sb_form_q'),Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE)
+            send_keys_wait( MobileDriver.find_element(By.ID, 'sb_form_q'),Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE)
             
             for i in range(override): #20
 
                 mot = str(Liste_de_mot[randint(0,9999)] )
-                send_keys_wait( MobileDriver.find_element_by_id('sb_form_q'),mot)
-                MobileDriver.find_element_by_id('sb_form_q').send_keys(Keys.ENTER)
+                send_keys_wait( MobileDriver.find_element(By.ID, 'sb_form_q'),mot)
+                MobileDriver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
                 progressBar(i,override,name="Mobile")
 
                 sleep(uniform(5,20)) 
@@ -532,7 +532,7 @@ def BingMobileSearch(override = randint(20,25)):
                 Alerte() # verifie si il y a des alertes (demande de positions ....)
                 
                 for i in range (len(mot)):
-                    MobileDriver.find_element_by_id('sb_form_q').clear()
+                    MobileDriver.find_element(By.ID, 'sb_form_q').clear()
 
 
             MobileDriver.quit()
@@ -576,7 +576,7 @@ def TryPlay(nom ="inconnu"):
             case _ :
                 LogError('probleme dans la carte : il y a un bouton play et aucun quiz')
     try :
-        driver.find_element_by_id('rqStartQuiz').click() #start the quiz
+        driver.find_element(By.ID, 'rqStartQuiz').click() #start the quiz
         number = driver.page_source.count('rqAnswerOption')
         play(number)
             
@@ -618,7 +618,7 @@ def LogPoint(account="unknown"): #log des points sur discord
     else :
         asyncio.set_event_loop(asyncio.new_event_loop())
 
-    elem = driver.find_element_by_css_selector('[title="Microsoft Rewards"]')
+    elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
     elem.click()
     driver.switch_to.window(driver.window_handles[1])
     CustomSleep(uniform(10,20))
@@ -648,15 +648,15 @@ def Fidelité():
        
         driver.switch_to.window(driver.window_handles[1])
 
-        choix = driver.find_element_by_class_name('spacer-48-bottom')
+        choix = driver.find_element(By.CLASS_NAME,'spacer-48-bottom')
 
         nb = search("([0-9]) de ([0-9]) finalisée",driver.page_source)
         
 
         for i in range(int(nb[2])-int(nb[1])):
-            choix = driver.find_element_by_class_name('spacer-48-bottom')
+            choix = driver.find_element(By.CLASS_NAME,'spacer-48-bottom')
             ButtonText = search('<span class=\"pull-left margin-right-15\">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
-            bouton = driver.find_element_by_xpath(f'//span[text()="{ButtonText}"]')
+            bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
             bouton.click()
             CustomSleep(uniform(3,5))
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
