@@ -622,7 +622,7 @@ def LogPoint(account="unknown"): #log des points sur discord
 
     elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
     elem.click()
-    driver.switch_to.window(driver.window_handles[1])
+    driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
     CustomSleep(uniform(10,20))
     try :
         point = search("availablePoints\":([\d]+)",driver.page_source)[1]
