@@ -243,7 +243,11 @@ def PlayQuiz8(override = None):
                     elem.click()
                 except exceptions.ElementNotInteractableException as e:
                     driver.execute_script("arguments[0].click();", elem)   
-
+                except Exception as e :
+                    if override :
+                        printf(e)
+                    else :
+                        LogError(e)
           
     except Exception as e :
         LogError("PlayQuiz8" + str(e) + str(ListeOfGood))        
