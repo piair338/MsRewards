@@ -242,7 +242,10 @@ def PlayQuiz8(override = None):
                     elem = driver.find_element(By.ID, i)
                     elem.click()
                 except exceptions.ElementNotInteractableException as e:
-                    driver.execute_script("arguments[0].click();", elem)   
+                    try : 
+                        driver.execute_script("arguments[0].click();", elem)   
+                    except Exception as e :
+                        LogError(e)
                 except Exception as e :
                     if override :
                         printf(e)
