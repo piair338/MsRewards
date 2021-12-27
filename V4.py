@@ -89,19 +89,22 @@ g.close
 
 
 def CustomSleep(temps):
-    c = False
-    points = [" .   ", "  .  ", "   . ", "    .", "    .", "   . ", "  .  "," .   "]
-    for i in range (int(temps)):
-        c = True
-        for i in range (8):
-            
-            sleep(0.125)
-            print(points[i], end='\r')
+    if Log or not IsLinux :
+        c = False
+        points = [" .   ", "  .  ", "   . ", "    .", "    .", "   . ", "  .  "," .   "]
+        for i in range (int(temps)):
+            c = True
+            for i in range (8):
+                
+                sleep(0.125)
+                print(points[i], end='\r')
 
-    if c:
-        print('                ', end="\r")
-    sleep(temps - int(temps))
-
+        if c:
+            print('                ', end="\r")
+        sleep(temps - int(temps))
+        print("\n")
+    else : 
+        sleep(temps)
 
 def ListTabs():
     tabs = []
