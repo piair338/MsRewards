@@ -633,7 +633,8 @@ def LogPoint(account="unknown"): #log des points sur discord
     CustomSleep(uniform(10,20))
     try :
         point = search("availablePoints\":([\d]+)",driver.page_source)[1]
-    except :
+    except Exception as e :
+        LogError(e)
         point = "erreur"
 
     CustomSleep(uniform(3,20))
