@@ -405,11 +405,6 @@ def login() :
         pwd = driver.find_element(By.ID, 'i0118')
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
-#        try :
-#            driver.find_element(By.ID, 'iNext').click()
-#
-#        except Exception as e :
-#            printf(f'erreur validation bouton iNext. pas forcement grave - {e}')    #dans le cas ou ms change ses parametre de confidentialité
         CustomSleep(5)
         try : 
             driver.find_element(By.ID, 'KmsiCheckboxField').click()
@@ -766,5 +761,3 @@ for i in Credentials :
             print('canceled')
             close()
 
-
-#pyinstaller ./main.py --onefile --noconsole --add-binary "./driver/chromedriver.exe;./driver"
