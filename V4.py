@@ -106,15 +106,20 @@ def CustomSleep(temps):
     else : 
         sleep(temps)
 
-def ListTabs():
+def ListTabs(Mdriver = None ):
     tabs = []
+    if Mdriver :
+        driver = Mdriver
     for i in driver.window_handles :
         driver.switch_to.window(i)
         tabs.append(driver.current_url)
     return(tabs)
 
 
-def LogError(message,log = Log):
+def LogError(message,log = Log, Mdriver = None):
+    if Mdriver :
+        driver = Mdriver
+
     if not IsLinux :
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         print(f'\033[93m Erreur : {str(message)}  \033[0m')
@@ -135,7 +140,7 @@ def LogError(message,log = Log):
                 channel = client.get_channel(833275838837030912) #channel de log
             await channel.send("------------------------------------\n" + _mail)
             
-            await channel.send(ListTabs())
+            await channel.send(ListTabs(Mdriver=Mdriver))
             await channel.send(str(message))
             CustomSleep(1)
             await channel.send(file=discord.File('screenshot.png'))
@@ -494,8 +499,8 @@ def BingMobileSearch(override = randint(20,25)):
                     CustomSleep(uniform(5,10))
                     Mlogin(echec)
                 else :
-                    LogError('recherche sur mobile impossible. On skip \n\n\n\n\n\n\n\n')
-                    printf(f"login impossible 3 fois de suite. {e}")
+                    LogError('recherche sur mobile impossible. On skip \n\n\n\n\n\n\n\n', Mdriver=MobileDriver)
+                    LogError(f"login impossible 3 fois de suite. {e}",Mdriver=MobileDriver)
                     MobileDriver.quit()
                     return(True)
                     
@@ -518,7 +523,7 @@ def BingMobileSearch(override = randint(20,25)):
             except exceptions.NoAlertPresentException as e :
                 pass
             except Exception as e:
-                LogError(f"error sur une alerte dans le driver mobile. {e}")
+                LogError(f"error sur une alerte dans le driver mobile. {e}",Mdriver=MobileDriver)
 
         if not Mlogin(echec) :        
 
@@ -546,7 +551,7 @@ def BingMobileSearch(override = randint(20,25)):
             
 
     except Exception as e:
-        LogError("BingMobileSearch" + str(e))
+        LogError("BingMobileSearch" + str(e),Mdriver=MobileDriver)
         try :
             MobileDriver.quit()
         except Exception as e: 
