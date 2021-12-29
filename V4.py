@@ -116,9 +116,11 @@ def ListTabs(Mdriver = None ):
     return(tabs)
 
 
-def LogError(message,log = Log, Mdriver = None):
-    if Mdriver :
-        driver = Mdriver
+def LogError(message,log = Log, Mobdriver = None):
+    if Mobdriver :
+        gdriver = Mobdriver
+    else :
+        gdriver = driver
 
     if not IsLinux :
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -126,10 +128,10 @@ def LogError(message,log = Log, Mdriver = None):
     else :
 
         with open('page.html', 'w') as f:
-            f.write(driver.page_source)
+            f.write(gdriver.page_source)
 
 
-        driver.save_screenshot("screenshot.png")
+        gdriver.save_screenshot("screenshot.png")
         asyncio.set_event_loop(asyncio.new_event_loop())
 
         client = discord.Client()
@@ -140,7 +142,7 @@ def LogError(message,log = Log, Mdriver = None):
                 channel = client.get_channel(833275838837030912) #channel de log
             await channel.send("------------------------------------\n" + _mail)
             
-            await channel.send(ListTabs(Mdriver=Mdriver))
+            await channel.send(ListTabs(Mdriver=Mobdriver))
             await channel.send(str(message))
             CustomSleep(1)
             await channel.send(file=discord.File('screenshot.png'))
