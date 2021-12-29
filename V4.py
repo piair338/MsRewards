@@ -475,6 +475,7 @@ def BingPcSearch(override = randint(30,35)):
 
 
 def BingMobileSearch(override = randint(20,25)):
+    MobileDriver ="si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
     try :
         try :
             MobileDriver = FirefoxMobile()
