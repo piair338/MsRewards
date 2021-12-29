@@ -106,6 +106,7 @@ def CustomSleep(temps):
     else : 
         sleep(temps)
 
+
 def ListTabs(Mdriver = None ):
     tabs = []
     if Mdriver :
@@ -503,8 +504,8 @@ def BingMobileSearch(override = randint(20,25)):
                     CustomSleep(uniform(5,10))
                     Mlogin(echec)
                 else :
-                    LogError('recherche sur mobile impossible. On skip \n\n\n\n\n\n\n\n', Mdriver=MobileDriver)
-                    LogError(f"login impossible 3 fois de suite. {e}",Mdriver=MobileDriver)
+                    LogError('recherche sur mobile impossible. On skip \n\n\n\n\n\n\n\n', Mobdriver=MobileDriver)
+                    LogError(f"login impossible 3 fois de suite. {e}",Mobdriver=MobileDriver)
                     MobileDriver.quit()
                     return(True)
                     
@@ -527,7 +528,7 @@ def BingMobileSearch(override = randint(20,25)):
             except exceptions.NoAlertPresentException as e :
                 pass
             except Exception as e:
-                LogError(f"error sur une alerte dans le driver mobile. {e}",Mdriver=MobileDriver)
+                LogError(f"error sur une alerte dans le driver mobile. {e}",Mobdriver=MobileDriver)
 
         if not Mlogin(echec) :        
 
@@ -555,7 +556,7 @@ def BingMobileSearch(override = randint(20,25)):
             
 
     except Exception as e:
-        LogError("BingMobileSearch" + str(e),Mdriver=MobileDriver)
+        LogError("BingMobileSearch" + str(e),Mobdriver=MobileDriver)
         try :
             MobileDriver.quit()
         except Exception as e: 
@@ -745,6 +746,7 @@ Credentials = data
 CustomSleep(2)
 
 shuffle(Credentials)
+
 
 for i in Credentials :
     
