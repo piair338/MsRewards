@@ -109,10 +109,12 @@ def CustomSleep(temps):
 def ListTabs(Mdriver = None ):
     tabs = []
     if Mdriver :
-        driver = Mdriver
-    for i in driver.window_handles :
-        driver.switch_to.window(i)
-        tabs.append(driver.current_url)
+        ldriver = Mdriver
+    else :
+        ldriver = driver
+    for i in ldriver.window_handles :
+        ldriver.switch_to.window(i)
+        tabs.append(ldriver.current_url)
     return(tabs)
 
 
