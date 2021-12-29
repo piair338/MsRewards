@@ -476,7 +476,13 @@ def BingPcSearch(override = randint(30,35)):
 
 def BingMobileSearch(override = randint(20,25)):
     try :
-        MobileDriver = FirefoxMobile()
+        try :
+            MobileDriver = FirefoxMobile()
+        except Exception as e :
+            sleep(30)
+            LogError('echec de la creation du driver mobile')
+            MobileDriver = FirefoxMobile()
+
         echec = 0
         def Mlogin(echec):
             
@@ -637,6 +643,7 @@ def LogPoint(account="unknown"): #log des points sur discord
 
     elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
     elem.click()
+    CustomSleep(5)
     driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
     CustomSleep(uniform(10,20))
     try :
@@ -731,6 +738,7 @@ def DailyRoutine():
         LogPoint(_mail)
     except Exception as e:
         LogError(f'LogPoint : {e}')
+
 
 def close():
     driver.quit()
