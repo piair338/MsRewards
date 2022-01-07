@@ -439,7 +439,7 @@ def login() :
         LogError(e)
         
 
-def BingPcSearch(override = randint(30,35)):
+def BingPcSearch(override = randint(35,40)):
     driver.get(f'https://www.bing.com/search?q={choice([x for x in range (999999)])}&form=QBLH&sp=-1&pq=test&sc=8-4&qs=n&sk=&cvid=1DB80744B71E40B8896F5C1AD2DE95E9')
     CustomSleep(uniform(1,2))
     RGPD()
@@ -474,7 +474,7 @@ def BingPcSearch(override = randint(30,35)):
     print('\n\n')
 
 
-def BingMobileSearch(override = randint(20,25)):
+def BingMobileSearch(override = randint(22,25)):
     MobileDriver ="si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
     try :
         try :
@@ -773,8 +773,8 @@ for i in Credentials :
         try :
             DailyRoutine()
             driver.quit()
-            timer = uniform(120,360)
-            print(f"finis. attente de {timer}s")
+            timer = uniform(1200,3600)
+            print(f"finis. attente de {round(timer/60)}min")
             CustomSleep(timer)
             
         except KeyboardInterrupt :
