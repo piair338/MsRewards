@@ -440,7 +440,7 @@ def login() :
         
 
 def BingPcSearch(override = randint(35,40)):
-    driver.get(f'https://www.bing.com/search?q={choice([x for x in range (999999)])}&form=QBLH&sp=-1&pq=test&sc=8-4&qs=n&sk=&cvid=1DB80744B71E40B8896F5C1AD2DE95E9')
+    driver.get(f'https://www.bing.com/search?q={choice([x for x in range (999999)])}')
     CustomSleep(uniform(1,2))
     RGPD()
     CustomSleep(uniform(1,1.5))
@@ -642,16 +642,23 @@ def LogPoint(account="unknown"): #log des points sur discord
     else :
         asyncio.set_event_loop(asyncio.new_event_loop())
 
-    elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
-    elem.click()
-    CustomSleep(5)
-    driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-    CustomSleep(uniform(10,20))
-    try :
-        point = search("availablePoints\":([\d]+)",driver.page_source)[1]
+    regex1 = "<a href=\"https://rewards\.bing\.com/\" title=\"((.{1,3}),(.{1,3})) points\" target=\"_blank\""
+    try : 
+        points = search(regex1, driver.page_source)[1]
+        
     except Exception as e :
-        LogError(e)
-        point = "erreur"
+        print(e)
+
+        elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
+        elem.click()
+        CustomSleep(5)
+        driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
+        CustomSleep(uniform(10,20))
+        try :
+            point = search("availablePoints\":([\d]+)",driver.page_source)[1]
+        except Exception as e :
+            LogError(e)
+            point = "erreur"
 
     CustomSleep(uniform(3,20))
     
