@@ -644,7 +644,7 @@ def LogPoint(account="unknown"): #log des points sur discord
 
     regex1 = "<a href=\"https://rewards\.bing\.com/\" title=\"((.{1,3}),(.{1,3})) points\" target=\"_blank\""
     try : 
-        points = search(regex1, driver.page_source)[1]
+        point = search(regex1, driver.page_source)[1]
         
     except Exception as e :
         print(e)
