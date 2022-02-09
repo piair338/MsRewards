@@ -644,7 +644,7 @@ def LogPoint(account="unknown"): #log des points sur discord
 
     regex1 = "<a href=\"https://rewards\.bing\.com/\" title=\"((.{1,3}),(.{1,3})) points\" target=\"_blank\""
     try : 
-        point = search(regex1, driver.page_source)[1]
+        point = search(regex1, driver.page_source)[1].replace(',', '')
         
     except Exception as e :
         print(e)
@@ -705,7 +705,8 @@ def Fidelité():
         LogError("Fidélité" + str(e))
 
 
-def CheckPoint():# a fix, ne marche pas dans  80% des cas
+def CheckPoint():# a fix, ne marche pas dans  80% des cas 
+                 #pas appelé aujourd'hui
     driver.get("https://rewards.microsoft.com/pointsbreakdown")
     txt = driver.page_source
     pc = search('([0-9][0-9]|[0-9])</b> / 90',txt)
