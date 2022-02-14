@@ -756,6 +756,8 @@ def close():
 
 def CustomStart(Credentials):
     global driver
+    global _mail
+    global _password
     driver = FirefoxPC()
     ids = [x[0] for x in Credentials]
     actions=["tout", "daily", "pc", "mobile"]
