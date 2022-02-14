@@ -754,6 +754,47 @@ def close():
     quit()
 
 
+def CustomStart(Credentials):
+    global driver
+    driver = FirefoxPC()
+    ids = [x[0] for x in Credentials]
+    actions=["tout", "daily", "pc", "mobile"]
+
+    for i in range(len(ids)) :
+        print(f"{i} : {ids[i]}")
+
+    choice1 = int(input(""))
+    assert choice1 < len(ids)
+
+    for i in range(len(actions)) :
+        print(f"{i} : {actions[i]}")
+
+    choice2 = int(input(""))
+    assert choice2 < len(actions)
+
+    _mail =Credentials[choice1][0]
+    _password = Credentials[choice1][1]
+
+    if choice2 == 0 : 
+        DailyRoutine()
+    elif choice2 == 1 :
+        try :
+            AllCard()
+        except Exception as e :
+            LogError(f'pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {e}. -- override')
+    elif choice2 == 2 :
+        try : 
+            BingPcSearch()
+        except Exception as e :
+            LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override")
+    elif choice2 == 3 :
+        try : 
+            BingMobileSearch()
+        except Exception as e:
+            LogError(f'BingMobileSearch - {e} -- override')
+
+
+
 with open(LogPath) as f:
     reader = reader(f)
     data = list(reader)
@@ -764,17 +805,19 @@ CustomSleep(2)
 
 shuffle(Credentials)
 
+if len(sys.argv) > 1 :
+    CustomStart(Credentials)
+else : 
+    for i in Credentials :
+        
+        
+        _mail =i[0]
+        _password = i[1]
 
-for i in Credentials :
+        print('\n\n')
+        print(_mail)
+        CustomSleep(1)
     
-    
-    _mail =i[0]
-    _password = i[1]
-
-    print('\n\n')
-    print(_mail)
-    CustomSleep(1)
-    if main: 
         driver = FirefoxPC()
         driver.implicitly_wait(5)
 
