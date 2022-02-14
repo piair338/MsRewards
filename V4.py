@@ -794,8 +794,11 @@ def CustomStart(Credentials):
             BingMobileSearch()
         except Exception as e:
             LogError(f'BingMobileSearch - {e} -- override')
-
-
+    print("done!")
+    try :
+        LogPoint("_mail")
+    except Exception as e :
+        print(e)
 
 with open(LogPath) as f:
     reader = reader(f)
