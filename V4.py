@@ -8,6 +8,7 @@ import discord
 import asyncio
 from sys import platform
 from csv import reader 
+from discord import Webhook, RequestsWebhookAdapter # Importing discord.Webhook and discord.RequestsWebhookAdapter
 
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
