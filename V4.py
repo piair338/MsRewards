@@ -21,16 +21,32 @@ main = True
 Headless = True
 Log = False
 
-def printf(txt):
-    if not Log :
-        print(txt)
-    else :
-        CustomSleep(5)
-        LogError(txt)
 
 
 IsLinux = platform == "linux"
 print("Linux : "+ str(IsLinux))
+
+
+
+
+if IsLinux :
+    MotPath = "/home/pi/MsReward/liste.txt"
+    LogPath= "/home/pi/MsReward/login.csv"
+    WebHookPath = "/home/pi/MsReward/webhook.txt"
+else :
+    MotPath = resource_path('D:\Documents\Dev\MsReward\liste/liste.txt')
+    LogPath = resource_path('D:\Documents\Dev\MsReward\login/login.csv')
+    WebHookPath = resource_path('D:\Documents\Dev\MsReward/token/webhook.txt')
+    system("")
+
+
+g =  open(MotPath, "r" , encoding="utf-8")
+Liste_de_mot=(list(g.readline().split(',')))
+g.close()
+g = open(WebHookPath,"r")
+SuccesLink, ErrorLink = g.readline().split(',')
+g.close
+
 
 
 def resource_path(relative_path): #permet de recuperer l'emplacement de chaque fichier, su linux et windows
@@ -68,24 +84,14 @@ def FirefoxPC(Headless = Headless):
     return(webdriver.Firefox(options=options))
 
 
-if IsLinux :
-    MotPath = "/home/pi/MsReward/liste.txt"
-    LogPath= "/home/pi/MsReward/login.csv"
-    TokenPath = "/home/pi/MsReward/token.txt"
-else :
-    MotPath = resource_path('D:\Documents\Dev\MsReward\liste/liste.txt')
-    LogPath = resource_path('D:\Documents\Dev\MsReward\login/login.csv')
-    TokenPath = resource_path('D:\Documents\Dev\MsReward/token/token.txt')
-    system("")
 
+def printf(txt):
+    if not Log :
+        print(txt)
+    else :
+        CustomSleep(5)
+        LogError(txt)
 
-
-g =  open(MotPath, "r" , encoding="utf-8")
-Liste_de_mot=(list(g.readline().split(',')))
-g.close()
-g = open(TokenPath,"r")
-Token = g.readline()
-g.close
 
 
 def CustomSleep(temps):
@@ -126,36 +132,22 @@ def LogError(message,log = Log, Mobdriver = None):
         gdriver = driver
 
     if not IsLinux :
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         print(f'\033[93m Erreur : {str(message)}  \033[0m')
     else :
-
         with open('page.html', 'w') as f:
             f.write(gdriver.page_source)
 
-
         gdriver.save_screenshot("screenshot.png")
-        asyncio.set_event_loop(asyncio.new_event_loop())
 
-        client = discord.Client()
-        @client.event
-        async def on_ready():
-            channel = client.get_channel(861181899987484692)
-            if log :
-                channel = client.get_channel(833275838837030912) #channel de log
-            await channel.send("------------------------------------\n" + _mail)
-            
-            await channel.send(ListTabs(Mdriver=Mobdriver))
-            await channel.send(str(message))
-            CustomSleep(1)
-            await channel.send(file=discord.File('screenshot.png'))
-            await channel.send(file=discord.File('page.html'))
-            await channel.send("------------------------------------")
-            await client.close()
-
-
-        client.run(Token)
-
+        webhook = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter()) # Initializing webhook
+        webhook.send(content="------------------------------------\n" + _mail)
+        webhook.send(ListTabs(Mdriver=Mobdriver))
+        webhook.send(str(message))
+        CustomSleep(1)
+        webhook.send(file=discord.File('screenshot.png'))
+        webhook.send(file=discord.File('page.html'))
+        webhook.send("------------------------------------")
+        
 
 def progressBar(current, total=30, barLength = 20, name ="Progress"):
     percent = float(current+1) * 100 / total
@@ -663,17 +655,10 @@ def LogPoint(account="unknown"): #log des points sur discord
     CustomSleep(uniform(3,20))
     
     account = account.split('@')[0]
-    client = discord.Client()
-    @client.event
-    async def on_ready():
-        channel = client.get_channel(841338253625917450)
 
-        await channel.send(f'{account} actuellement à {str(point)} points')
-        CustomSleep(1)
-        await client.close()
+    webhook = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
+    webhook.send(f'{account} actuellement à {str(point)} points')
 
-
-    client.run(Token)
 
 
 def Fidelité():
