@@ -782,7 +782,7 @@ def CustomStart(Credentials):
             LogError(f'BingMobileSearch - {e} -- override')
     print("done!")
     try :
-        LogPoint("_mail")
+        LogPoint(_mail)
     except Exception as e :
         print(e)
 
