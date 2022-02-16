@@ -45,10 +45,11 @@ g =  open(MotPath, "r" , encoding="utf-8")
 Liste_de_mot=(list(g.readline().split(',')))
 g.close()
 g = open(WebHookPath,"r")
-SuccesLink, ErrorLink = g.readline().split(',')
+SuccessLink, ErrorLink = g.readline().split(',')
 g.close
 
-
+webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
+webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 
 def resource_path(relative_path): #permet de recuperer l'emplacement de chaque fichier, su linux et windows
     try:
@@ -140,14 +141,13 @@ def LogError(message,log = Log, Mobdriver = None):
 
         gdriver.save_screenshot("screenshot.png")
 
-        webhook = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter()) # Initializing webhook
-        webhook.send(content="------------------------------------\n" + _mail)
-        webhook.send(ListTabs(Mdriver=Mobdriver))
-        webhook.send(str(message))
+        webhookFailure.send(content="------------------------------------\n" + _mail)
+        webhookFailure.send(ListTabs(Mdriver=Mobdriver))
+        webhookFailure.send(str(message))
         CustomSleep(1)
-        webhook.send(file=discord.File('screenshot.png'))
-        webhook.send(file=discord.File('page.html'))
-        webhook.send("------------------------------------")
+        webhookFailure.send(file=discord.File('screenshot.png'))
+        webhookFailure.send(file=discord.File('page.html'))
+        webhookFailure.send("------------------------------------")
         
 
 def progressBar(current, total=30, barLength = 20, name ="Progress"):
@@ -657,8 +657,8 @@ def LogPoint(account="unknown"): #log des points sur discord
     
     account = account.split('@')[0]
 
-    webhook = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
-    webhook.send(f'{account} actuellement à {str(point)} points')
+    
+    webhookSuccess.send(f'{account} actuellement à {str(point)} points')
 
 
 
@@ -800,8 +800,8 @@ if len(sys.argv) > 1 :
     CustomStart(Credentials)
 else : 
     for i in Credentials :
-        
-        
+
+
         _mail =i[0]
         _password = i[1]
 
