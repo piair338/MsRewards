@@ -51,7 +51,7 @@ g.close
 webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 
-def resource_path(relative_path): #permet de recuperer l'emplacement de chaque fichier, su linux et windows
+def resource_path(relative_path): #permet de recuperer l'emplacement de chaque fichier, sur linux et windows
     try:
         base_path = sys._MEIPASS
     except Exception:
@@ -59,8 +59,8 @@ def resource_path(relative_path): #permet de recuperer l'emplacement de chaque f
     return path.join(base_path, relative_path)
 
 
-def FirefoxMobile(Headless = Headless):
-    MOBILE_USER_AGENT = ('Mozilla/5.0 (iPhone; CPU iPhone OS 14_1_2 like Mac OS X)'
+def FirefoxMobile(Headless = Headless, Os = 2):
+    MOBILE_USER_AGENT = (f'Mozilla/5.0 (iPhone; CPU iPhone OS 14_1_{Os} like Mac OS X)'
                     'AppleWebKit/603.1.30 (KHTML, like Gecko)'
                     'Version/14.1 Mobile/14E304 Safari/602.1')
     options = Options()
@@ -471,7 +471,7 @@ def BingMobileSearch(override = randint(22,25)):
     MobileDriver ="si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
     try :
         try :
-            MobileDriver = FirefoxMobile()
+            MobileDriver = FirefoxMobile(Os=hash(_mail)%10) #change device for each account
         except Exception as e :
             sleep(30)
             LogError('echec de la creation du driver mobile')
@@ -640,7 +640,7 @@ def LogPoint(account="unknown"): #log des points sur discord
         point = search(regex1, driver.page_source)[1].replace(',', '')
         
     except Exception as e :
-        print(e)
+        print(f"LogPoint : {e}")
 
         elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
         elem.click()
@@ -650,7 +650,7 @@ def LogPoint(account="unknown"): #log des points sur discord
         try :
             point = search("availablePoints\":([\d]+)",driver.page_source)[1]
         except Exception as e :
-            LogError(e)
+            LogError(f"LogPoint : {e}")
             point = "erreur"
 
     CustomSleep(uniform(3,20))
