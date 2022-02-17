@@ -26,6 +26,9 @@ main = True
 IsLinux = platform == "linux"
 print("Linux : "+ str(IsLinux))
 
+if not IsLinux :
+    system("") #enable colors in cmd
+
 config_path = "./config"
 config = configparser.ConfigParser()
 config.read(config_path)
