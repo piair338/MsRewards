@@ -1,22 +1,23 @@
 #!/usr/bin/python3
-import os
-from time import sleep
-from random import uniform, choice, randint,shuffle
-from re import search,findall
-from os import path, sys, system
-import discord
 import asyncio
+import os
+from csv import reader
+from os import path, sys, system
+from random import choice, randint, shuffle, uniform
+from re import findall, search
 from sys import platform
-from csv import reader 
-from discord import Webhook, RequestsWebhookAdapter # Importing discord.Webhook and discord.RequestsWebhookAdapter
+from time import sleep
 
+import discord
+from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
+    Colour, Embed, RequestsWebhookAdapter, Webhook)
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common import exceptions
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 main = True
 Headless = True
@@ -141,13 +142,17 @@ def LogError(message,log = Log, Mobdriver = None):
 
         gdriver.save_screenshot("screenshot.png")
 
-        webhookFailure.send(content="------------------------------------\n" + _mail)
-        webhookFailure.send(ListTabs(Mdriver=Mobdriver))
-        webhookFailure.send(str(message))
-        CustomSleep(1)
-        webhookFailure.send(file=discord.File('screenshot.png'))
+        embed = discord.Embed(
+            title="An Error has occured",
+            description=str(message),
+            url = ListTabs(Mdriver=Mobdriver)[0],
+            colour = Colour.red()
+        )
+        file = discord.File("screenshot.png")
+        embed.set_image(url="attachment://screenshot.png")
+        embed.set_footer(text=_mail)
+        webhookFailure.send(embed=embed, file=file)
         webhookFailure.send(file=discord.File('page.html'))
-        webhookFailure.send("------------------------------------")
         
 
 def progressBar(current, total=30, barLength = 20, name ="Progress"):
@@ -656,8 +661,12 @@ def LogPoint(account="unknown"): #log des points sur discord
     
     account = account.split('@')[0]
 
-    
-    webhookSuccess.send(f'{account} actuellement à {str(point)} points')
+    embed = discord.Embed(
+            title=f"{account} actuellement à {str(point)} points",
+            colour = Colour.green()
+    )
+    embed.set_footer(text=_mail)
+    webhookSuccess.send(embed=embed)
 
 
 
