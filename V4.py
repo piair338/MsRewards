@@ -664,16 +664,16 @@ def LogPoint(account="unknown"): #log des points sur discord
     CustomSleep(uniform(3,20))
     
     account = account.split('@')[0]
+
     if embeds:
         embed = discord.Embed(
                 title=f"{account} actuellement à {str(point)} points",
                 colour = Colour.green()
         )
-        embed.set_footer(text=_mail)
+        embed.set_footer(text=account)
         webhookSuccess.send(embed=embed)
     else :
         webhookSuccess.send(f'{account} actuellement à {str(point)} points')
-
 
 
 def Fidelité():
