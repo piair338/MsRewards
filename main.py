@@ -29,9 +29,6 @@ g = open(MotPath, "r", encoding="utf-8")
 Liste_de_mot = list(g.readline().split(","))
 g.close()
 
-webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
-webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
-
 
 def resource_path(
     relative_path,
