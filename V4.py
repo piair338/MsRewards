@@ -246,10 +246,7 @@ def PlayQuiz8(override = None):
                     if 'iscorrectoption="True" 'in Card.get_attribute('outerHTML') :
                         ListeOfGood.append(f'rqAnswerOption{i-1}') #premier div = 3 ?
                 except Exception as e :
-                    if override :
-                        LogError(e)
-                    else :
-                        LogError(e)
+                    LogError("playquiz8 - 1 - " + e)
             shuffle(ListeOfGood)
 
             for i in ListeOfGood :
@@ -263,15 +260,15 @@ def PlayQuiz8(override = None):
                     try : 
                         driver.execute_script("arguments[0].click();", elem)   
                     except Exception as e :
-                        LogError(e)
+                        LogError("playquizz8 - 2 - " + e)
                 except Exception as e :
                     if override :
-                        printf(e)
+                        printf("playquiz8 - 3 -" +e)
                     else :
-                        LogError(e)
+                        LogError("playquizz8 - 3 - " + e)
           
     except Exception as e :
-        LogError("PlayQuiz8" + str(e) + str(ListeOfGood))        
+        LogError("PlayQuiz8 - 4 - " + str(e) + str(ListeOfGood))        
     
 
 def PlayQuiz4(override = None):
@@ -371,7 +368,7 @@ def AllCard(): #fonction qui clique sur les cartes
                 titre = driver.title
             except Exception as e :
                 titre = "inconnu"
-                LogError(f"impossible de recuperer le titre. {e}")
+                LogError(f"Allcards - impossible de recuperer le titre. {e}")
 
             TryPlay(titre)
             reset(True)
@@ -424,12 +421,12 @@ def login() :
         try : 
             driver.find_element(By.ID, 'KmsiCheckboxField').click()
         except Exception as e  :
-            printf(f"erreur validation bouton KmsiCheckboxField. pas forcement grave {e}") 
+            printf(f"login - 1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}") 
         CustomSleep(5)
         try : 
             driver.find_element(By.ID, 'idSIButton9').click()
         except Exception as e  :
-            printf(f"erreur validation bouton idSIButton9. pas forcement grave {e}") 
+            printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}") 
 
         printf("login completed")
         
@@ -441,7 +438,7 @@ def login() :
         return(MainWindows)
 
     except Exception as e:
-        LogError(e)
+        LogError("login - 3 - " +e)
         
 
 def BingPcSearch(override = randint(35,40)):
@@ -486,7 +483,7 @@ def BingMobileSearch(override = randint(22,25)):
             MobileDriver = FirefoxMobile(Os=hash(_mail)%10) #change device for each account
         except Exception as e :
             sleep(30)
-            LogError('echec de la creation du driver mobile')
+            LogError('BingMobileSearch - 1 - echec de la creation du driver mobile')
             MobileDriver = FirefoxMobile()
 
         echec = 0
@@ -572,7 +569,7 @@ def BingMobileSearch(override = randint(22,25)):
         try :
             MobileDriver.quit()
         except Exception as e: 
-            LogError(f"can't close mobile driveerr . {e}")
+            LogError(f"can't close mobile driveer . {e}")
 
 
 def TryPlay(nom ="inconnu"):
@@ -602,7 +599,7 @@ def TryPlay(nom ="inconnu"):
             except Exception as e :
                 printf(f'echec de PlayQuiz 2. Aborted {e}')
         else :
-                LogError('probleme dans la carte : il y a un bouton play et aucun quiz')
+                LogError('probleme dans la carte : il y a un bouton play et aucun quiz detecté')
     try :
         driver.find_element(By.ID, 'rqStartQuiz').click() #start the quiz
         number = driver.page_source.count('rqAnswerOption')
@@ -617,7 +614,7 @@ def TryPlay(nom ="inconnu"):
                 PlayPoll()
                 print('Poll reussit  ')
             except Exception as e :
-                printf(f'Poll aborted {e}')
+                printf(f'TryPlay - 1 - Poll aborted {e}')
 
         elif "rqQuestionState" in driver.page_source :
             try : 
@@ -626,7 +623,7 @@ def TryPlay(nom ="inconnu"):
                 printf(f"recovery détécté. quiz : {number}, restant : {restant +1}")
                 play(number, override=restant + 1 )
             except Exception as e :
-                printf(e)
+                printf("TryPlay - 2 - " + e)
 
         elif search("([0-9]) de ([0-9]) finalisée",driver.page_source) :
             print('fidélité')
@@ -651,7 +648,7 @@ def LogPoint(account="unknown"): #log des points sur discord
         point = search(regex1, driver.page_source)[1].replace(',', '')
         
     except Exception as e :
-        print(f"LogPoint : {e}")
+        print(f"LogPoint - 1 - {e}")
 
         elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
         elem.click()
@@ -661,7 +658,7 @@ def LogPoint(account="unknown"): #log des points sur discord
         try :
             point = search("availablePoints\":([\d]+)",driver.page_source)[1]
         except Exception as e :
-            LogError(f"LogPoint : {e}")
+            LogError(f"LogPoint - 2 - {e}")
             point = "erreur"
 
     CustomSleep(uniform(3,20))
@@ -779,7 +776,7 @@ def CustomStart(Credentials):
 
     _mail =Credentials[choice1][0]
     _password = Credentials[choice1][1]
-
+    login()
     if choice2 == 0 : 
         DailyRoutine()
     elif choice2 == 1 :
@@ -801,7 +798,7 @@ def CustomStart(Credentials):
     try :
         LogPoint(_mail)
     except Exception as e :
-        print(e)
+        print("CustomStart" + e)
 
 with open(LogPath) as f:
     reader = reader(f)
