@@ -24,27 +24,14 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-main = True
-
+from modules.variables import *
+from modules import alert
 
 IsLinux = platform == "linux"
 print("Linux : " + str(IsLinux))
 
 if not IsLinux:
     system("")  # enable colors in cmd
-
-config_path = "./config"
-config = configparser.ConfigParser()
-config.read(config_path)
-
-MotPath = config["DEFAULT"]["motpath"]
-LogPath = config["DEFAULT"]["logpath"]
-SuccessLink = config["DEFAULT"]["successlink"]
-ErrorLink = config["DEFAULT"]["errorlink"]
-
-embeds = config["DEFAULT"]["embeds"] == "True"
-Headless = config["DEFAULT"]["headless"] == "True"
-Log = config["DEFAULT"]["log"] == "True"
 
 
 g = open(MotPath, "r", encoding="utf-8")
@@ -123,7 +110,6 @@ def CustomSleep(temps):
 
                 sleep(0.125)
                 print(points[i], end="\r")
-
         if c:
             print("                ", end="\r")
         sleep(temps - int(temps))
@@ -157,29 +143,11 @@ def LogError(message, log=Log, Mobdriver=None):
             f.write(gdriver.page_source)
 
         gdriver.save_screenshot("screenshot.png")
-
-        if embeds:
-            embed = discord.Embed(
-                title="An Error has occured",
-                description=str(message),
-                url=ListTabs(Mdriver=Mobdriver)[0],
-                colour=Colour.red(),
-            )
-            file = discord.File("screenshot.png")
-            embed.set_image(url="attachment://screenshot.png")
-            embed.set_footer(text=_mail)
-            webhookFailure.send(embed=embed, file=file)
-            webhookFailure.send(file=discord.File("page.html"))
-        else:
-            webhookFailure.send(
-                content="------------------------------------\n" + _mail
-            )
-            webhookFailure.send(ListTabs(Mdriver=Mobdriver))
-            webhookFailure.send(str(message))
-            CustomSleep(1)
-            webhookFailure.send(file=discord.File("screenshot.png"))
-            webhookFailure.send(file=discord.File("page.html"))
-            webhookFailure.send("------------------------------------")
+        alert.error(
+            message=message,
+            url=ListTabs(Mdriver=Mobdriver)[0],
+            mail=_mail
+        )
 
 
 def progressBar(current, total=30, barLength=20, name="Progress"):
@@ -201,7 +169,6 @@ def RGPD():
         driver.find_element(By.ID, "bnp_btn_accept").click()
     except:
         pass
-
     try:
         driver.find_element(By.ID, "bnp_hfly_cta2").click()
     except:
@@ -226,7 +193,6 @@ def PlayQuiz2(override=None):
                 IG[-2:], 16
             )  # la conversion ec decimal des deux dernier caracteres de IG
             reponse = search('correctAnswer":"([0-9]+)', txt)[1]
-
             somme = 0
 
             for i in reponse1:
@@ -307,7 +273,6 @@ def PlayQuiz4(override=None):
             override = 3
 
     try:
-
         for i in range(override):
             # RGPD()
             CustomSleep(uniform(3, 5))
@@ -385,9 +350,7 @@ def AllCard():  # fonction qui clique sur les cartes
             )
 
     dailyCards()
-
     try:
-
         try:
             driver.find_element(
                 By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]"
@@ -445,11 +408,8 @@ def login():
         driver.get("https://www.bing.com/rewardsapp/flyout")
 
         try:
-
             driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click()
-
         except:
-
             driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()
 
         mail = driver.find_element(By.ID, "i0116")
@@ -484,7 +444,6 @@ def login():
             printf(f"erreur validation bouton idSIButton9. pas forcement grave {e}")
 
         printf("login completed")
-
         RGPD()
 
         driver.get("https://www.bing.com/rewardsapp/flyout")
@@ -555,7 +514,6 @@ def BingMobileSearch(override=randint(22, 25)):
         echec = 0
 
         def Mlogin(echec):
-
             try:
                 MobileDriver.get(
                     f"https://www.bing.com/search?q={choice([x for x in range (999999)])}&form=QBLH&sp=-1&pq=test&sc=8-4&qs=n&sk=&cvid=1DB80744B71E40B8896F5C1AD2DE95E9"
@@ -599,7 +557,6 @@ def BingMobileSearch(override=randint(22, 25)):
                 MobileDriver.find_element(By.ID, "bnp_btn_accept").click()
             except:
                 pass
-
             try:
                 MobileDriver.find_element(By.ID, "bnp_hfly_cta2").click()
             except:
@@ -618,7 +575,6 @@ def BingMobileSearch(override=randint(22, 25)):
                 )
 
         if not Mlogin(echec):
-
             CustomSleep(uniform(1, 2))
             MRGPD()
             CustomSleep(uniform(1, 1.5))
@@ -640,7 +596,6 @@ def BingMobileSearch(override=randint(22, 25)):
                 progressBar(i, override, name="Mobile")
 
                 sleep(uniform(5, 20))
-
                 Alerte()  # verifie si il y a des alertes (demande de positions ....)
 
                 for i in range(len(mot)):
@@ -659,7 +614,6 @@ def BingMobileSearch(override=randint(22, 25)):
 def TryPlay(nom="inconnu"):
 
     RGPD()
-
     def play(number, override=None):
         if number == 8 or number == 9:
             try:
@@ -692,7 +646,6 @@ def TryPlay(nom="inconnu"):
         play(number)
 
     except:
-
         if "bt_PollRadio" in driver.page_source:
             try:
                 print("Poll détected", end="\r")
@@ -721,7 +674,6 @@ def TryPlay(nom="inconnu"):
             print("fidélité")
             RGPD()
             Fidelité()
-
         else:
             print(f"rien a faire sur la page {nom}")
             RGPD()
@@ -753,27 +705,17 @@ def LogPoint(account="unknown"):  # log des points sur discord
             LogError(f"LogPoint : {e}")
             point = "erreur"
 
-    CustomSleep(uniform(3, 20))
-
-    account = account.split("@")[0]
-
-    if embeds:
-        embed = discord.Embed(
-            title=f"{account} actuellement à {str(point)} points", colour=Colour.green()
-        )
-        embed.set_footer(text=account)
-        webhookSuccess.send(embed=embed)
-    else:
-        webhookSuccess.send(f"{account} actuellement à {str(point)} points")
+    alert.point(
+        account=account.split("@")[0],
+        points=points
+    )
 
 
 def Fidelité():
     try:
 
         driver.switch_to.window(driver.window_handles[1])
-
         choix = driver.find_element(By.CLASS_NAME, "spacer-48-bottom")
-
         nb = search("([0-9]) de ([0-9]) finalisée", driver.page_source)
 
         for i in range(int(nb[2]) - int(nb[1])):
