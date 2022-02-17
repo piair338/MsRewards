@@ -707,7 +707,7 @@ def LogPoint(account="unknown"):  # log des points sur discord
 
     alert.point(
         account=account.split("@")[0],
-        points=points
+        points=point
     )
 
 
