@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import asyncio
+import configparser
 import os
 from csv import reader
 from os import path, sys, system
@@ -20,34 +21,28 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 main = True
-Headless = True
-Log = False
-
 
 
 IsLinux = platform == "linux"
 print("Linux : "+ str(IsLinux))
 
+config_path = "./config"
+config = configparser.ConfigParser()
+config.read(config_path)
 
+MotPath = config["DEFAULT"]["motpath"]
+LogPath = config["DEFAULT"]["logpath"]
+SuccessLink = config["DEFAULT"]["successlink"]
+ErrorLink = config["DEFAULT"]["errorlink"]
 
-
-if IsLinux :
-    MotPath = "/home/pi/MsReward/liste.txt"
-    LogPath= "/home/pi/MsReward/login.csv"
-    WebHookPath = "/home/pi/MsReward/webhook.txt"
-else :
-    MotPath = resource_path('D:\Documents\Dev\MsReward\liste/liste.txt')
-    LogPath = resource_path('D:\Documents\Dev\MsReward\login/login.csv')
-    WebHookPath = resource_path('D:\Documents\Dev\MsReward/token/webhook.txt')
-    system("")
+embeds = config["DEFAULT"]["embeds"] == "True"
+Headless = config["DEFAULT"]["headless"] == "True"
+Log = config["DEFAULT"]["log"] == "True"
 
 
 g =  open(MotPath, "r" , encoding="utf-8")
 Liste_de_mot=(list(g.readline().split(',')))
 g.close()
-g = open(WebHookPath,"r")
-SuccessLink, ErrorLink = g.readline().split(',')
-g.close
 
 webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
@@ -142,17 +137,26 @@ def LogError(message,log = Log, Mobdriver = None):
 
         gdriver.save_screenshot("screenshot.png")
 
-        embed = discord.Embed(
-            title="An Error has occured",
-            description=str(message),
-            url = ListTabs(Mdriver=Mobdriver)[0],
-            colour = Colour.red()
-        )
-        file = discord.File("screenshot.png")
-        embed.set_image(url="attachment://screenshot.png")
-        embed.set_footer(text=_mail)
-        webhookFailure.send(embed=embed, file=file)
-        webhookFailure.send(file=discord.File('page.html'))
+        if embeds :
+            embed = discord.Embed(
+                title="An Error has occured",
+                description=str(message),
+                url = ListTabs(Mdriver=Mobdriver)[0],
+                colour = Colour.red()
+            )
+            file = discord.File("screenshot.png")
+            embed.set_image(url="attachment://screenshot.png")
+            embed.set_footer(text=_mail)
+            webhookFailure.send(embed=embed, file=file)
+            webhookFailure.send(file=discord.File('page.html'))
+        else :
+            webhookFailure.send(content="------------------------------------\n" + _mail)
+            webhookFailure.send(ListTabs(Mdriver=Mobdriver))
+            webhookFailure.send(str(message))
+            CustomSleep(1)
+            webhookFailure.send(file=discord.File('screenshot.png'))
+            webhookFailure.send(file=discord.File('page.html'))
+            webhookFailure.send("------------------------------------")
         
 
 def progressBar(current, total=30, barLength = 20, name ="Progress"):
@@ -660,13 +664,15 @@ def LogPoint(account="unknown"): #log des points sur discord
     CustomSleep(uniform(3,20))
     
     account = account.split('@')[0]
-
-    embed = discord.Embed(
-            title=f"{account} actuellement à {str(point)} points",
-            colour = Colour.green()
-    )
-    embed.set_footer(text=_mail)
-    webhookSuccess.send(embed=embed)
+    if embeds:
+        embed = discord.Embed(
+                title=f"{account} actuellement à {str(point)} points",
+                colour = Colour.green()
+        )
+        embed.set_footer(text=_mail)
+        webhookSuccess.send(embed=embed)
+    else :
+        webhookSuccess.send(f'{account} actuellement à {str(point)} points')
 
 
 
