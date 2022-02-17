@@ -4,11 +4,10 @@ from time import sleep
 from random import uniform, choice, randint,shuffle
 from re import search,findall
 from os import path, sys, system
-import discord
 import asyncio
 from sys import platform
 from csv import reader 
-from discord import Webhook, RequestsWebhookAdapter # Importing discord.Webhook and discord.RequestsWebhookAdapter
+from discord import Webhook, RequestsWebhookAdapter, File # Importing discord.Webhook and discord.RequestsWebhookAdapter
 
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
