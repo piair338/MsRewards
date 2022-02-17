@@ -8,7 +8,7 @@ import discord
 import asyncio
 from sys import platform
 from csv import reader 
-from discord import Webhook, RequestsWebhookAdapter # Importing discord.Webhook and discord.RequestsWebhookAdapter
+from discord import Webhook, RequestsWebhookAdapter, Embed, Colour # Importing discord.Webhook and discord.RequestsWebhookAdapter
 
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
@@ -141,13 +141,17 @@ def LogError(message,log = Log, Mobdriver = None):
 
         gdriver.save_screenshot("screenshot.png")
 
-        webhookFailure.send(content="------------------------------------\n" + _mail)
-        webhookFailure.send(ListTabs(Mdriver=Mobdriver))
-        webhookFailure.send(str(message))
-        CustomSleep(1)
-        webhookFailure.send(file=discord.File('screenshot.png'))
+        embed = discord.Embed(
+            title="An Error has occured",
+            description=str(message),
+            url = ListTabs(Mdriver=Mobdriver)[0],
+            colour = Colour.red()
+        )
+        file = discord.File("screenshot.png")
+        embed.set_image(url="attachment://screenshot.png")
+        embed.set_footer(text=_mail)
+        webhookFailure.send(embed=embed, file=file)
         webhookFailure.send(file=discord.File('page.html'))
-        webhookFailure.send("------------------------------------")
         
 
 def progressBar(current, total=30, barLength = 20, name ="Progress"):
@@ -656,8 +660,12 @@ def LogPoint(account="unknown"): #log des points sur discord
     
     account = account.split('@')[0]
 
-    
-    webhookSuccess.send(f'{account} actuellement à {str(point)} points')
+    embed = discord.Embed(
+            title=f"{account} actuellement à {str(point)} points",
+            colour = Colour.green()
+    )
+    embed.set_footer(text=_mail)
+    webhookSuccess.send(embed=embed)
 
 
 
