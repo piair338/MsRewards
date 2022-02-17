@@ -567,30 +567,29 @@ def TryPlay(nom ="inconnu"):
 
     RGPD()
     def play(number, override = None) : 
-        match number :
-            case 9 | 8 :
-                try :
-                    print(f'Quiz 8 détécté sur la page {nom}')
-                    RGPD()
-                    PlayQuiz8(override)
-                except Exception as e :
-                    printf(f'echec de PlayQuiz 8. Aborted {e}')
-            case 5 | 4 :
-                try :
-                    print(f'Quiz 4 détécté sur la page {nom}')
-                    RGPD()
-                    PlayQuiz4(override)
-                    print('Quiz 4 reussit')
-                except Exception as e :
-                    printf(f'echec de PlayQuiz 4. Aborted {e}')
-            case 3 | 2 : 
-                try :
-                    RGPD()
-                    print(f'Quiz 2 détécté sur la page {nom}')
-                    PlayQuiz2(override)
-                except Exception as e :
-                    printf(f'echec de PlayQuiz 2. Aborted {e}')
-            case _ :
+        if number == 8 or number == 9 :
+            try :
+                print(f'Quiz 8 détécté sur la page {nom}')
+                RGPD()
+                PlayQuiz8(override)
+            except Exception as e :
+                printf(f'echec de PlayQuiz 8. Aborted {e}')
+        elif number == 5 or number == 4 :
+            try :
+                print(f'Quiz 4 détécté sur la page {nom}')
+                RGPD()
+                PlayQuiz4(override)
+                print('Quiz 4 reussit')
+            except Exception as e :
+                printf(f'echec de PlayQuiz 4. Aborted {e}')
+        elif number == 3 or number == 2 :
+            try :
+                RGPD()
+                print(f'Quiz 2 détécté sur la page {nom}')
+                PlayQuiz2(override)
+            except Exception as e :
+                printf(f'echec de PlayQuiz 2. Aborted {e}')
+        else :
                 LogError('probleme dans la carte : il y a un bouton play et aucun quiz')
     try :
         driver.find_element(By.ID, 'rqStartQuiz').click() #start the quiz
