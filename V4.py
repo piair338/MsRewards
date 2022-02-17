@@ -1,22 +1,23 @@
 #!/usr/bin/python3
-import os
-from time import sleep
-from random import uniform, choice, randint,shuffle
-from re import search,findall
-from os import path, sys, system
-import discord
 import asyncio
+import os
+from csv import reader
+from os import path, sys, system
+from random import choice, randint, shuffle, uniform
+from re import findall, search
 from sys import platform
-from csv import reader 
-from discord import Webhook, RequestsWebhookAdapter, Embed, Colour # Importing discord.Webhook and discord.RequestsWebhookAdapter
+from time import sleep
 
+import discord
+from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
+    Colour, Embed, RequestsWebhookAdapter, Webhook)
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common import exceptions
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 main = True
 Headless = True
