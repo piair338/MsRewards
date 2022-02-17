@@ -1,2 +1,5 @@
 
 geckodriver.log
+login.csv
+config
+**/__pycache__/*
