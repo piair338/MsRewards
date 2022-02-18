@@ -413,7 +413,7 @@ def login() :
         
 
 def BingPcSearch(override = randint(35,40)):
-    driver.get(f'https://www.bing.com/search?q={choice([x for x in range (999999)])}')
+    driver.get(f'https://www.bing.com/search?q={choice(Liste_de_mot)}')
     CustomSleep(uniform(1,2))
     RGPD()
     send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE)
