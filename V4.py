@@ -648,8 +648,6 @@ def LogPoint(account="unknown"): #log des points sur discord
         point = search(regex1, driver.page_source)[1].replace(',', '')
         
     except Exception as e :
-        print(f"LogPoint - 1 - {e}")
-
         elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
         elem.click()
         CustomSleep(5)
