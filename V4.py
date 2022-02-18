@@ -29,7 +29,7 @@ print("Linux : "+ str(IsLinux))
 if not IsLinux :
     system("") #enable colors in cmd
 
-config_path = "./config"
+config_path = "/home/pi/MsReward/config"
 config = configparser.ConfigParser()
 config.read(config_path)
 
@@ -58,8 +58,8 @@ def resource_path(relative_path): #permet de recuperer l'emplacement de chaque f
     return path.join(base_path, relative_path)
 
 
-def FirefoxMobile(Headless = Headless, Os = 2):
-    MOBILE_USER_AGENT = (f'Mozilla/5.0 (iPhone; CPU iPhone OS 14_1_{Os} like Mac OS X)'
+def FirefoxMobile(Headless = Headless):
+    MOBILE_USER_AGENT = ('Mozilla/5.0 (iPhone; CPU iPhone OS 14_1_2 like Mac OS X)'
                     'AppleWebKit/603.1.30 (KHTML, like Gecko)'
                     'Version/14.1 Mobile/14E304 Safari/602.1')
     options = Options()
@@ -480,7 +480,7 @@ def BingMobileSearch(override = randint(22,25)):
     MobileDriver ="si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
     try :
         try :
-            MobileDriver = FirefoxMobile(Os=hash(_mail)%10) #change device for each account
+            MobileDriver = FirefoxMobile()
         except Exception as e :
             sleep(30)
             LogError('BingMobileSearch - 1 - echec de la creation du driver mobile')
