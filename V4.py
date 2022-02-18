@@ -399,7 +399,7 @@ def login() :
         except Exception as e  :
             printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}") 
 
-        printf("login completed")
+        print("login completed")
         RGPD()
         driver.get('https://www.bing.com/rewardsapp/flyout')
         
@@ -470,7 +470,6 @@ def BingMobileSearch(override = randint(22,25)):
                 send_keys_wait(mail, _mail)
                 mail.send_keys( Keys.ENTER)
                 CustomSleep(uniform(1,2))
-                #MobileDriver.find_element(By.ID, 'idLbl_PWD_KMSI_Cb').click()
                 pwd = MobileDriver.find_element(By.ID, 'i0118')
                 send_keys_wait(pwd, _password)
                 pwd.send_keys( Keys.ENTER)
@@ -492,7 +491,6 @@ def BingMobileSearch(override = randint(22,25)):
                 MobileDriver.find_element(By.ID, 'bnp_btn_accept').click()
             except :
                 pass
-
             try :
                 MobileDriver.find_element(By.ID, 'bnp_hfly_cta2').click()
             except :
@@ -546,24 +544,28 @@ def TryPlay(nom ="inconnu"):
     def play(number, override = None) : 
         if number == 8 or number == 9 :
             try :
-                print(f'Quiz 8 détécté sur la page {nom}')
+                printf(f'Quiz 8 détécté sur la page {nom}')
                 RGPD()
                 PlayQuiz8(override)
+                printf(f'Quiz 8 reussit sur {nom}')
             except Exception as e :
                 printf(f'echec de PlayQuiz 8. Aborted {e}')
+
         elif number == 5 or number == 4 :
             try :
-                print(f'Quiz 4 détécté sur la page {nom}')
+                printf(f'Quiz 4 détécté sur la page {nom}')
                 RGPD()
                 PlayQuiz4(override)
-                print('Quiz 4 reussit')
+                print(f'Quiz 4 reussit sur {nom}')
             except Exception as e :
                 printf(f'echec de PlayQuiz 4. Aborted {e}')
+
         elif number == 3 or number == 2 :
             try :
                 RGPD()
-                print(f'Quiz 2 détécté sur la page {nom}')
+                printf(f'Quiz 2 détécté sur la page {nom}')
                 PlayQuiz2(override)
+                print(f'Quiz 2 reussit sur la page {nom}')
             except Exception as e :
                 printf(f'echec de PlayQuiz 2. Aborted {e}')
         else :
@@ -644,14 +646,9 @@ def LogPoint(account="unknown"): #log des points sur discord
 
 def Fidelité():
     try :
-       
         driver.switch_to.window(driver.window_handles[1])
-
         choix = driver.find_element(By.CLASS_NAME,'spacer-48-bottom')
-
         nb = search("([0-9]) de ([0-9]) finalisée",driver.page_source)
-        
-
         for i in range(int(nb[2])-int(nb[1])):
             choix = driver.find_element(By.CLASS_NAME,'spacer-48-bottom')
             ButtonText = search('<span class=\"pull-left margin-right-15\">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
@@ -671,8 +668,7 @@ def Fidelité():
         LogError("Fidélité" + str(e))
 
 
-def CheckPoint():# a fix, ne marche pas dans  80% des cas 
-                 #pas appelé aujourd'hui
+def CheckPoint():# a fix, ne marche pas dans  80% des cas pas appelé aujourd'hui
     driver.get("https://rewards.microsoft.com/pointsbreakdown")
     txt = driver.page_source
     pc = search('([0-9][0-9]|[0-9])</b> / 90',txt)
@@ -686,7 +682,6 @@ def CheckPoint():# a fix, ne marche pas dans  80% des cas
              
 
 def DailyRoutine():
-    
     
     MainWindows = login()
     
