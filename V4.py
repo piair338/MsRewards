@@ -87,9 +87,8 @@ def FirefoxPC(Headless = Headless):
 
 
 def printf(txt):
-    if not Log :
+    if Log :
         print(txt)
-    else :
         CustomSleep(5)
         LogError(txt)
 
@@ -107,7 +106,7 @@ def CustomSleep(temps):
                 print(points[i], end='\r')
 
         if c:
-            print('                ', end="\r")
+            print('.   ', end="\r")
         sleep(temps - int(temps))
         print("\n")
     else : 
@@ -176,7 +175,6 @@ def Close(fenetre, SwitchTo = 0):
 
 
 def RGPD():
-    driver.implicitly_wait(3)
     try :
         driver.find_element(By.ID, 'bnp_btn_accept').click()
     except :
@@ -186,15 +184,12 @@ def RGPD():
         driver.find_element(By.ID, 'bnp_hfly_cta2').click()
     except :
         pass
-    driver.implicitly_wait(5)
 
 
-def PlayQuiz2(override = None):
-    if not override :
-        override = 10
-
+def PlayQuiz2(override = 10):
+    RGPD()
     for j in range (override):
-        try : 
+        try :
             CustomSleep(uniform(3,5))
             
             txt = driver.page_source
@@ -208,7 +203,6 @@ def PlayQuiz2(override = None):
             for i in reponse1 :
                 somme += ord(i)
 
-            RGPD()
             if somme + offset == int(reponse) :
                 elem = driver.find_element(By.ID, 'rqAnswerOption0')
                 elem.click()
@@ -228,14 +222,9 @@ def PlayQuiz2(override = None):
             break
 
 
-def PlayQuiz8(override = None):
-    
-    if not override :
-        override = 3
-    print(f"override : {override}")
+def PlayQuiz8(override = 3):
+    printf(f"override : {override}")
     try : 
-        #RGPD()
-        
         c = 0
         for i in range(override):
             sleep(uniform(3,5))
@@ -279,27 +268,20 @@ def PlayQuiz4(override = None):
             override = 3    
     
     try :
-        
-        
         for i in range(override):
-            #RGPD()
             CustomSleep(uniform(3,5))
             txt = driver.page_source
             
             reponse = search("correctAnswer\":\"([^\"]+)", txt)[1] #je suis pas sur qu'il y ait un espace
-            reponse = reponse.replace('\\u0027',"'") #il faut cancel l'unicode avec un double \ (on replacer les caracteres en unicode en caracteres utf-8)
-            
-            
-            print(f"validation de la reponse                                     " , end="\r")
-            print(f"validation de la reponse {i+1}/{override} {reponse}" , end="\r")
+            reponse = reponse.replace('\\u0027',"'") #il faut cancel l'unicode avec un double \ (on replacer les caracteres en unicode en caracteres utf-8) 
+            printf(f"validation de la reponse                                     " , end="\r")
+            printf(f"validation de la reponse {i+1}/{override} {reponse}" , end="\r")
             try : 
                 elem = driver.find_element(By.CSS_SELECTOR, f'[data-option="{reponse}"]')
                 elem.click()
             except exceptions.ElementNotInteractableException:
                 driver.execute_script("arguments[0].click();", elem)
 
-            
-    
     except Exception as e :
         LogError("PlayQuiz4" + str(e))
         raise ValueError(e)
@@ -327,7 +309,7 @@ def AllCard(): #fonction qui clique sur les cartes
                 driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click()
         else : 
             driver.switch_to.window(driver.window_handles[1])
-            print(f"on ferme la fenetre {driver.current_url}")
+            printf(f"on ferme la fenetre {driver.current_url}")
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
             reset(Partie2)
@@ -338,17 +320,17 @@ def AllCard(): #fonction qui clique sur les cartes
                 sleep(1)
                 driver.find_element(By.XPATH, f'/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]').click()
                 sleep(1)
-                TryPlay(driver.title)
+                titre = driver.title
+                TryPlay(titre)
                 sleep(1)
                 reset()
-                printf(f"carte {i} ok ")
+                print(f"DailyCard {titre} ok ")
         except Exception as e :
             LogError(f'erreur dans la premiere partie de AllCard (les daily card). cela arrive si on relance le proramme une deuxieme fois sur le meme compte \n {e}')
 
     dailyCards()
 
     try :    
-        
         try : 
             driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click() #declenche la premiere partie ?
         except :
@@ -357,25 +339,18 @@ def AllCard(): #fonction qui clique sur les cartes
                 driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click()#declenche la deuxieme partie ?
             except :
                 pass
-        c = 0
-        while True:
+        
+        for i in range(20):
             printf("debut de l'une des cartes")
             driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[3]/div/div[1]/a/div/div[2]').click()
             printf("carte cliqué")
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-            sleep(1)
-            try : 
-                titre = driver.title
-            except Exception as e :
-                titre = "inconnu"
-                LogError(f"Allcards - impossible de recuperer le titre. {e}")
-
+            sleep(1) 
+            titre = driver.title
+            print(f"carte {titre} en cours")
             TryPlay(titre)
             reset(True)
             sleep(1)
-            c += 1
-            if c ==20 :
-                break
             try :
                 link = findall('href="([^<]+)" title=""',driver.page_source)[3] #verifie si on a toujours des cartes 
             except :
@@ -393,14 +368,10 @@ def send_keys_wait(element,keys):
 def login() :
     try :
         driver.get('https://www.bing.com/rewardsapp/flyout')
-
         try :
-
-            driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click()
-
+            driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click() #depend of the language of the page
         except :
-
-            driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()
+            driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click() #depend of the language of the page
         
         mail = driver.find_element(By.ID, 'i0116')
         send_keys_wait(mail, _mail)
@@ -429,9 +400,7 @@ def login() :
             printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}") 
 
         printf("login completed")
-        
         RGPD()
-
         driver.get('https://www.bing.com/rewardsapp/flyout')
         
         MainWindows = driver.current_window_handle
@@ -445,12 +414,11 @@ def BingPcSearch(override = randint(35,40)):
     driver.get(f'https://www.bing.com/search?q={choice([x for x in range (999999)])}')
     CustomSleep(uniform(1,2))
     RGPD()
-    CustomSleep(uniform(1,1.5))
     send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE)
     
     
     for i in range(override):
-        mot = str(Liste_de_mot[randint(0,9999)] )
+        mot = str(Liste_de_mot[randint(0,len(Liste_de_mot))])
         try :
             send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),mot)
             driver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
@@ -477,7 +445,7 @@ def BingPcSearch(override = randint(35,40)):
 
 
 def BingMobileSearch(override = randint(22,25)):
-    MobileDriver ="si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
+    MobileDriver = "si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
     try :
         try :
             MobileDriver = FirefoxMobile()
@@ -822,7 +790,7 @@ else :
         CustomSleep(1)
     
         driver = FirefoxPC()
-        driver.implicitly_wait(5)
+        driver.implicitly_wait(30)
 
         try :
             DailyRoutine()
