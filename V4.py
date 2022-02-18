@@ -131,9 +131,9 @@ def LogError(message,log = Log, Mobdriver = None):
     else :
         gdriver = driver
 
-    if not IsLinux :
-        print(f'\033[93m Erreur : {str(message)}  \033[0m')
-    else :
+    
+    print(f'\033[93m Erreur : {str(message)}  \033[0m')
+    if IsLinux :
         with open('page.html', 'w') as f:
             f.write(gdriver.page_source)
 
@@ -785,7 +785,7 @@ else :
         CustomSleep(1)
     
         driver = FirefoxPC()
-        driver.implicitly_wait(30)
+        driver.implicitly_wait(15)
 
         try :
             DailyRoutine()
