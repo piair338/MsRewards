@@ -59,9 +59,7 @@ def resource_path(relative_path): #permet de recuperer l'emplacement de chaque f
 
 
 def FirefoxMobile(Headless = Headless):
-    MOBILE_USER_AGENT = ('Mozilla/5.0 (iPhone; CPU iPhone OS 14_1_2 like Mac OS X)'
-                    'AppleWebKit/603.1.30 (KHTML, like Gecko)'
-                    'Version/14.1 Mobile/14E304 Safari/602.1')
+    MOBILE_USER_AGENT = ('Mozilla/5.0 (iPhone; CPU iPhone OS 14_8_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1')
     options = Options()
     options.set_preference("browser.link.open_newwindow", 3)
     if Headless :
@@ -400,6 +398,7 @@ def login() :
             printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}") 
 
         print("login completed")
+        sleep(3)
         RGPD()
         driver.get('https://www.bing.com/rewardsapp/flyout')
         
@@ -418,7 +417,7 @@ def BingPcSearch(override = randint(35,40)):
     
     
     for i in range(override):
-        mot = str(Liste_de_mot[randint(0,len(Liste_de_mot))])
+        mot = choice(Liste_de_mot)
         try :
             send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),mot)
             driver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
@@ -458,7 +457,7 @@ def BingMobileSearch(override = randint(22,25)):
         def Mlogin(echec):
             
             try : 
-                MobileDriver.get(f'https://www.bing.com/search?q={choice([x for x in range (999999)])}&form=QBLH&sp=-1&pq=test&sc=8-4&qs=n&sk=&cvid=1DB80744B71E40B8896F5C1AD2DE95E9')
+                MobileDriver.get(f'https://www.bing.com/search?q={choice([Liste_de_mot])}')
                 CustomSleep(uniform(3,5))
 
                 MobileDriver.find_element(By.ID, 'mHamburger').click()
@@ -514,7 +513,7 @@ def BingMobileSearch(override = randint(22,25)):
             
             for i in range(override): #20
 
-                mot = str(Liste_de_mot[randint(0,9999)] )
+                mot = choice(Liste_de_mot)
                 send_keys_wait( MobileDriver.find_element(By.ID, 'sb_form_q'),mot)
                 MobileDriver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
                 progressBar(i,override,name="Mobile")
@@ -556,7 +555,7 @@ def TryPlay(nom ="inconnu"):
                 printf(f'Quiz 4 détécté sur la page {nom}')
                 RGPD()
                 PlayQuiz4(override)
-                print(f'Quiz 4 reussit sur {nom}')
+                print(f'Quiz 4 reussit sur {nom}')
             except Exception as e :
                 printf(f'echec de PlayQuiz 4. Aborted {e}')
 
@@ -719,9 +718,9 @@ def CustomStart(Credentials):
     global driver
     global _mail
     global _password
-    driver = FirefoxPC()
+    
     ids = [x[0] for x in Credentials]
-    actions=["tout", "daily", "pc", "mobile"]
+    actions=["tout", "daily", "pc", "mobile", "LogPoint"]
 
     for i in range(len(ids)) :
         print(f"{i} : {ids[i]}")
@@ -737,17 +736,26 @@ def CustomStart(Credentials):
 
     _mail =Credentials[choice1][0]
     _password = Credentials[choice1][1]
-    login()
+
     if choice2 == 0 : 
+        driver = FirefoxPC()
+        login()
         DailyRoutine()
+        driver.close()
     elif choice2 == 1 :
         try :
+            driver = FirefoxPC()
+            login()
             AllCard()
+            driver.close()
         except Exception as e :
             LogError(f'pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {e}. -- override')
     elif choice2 == 2 :
         try : 
+            driver = FirefoxPC()
+            login()
             BingPcSearch()
+            driver.close()
         except Exception as e :
             LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override")
     elif choice2 == 3 :
@@ -757,9 +765,12 @@ def CustomStart(Credentials):
             LogError(f'BingMobileSearch - {e} -- override')
     print("done!")
     try :
+        driver = FirefoxPC()
+        login()
         LogPoint(_mail)
+        driver.close()
     except Exception as e :
-        print("CustomStart" + e)
+        print("CustomStart " + str(e))
 
 with open(LogPath) as f:
     reader = reader(f)
