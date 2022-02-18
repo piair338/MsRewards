@@ -718,7 +718,7 @@ def CustomStart(Credentials):
     global driver
     global _mail
     global _password
-    
+    driver="chelou"
     ids = [x[0] for x in Credentials]
     actions=["tout", "daily", "pc", "mobile", "LogPoint"]
 
