@@ -318,15 +318,18 @@ def AllCard(): #fonction qui clique sur les cartes
         try :
             for i in range(3):
                 sleep(1)
-                driver.find_element(By.XPATH, f'/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]').click()
-                sleep(1)
-                titre = driver.title
-                TryPlay(titre)
-                sleep(1)
-                reset()
-                print(f"DailyCard {titre} ok ")
+                try :
+                    driver.find_element(By.XPATH, f'/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]').click()
+                    sleep(1)
+                    titre = driver.title
+                    TryPlay(titre)
+                    sleep(1)
+                    reset()
+                    print(f"DailyCard {titre} ok ")
+                except Exception as e :
+                    printf(f"Allcard card {i} error")
         except Exception as e :
-            LogError(f'erreur dans la premiere partie de AllCard (les daily card). cela arrive si on relance le proramme une deuxieme fois sur le meme compte \n {e}')
+            LogError(f'Dailycards {e}')
 
     dailyCards()
 
@@ -476,7 +479,7 @@ def BingMobileSearch(override = randint(22,25)):
             except Exception as e :
                 echec += 1
                 if echec <= 3 :
-                    printf(f'echec du login sur la version mobile. on reesaye ({echec}/3), {e}')
+                    print(f'echec du login sur la version mobile. on reesaye ({echec}/3), {e}')
                     CustomSleep(uniform(5,10))
                     Mlogin(echec)
                 else :
