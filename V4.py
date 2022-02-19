@@ -19,6 +19,16 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import argparse
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-o" , "--override", help="override", dest="override", action = "store_true")
+parser.add_argument("-l", "--log",dest="log",help="enable full logging in terminal", action ="store_true")
+
+args = parser.parse_args()
+override = args.override
+Log = args.log
 
 main = True
 
@@ -40,7 +50,6 @@ ErrorLink = config["DEFAULT"]["errorlink"]
 
 embeds = config["DEFAULT"]["embeds"] == "True"
 Headless = config["DEFAULT"]["headless"] == "True"
-Log = config["DEFAULT"]["log"] == "True"
 
 
 g =  open(MotPath, "r" , encoding="utf-8")
@@ -785,7 +794,7 @@ CustomSleep(2)
 
 shuffle(Credentials)
 
-if len(sys.argv) > 1 :
+if override :
     CustomStart(Credentials)
 else : 
     for i in Credentials :
