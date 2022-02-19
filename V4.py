@@ -422,7 +422,7 @@ def login() :
         
 
 def BingPcSearch(override = randint(35,40)):
-    driver.get(f'https://www.bing.com/search?q={choice(Liste_de_mot)}')
+    driver.get(f'https://www.bing.com/search?q=test')#{choice(Liste_de_mot)}')
     CustomSleep(uniform(1,2))
     RGPD()
     send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE)
@@ -469,7 +469,7 @@ def BingMobileSearch(override = randint(22,25)):
         def Mlogin(echec):
             
             try : 
-                MobileDriver.get(f'https://www.bing.com/search?q={choice([Liste_de_mot])}')
+                MobileDriver.get(f'https://www.bing.com/search?q=test')#{choice([Liste_de_mot])}')
                 CustomSleep(uniform(3,5))
 
                 MobileDriver.find_element(By.ID, 'mHamburger').click()
