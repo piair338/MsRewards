@@ -92,13 +92,10 @@ def FirefoxPC(Headless = Headless):
     return(webdriver.Firefox(options=options))
 
 
-
 def printf(txt):
     if Log :
         print(txt)
         CustomSleep(5)
-        LogError(txt)
-
 
 
 def CustomSleep(temps):
@@ -372,7 +369,7 @@ def AllCard(): #fonction qui clique sur les cartes
 def send_keys_wait(element,keys):
     for i in keys :
         element.send_keys(i)
-        CustomSleep(uniform(0, 0.5))
+        sleep(uniform(0, 0.5))
 
 
 def login() :
@@ -529,7 +526,7 @@ def BingMobileSearch(override = randint(22,25)):
                 send_keys_wait( MobileDriver.find_element(By.ID, 'sb_form_q'),mot)
                 MobileDriver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
                 progressBar(i,override,name="Mobile")
-
+                printf(MobileDriver.current_url)
                 sleep(uniform(5,20)) 
 
                 Alerte() # verifie si il y a des alertes (demande de positions ....)
