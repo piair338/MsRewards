@@ -730,7 +730,7 @@ def CustomStart(Credentials):
     Comptes = enquiries.choose('quels comptes ?', ids, multi=True)
     Actions = enquiries.choose('quels Actions ?', actions, multi=True)
 
-    print(Comptes, Actions, ids)
+    print(Comptes, Actions, Credentials)
     driver = FirefoxPC()
     driver.implicitly_wait(15)
     
