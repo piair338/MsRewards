@@ -36,7 +36,9 @@ FullLog = args.fulllog
 IsLinux = platform == "linux"
 
 
-if not IsLinux :
+if IsLinux :
+    import enquiries
+else :
     system("") #enable colors in cmd
 
 config_path = "/home/pi/MsReward/config"
@@ -698,7 +700,6 @@ def DailyRoutine():
         LogError(f"il y a eu une erreur dans BingPcSearch, {e}")
     CustomSleep(uniform(3,20)) 
     
-
     try : 
         BingMobileSearch()
     except Exception as e:
@@ -721,47 +722,33 @@ def CustomStart(Credentials):
     global driver
     global _mail
     global _password
-    driver="chelou"
-    ids = [x[0] for x in Credentials]
+
+    ids = [x[0] for x in Credentials]   
     actions=["tout", "daily", "pc", "mobile", "LogPoint"]
 
-    for i in range(len(ids)) :
-        print(f"{i} : {ids[i]}")
+    driver = FirefoxPC()
+    driver.implicitly_wait(15)
+    
+    Comptes = enquiries.choose('quels comptes ?', ids, multi=True)
+    Actions = enquiries.choose('quels Actions ?', actions, multi=True)
 
-    choice1 = int(input(""))
-    assert choice1 < len(ids)
+    print(Comptes, Actions)
 
-    for i in range(len(actions)) :
-        print(f"{i} : {actions[i]}")
-
-    choice2 = int(input(""))
-    assert choice2 < len(actions)
-
+    """
+    login()
     _mail =Credentials[choice1][0]
     _password = Credentials[choice1][1]
 
     if choice2 == 0 : 
-        driver = FirefoxPC()
-        driver.implicitly_wait(15)
-        login()
         DailyRoutine()
-        driver.close()
     elif choice2 == 1 :
         try :
-            driver = FirefoxPC()
-            driver.implicitly_wait(15)
-            login()
             AllCard()
-            driver.close()
         except Exception as e :
             LogError(f'pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {str(e)}. -- override')
     elif choice2 == 2 :
         try : 
-            driver = FirefoxPC()
-            driver.implicitly_wait(15)
-            login()
             BingPcSearch()
-            driver.close()
         except Exception as e :
             LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override")
     elif choice2 == 3 :
@@ -769,7 +756,7 @@ def CustomStart(Credentials):
             BingMobileSearch()
         except Exception as e:
             LogError(f'BingMobileSearch - {e} -- override')
-    print("done!")
+    driver.close()
     try :
         driver = FirefoxPC()
         driver.implicitly_wait(15)
@@ -778,7 +765,7 @@ def CustomStart(Credentials):
         driver.close()
     except Exception as e :
         print("CustomStart " + str(e))
-
+        """
 with open(LogPath) as f:
     reader = reader(f)
     data = list(reader)
