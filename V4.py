@@ -760,19 +760,16 @@ def CustomStart(Credentials):
             except Exception as e:
                 LogError(f'BingMobileSearch - {e} -- override')
 
-        driver.close()
+        
         try :
             LogPoint(_mail)
         except Exception as e :
             print("CustomStart " + str(e))
+        driver.close()
 
 with open(LogPath) as f:
     reader = reader(f)
-    data = list(reader)
-
-Credentials = data
-
-CustomSleep(2)
+    Credentials = list(reader)
 
 shuffle(Credentials)
 
