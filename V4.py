@@ -748,12 +748,14 @@ def CustomStart(Credentials):
 
     if choice2 == 0 : 
         driver = FirefoxPC()
+        driver.implicitly_wait(15)
         login()
         DailyRoutine()
         driver.close()
     elif choice2 == 1 :
         try :
             driver = FirefoxPC()
+            driver.implicitly_wait(15)
             login()
             AllCard()
             driver.close()
@@ -762,6 +764,7 @@ def CustomStart(Credentials):
     elif choice2 == 2 :
         try : 
             driver = FirefoxPC()
+            driver.implicitly_wait(15)
             login()
             BingPcSearch()
             driver.close()
@@ -775,6 +778,7 @@ def CustomStart(Credentials):
     print("done!")
     try :
         driver = FirefoxPC()
+        driver.implicitly_wait(15)
         login()
         LogPoint(_mail)
         driver.close()
