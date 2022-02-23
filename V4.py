@@ -4,6 +4,7 @@ import configparser
 import os
 from csv import reader
 from os import path, sys, system
+from queue import Full
 from random import choice, randint, shuffle, uniform
 from re import findall, search
 from sys import platform
@@ -130,25 +131,33 @@ def ListTabs(Mdriver = None ):
     return(tabs)
 
 
-def LogError(message,log = Log, Mobdriver = None):
+def LogError(message,log = FullLog, Mobdriver = None):
     if Mobdriver :
         gdriver = Mobdriver
     else :
         gdriver = driver
-
-    print(f'\033[93m Erreur : {str(message)}  \033[0m')
+    if not log :
+        print(f'\033[93m Erreur : {str(message)}  \033[0m')
     if IsLinux :
         with open('page.html', 'w') as f:
             f.write(gdriver.page_source)
 
         gdriver.save_screenshot("screenshot.png")
+        if not log : 
+            embed = discord.Embed(
+                title="An Error has occured",
+                description=str(message),
+                url = ListTabs(Mdriver=Mobdriver)[0],
+                colour = Colour.red()
+            )
+        else : 
+            embed = discord.Embed(
+                title="Full log is enabled",
+                description=str(message),
+                url = ListTabs(Mdriver=Mobdriver)[0],
+                colour = Colour.blue()
+            )
 
-        embed = discord.Embed(
-            title="An Error has occured",
-            description=str(message),
-            url = ListTabs(Mdriver=Mobdriver)[0],
-            colour = Colour.red()
-        )
         file = discord.File("screenshot.png")
         embed.set_image(url="attachment://screenshot.png")
         embed.set_footer(text=_mail)
@@ -189,11 +198,11 @@ def PlayQuiz2(override = 10):
             CustomSleep(uniform(3,5))
             
             txt = driver.page_source
-            IG = search('IG:\"([^\"]+)\"', txt)[1] #variable dans la page, pour calculer le offset
+            secret = search('IG:\"([^\"]+)\"', txt)[1] #variable dans la page, pour calculer le offset
             reponse1 = search("data-option=\"([^\"]+)\"", txt)[1]
-            offset = int(IG[-2:],16) # la conversion ec decimal des deux dernier caracteres de IG
+            offset = int(secret[-2:],16) # la conversion ec decimal des deux dernier caracteres de IG
             reponse = search("correctAnswer\":\"([0-9]+)", txt)[1]
-
+            print(secret, reponse,offset , reponse1)
             somme = 0 
 
             for i in reponse1 :
