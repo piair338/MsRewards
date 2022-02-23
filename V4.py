@@ -164,7 +164,6 @@ def LogError(message,log = FullLog, Mobdriver = None):
         webhookFailure.send(embed=embed, file=file)
         webhookFailure.send(file=discord.File('page.html'))
 
-        
 
 def progressBar(current, total=30, barLength = 20, name ="Progress"):
     percent = float(current+1) * 100 / total
@@ -191,21 +190,17 @@ def RGPD():
         pass
 
 
-def PlayQuiz2(override = 10):
-    RGPD()
+def PlayQuiz2(override):
+    if not override :
+        override = 10
     for j in range (override):
         try :
             CustomSleep(uniform(3,5))
-            
             txt = driver.page_source
             secret = search('IG:\"([^\"]+)\"', txt)[1] #variable dans la page, pour calculer le offset
-            print(secret)
             reponse1 = search("data-option=\"([^\"]+)\"", txt)[1]
-            print(reponse1)
             offset = int(secret[-2:],16) # la conversion ec decimal des deux dernier caracteres de IG
-            print(offset)
             reponse = search("correctAnswer\":\"([0-9]+)", txt)[1]
-            print(reponse)
             somme = 0 
 
             for i in reponse1 :
@@ -223,7 +218,6 @@ def PlayQuiz2(override = 10):
 
         except exceptions.ElementNotInteractableException as e :
             driver.execute_script("arguments[0].click();", elem) 
-
 
         except Exception as e:
             LogError("PlayQuiz2" + str(e))
@@ -335,7 +329,7 @@ def AllCard(): #fonction qui clique sur les cartes
                     reset()
                     print(f"DailyCard {titre} ok ")
                 except Exception as e :
-                    printf(f"Allcard card {i} error")
+                    printf(f"Allcard card {i+1} error")
         except Exception as e :
             LogError(f'Dailycards {e}')
 
@@ -557,7 +551,6 @@ def TryPlay(nom ="inconnu"):
         if number == 8 or number == 9 :
             try :
                 printf(f'Quiz 8 détécté sur la page {nom}')
-                RGPD()
                 PlayQuiz8(override)
                 printf(f'Quiz 8 reussit sur {nom}')
             except Exception as e :
@@ -566,7 +559,6 @@ def TryPlay(nom ="inconnu"):
         elif number == 5 or number == 4 :
             try :
                 printf(f'Quiz 4 détécté sur la page {nom}')
-                RGPD()
                 PlayQuiz4(override)
                 print(f'Quiz 4 reussit sur {nom}')
             except Exception as e :
@@ -574,7 +566,6 @@ def TryPlay(nom ="inconnu"):
 
         elif number == 3 or number == 2 :
             try :
-                RGPD()
                 printf(f'Quiz 2 détécté sur la page {nom}')
                 PlayQuiz2(override)
                 print(f'Quiz 2 reussit sur la page {nom}')
