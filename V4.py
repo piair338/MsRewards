@@ -24,14 +24,13 @@ import argparse
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-o" , "--override", help="override", dest="override", action = "store_true")
-parser.add_argument("-l", "--log",dest="log",help="enable full logging in terminal", action ="store_true")
+parser.add_argument("-l", "--log",dest="log",help="enable logging in terminal", action ="store_true")
+parser.add_argument("-fl", "--fulllog",dest="fulllog",help="enable full logging in terminal", action ="store_true")
 
 args = parser.parse_args()
 override = args.override
 Log = args.log
-
-main = True
-
+FullLog = args.fulllog
 
 IsLinux = platform == "linux"
 print("Linux : "+ str(IsLinux))
@@ -96,6 +95,8 @@ def printf(txt, end=""):
     if Log :
         print(txt, end=end)
         CustomSleep(5)
+    if FullLog :
+        LogError(txt)
 
 
 def CustomSleep(temps):
@@ -135,7 +136,6 @@ def LogError(message,log = Log, Mobdriver = None):
     else :
         gdriver = driver
 
-    
     print(f'\033[93m Erreur : {str(message)}  \033[0m')
     if IsLinux :
         with open('page.html', 'w') as f:
@@ -143,26 +143,18 @@ def LogError(message,log = Log, Mobdriver = None):
 
         gdriver.save_screenshot("screenshot.png")
 
-        if embeds :
-            embed = discord.Embed(
-                title="An Error has occured",
-                description=str(message),
-                url = ListTabs(Mdriver=Mobdriver)[0],
-                colour = Colour.red()
-            )
-            file = discord.File("screenshot.png")
-            embed.set_image(url="attachment://screenshot.png")
-            embed.set_footer(text=_mail)
-            webhookFailure.send(embed=embed, file=file)
-            webhookFailure.send(file=discord.File('page.html'))
-        else :
-            webhookFailure.send(content="------------------------------------\n" + _mail)
-            webhookFailure.send(ListTabs(Mdriver=Mobdriver))
-            webhookFailure.send(str(message))
-            CustomSleep(1)
-            webhookFailure.send(file=discord.File('screenshot.png'))
-            webhookFailure.send(file=discord.File('page.html'))
-            webhookFailure.send("------------------------------------")
+        embed = discord.Embed(
+            title="An Error has occured",
+            description=str(message),
+            url = ListTabs(Mdriver=Mobdriver)[0],
+            colour = Colour.red()
+        )
+        file = discord.File("screenshot.png")
+        embed.set_image(url="attachment://screenshot.png")
+        embed.set_footer(text=_mail)
+        webhookFailure.send(embed=embed, file=file)
+        webhookFailure.send(file=discord.File('page.html'))
+
         
 
 def progressBar(current, total=30, barLength = 20, name ="Progress"):
@@ -800,7 +792,6 @@ if override :
 else : 
     for i in Credentials :
 
-
         _mail =i[0]
         _password = i[1]
 
@@ -817,7 +808,7 @@ else :
             timer = uniform(1200,3600)
             print(f"finis. attente de {round(timer/60)}min")
             CustomSleep(timer)
-            
+
         except KeyboardInterrupt :
             print('canceled')
             close()
