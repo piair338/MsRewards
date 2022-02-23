@@ -415,7 +415,7 @@ def login() :
         return(MainWindows)
 
     except Exception as e:
-        LogError("login - 3 - " +e)
+        LogError("login - 3 - " + str(e))
         
 
 def BingPcSearch(override = randint(35,40)):
@@ -758,7 +758,7 @@ def CustomStart(Credentials):
             AllCard()
             driver.close()
         except Exception as e :
-            LogError(f'pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {e}. -- override')
+            LogError(f'pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {str(e)}. -- override')
     elif choice2 == 2 :
         try : 
             driver = FirefoxPC()
