@@ -34,7 +34,7 @@ Log = args.log
 FullLog = args.fulllog
 
 IsLinux = platform == "linux"
-print("Linux : "+ str(IsLinux))
+
 
 if not IsLinux :
     system("") #enable colors in cmd
@@ -199,10 +199,13 @@ def PlayQuiz2(override = 10):
             
             txt = driver.page_source
             secret = search('IG:\"([^\"]+)\"', txt)[1] #variable dans la page, pour calculer le offset
+            print(secret)
             reponse1 = search("data-option=\"([^\"]+)\"", txt)[1]
+            print(reponse1)
             offset = int(secret[-2:],16) # la conversion ec decimal des deux dernier caracteres de IG
+            print(offset)
             reponse = search("correctAnswer\":\"([0-9]+)", txt)[1]
-            print(secret, reponse,offset , reponse1)
+            print(reponse)
             somme = 0 
 
             for i in reponse1 :
