@@ -545,7 +545,6 @@ def BingMobileSearch(override = randint(22,25)):
 
 
 def TryPlay(nom ="inconnu"):
-
     RGPD()
     def play(number, override = None) : 
         if number == 8 or number == 9 :
@@ -816,3 +815,5 @@ else :
             print('canceled')
             close()
 
+if IsLinux :
+    system("pkill -9 firefox")
