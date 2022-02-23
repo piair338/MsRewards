@@ -723,49 +723,49 @@ def CustomStart(Credentials):
     global _mail
     global _password
 
-    ids = [x[0] for x in Credentials]   
+    ids = [x[0] for x in Credentials] #list of all email adresses
     actions=["tout", "daily", "pc", "mobile", "LogPoint"]
 
-    system("clear")
+    system("clear") #clear from previous command to allow a clean choice
     Comptes = enquiries.choose('quels comptes ?', ids, multi=True)
     Actions = enquiries.choose('quels Actions ?', actions, multi=True)
 
-    print(Comptes, Actions, Credentials)
-    driver = FirefoxPC()
-    driver.implicitly_wait(15)
-    
-    """
-    login()
-    _mail =Credentials[choice1][0]
-    _password = Credentials[choice1][1]
 
-    if choice2 == 0 : 
-        DailyRoutine()
-    elif choice2 == 1 :
-        try :
-            AllCard()
-        except Exception as e :
-            LogError(f'pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {str(e)}. -- override')
-    elif choice2 == 2 :
-        try : 
-            BingPcSearch()
-        except Exception as e :
-            LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override")
-    elif choice2 == 3 :
-        try : 
-            BingMobileSearch()
-        except Exception as e:
-            LogError(f'BingMobileSearch - {e} -- override')
-    driver.close()
-    try :
+    for i in Comptes :
+
+        _mail =Credentials[ids.index(i)][0]
+        _password = Credentials[ids.index(i)][1]
         driver = FirefoxPC()
         driver.implicitly_wait(15)
+        
         login()
-        LogPoint(_mail)
+        if "tout" in Actions : 
+            DailyRoutine()
+
+        if "daily" in Actions :
+            try :
+                AllCard()
+            except Exception as e :
+                LogError(f'pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {str(e)}. -- override')
+
+        if "pc" in Actions:
+            try : 
+                BingPcSearch()
+            except Exception as e :
+                LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override")
+
+        if "mobile" in Actions:
+            try : 
+                BingMobileSearch()
+            except Exception as e:
+                LogError(f'BingMobileSearch - {e} -- override')
+
         driver.close()
-    except Exception as e :
-        print("CustomStart " + str(e))
-        """
+        try :
+            LogPoint(_mail)
+        except Exception as e :
+            print("CustomStart " + str(e))
+
 with open(LogPath) as f:
     reader = reader(f)
     data = list(reader)
