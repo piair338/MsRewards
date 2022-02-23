@@ -726,14 +726,14 @@ def CustomStart(Credentials):
     ids = [x[0] for x in Credentials]   
     actions=["tout", "daily", "pc", "mobile", "LogPoint"]
 
-    driver = FirefoxPC()
-    driver.implicitly_wait(15)
-    
+    system("clear")
     Comptes = enquiries.choose('quels comptes ?', ids, multi=True)
     Actions = enquiries.choose('quels Actions ?', actions, multi=True)
 
-    print(Comptes, Actions)
-
+    print(Comptes, Actions, ids)
+    driver = FirefoxPC()
+    driver.implicitly_wait(15)
+    
     """
     login()
     _mail =Credentials[choice1][0]
