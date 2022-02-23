@@ -92,9 +92,9 @@ def FirefoxPC(Headless = Headless):
     return(webdriver.Firefox(options=options))
 
 
-def printf(txt):
+def printf(txt, end=""):
     if Log :
-        print(txt)
+        print(txt, end=end)
         CustomSleep(5)
 
 
