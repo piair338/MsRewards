@@ -18,3 +18,5 @@ Log = False # Show Logs
 ```
 you have to put your credentials in the same folder as the script, in a file named `login.csv`. You have to put info this way : `email,password`     
 you have to put a list with a dictionnary in the same folder as the script, in a file named  `liste.txt`  .It should have a lot of words, used to make random search on bing, as shown in the example file.  
+
+![image](https://user-images.githubusercontent.com/74496300/155960737-061229ca-db8c-4e66-9aef-542d9e709bb2.png)
