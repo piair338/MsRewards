@@ -548,6 +548,7 @@ def BingMobileSearch(override = randint(22,25)):
 
 def TryPlay(nom ="inconnu"):
     RGPD()
+    sleep(10)
     def play(number, override = None) : 
         if number == 8 or number == 9 :
             try :
