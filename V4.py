@@ -94,12 +94,12 @@ def FirefoxPC(Headless = Headless):
     return(webdriver.Firefox(options=options))
 
 
-def printf(txt, end=""):
+def printf(txt, end="", Mobdriver = None):
     if Log :
         print(txt, end=end)
         CustomSleep(5)
     if FullLog :
-        LogError(txt)
+        LogError(txt, Mobdriver=Mobdriver)
 
 
 def CustomSleep(temps):
@@ -468,19 +468,28 @@ def BingMobileSearch(override = randint(22,25)):
             try : 
                 MobileDriver.get(f'https://www.bing.com/search?q=test')#{choice([Liste_de_mot])}')
                 CustomSleep(uniform(3,5))
-
+                printf("debut du login", Mobdriver=MobileDriver)
                 MobileDriver.find_element(By.ID, 'mHamburger').click()
                 CustomSleep(uniform(1,2))
+                printf("login - 1", Mobdriver=MobileDriver)
                 MobileDriver.find_element(By.ID, 'hb_s').click()
                 CustomSleep(uniform(1,2))
-
+                printf("login - 2", Mobdriver=MobileDriver)
                 mail = MobileDriver.find_element(By.ID, 'i0116')
                 send_keys_wait(mail, _mail)
+                printf("login - 3", Mobdriver=MobileDriver)
                 mail.send_keys( Keys.ENTER)
                 CustomSleep(uniform(1,2))
+                printf("login - 4", Mobdriver=MobileDriver)
                 pwd = MobileDriver.find_element(By.ID, 'i0118')
+                printf("login - 5", Mobdriver=MobileDriver)
                 send_keys_wait(pwd, _password)
+                printf("login - 6", Mobdriver=MobileDriver)
                 pwd.send_keys( Keys.ENTER)
+                CustomSleep(uniform(1,2))
+                printf("fin du login", Mobdriver=MobileDriver)
+
+
             except Exception as e :
                 echec += 1
                 if echec <= 3 :
@@ -488,12 +497,10 @@ def BingMobileSearch(override = randint(22,25)):
                     CustomSleep(uniform(5,10))
                     Mlogin(echec)
                 else :
-                    LogError('recherche sur mobile impossible. On skip \n\n\n\n\n\n\n\n', Mobdriver=MobileDriver)
                     LogError(f"login impossible 3 fois de suite. {e}",Mobdriver=MobileDriver)
                     MobileDriver.quit()
                     return(True)
                     
-        
         def MRGPD():
             try :
                 MobileDriver.find_element(By.ID, 'bnp_btn_accept').click()
@@ -526,7 +533,7 @@ def BingMobileSearch(override = randint(22,25)):
                 send_keys_wait( MobileDriver.find_element(By.ID, 'sb_form_q'),mot)
                 MobileDriver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
                 progressBar(i,override,name="Mobile")
-                printf(MobileDriver.current_url)
+                printf(MobileDriver.current_url, Mobdriver=driver)
                 sleep(uniform(5,20)) 
 
                 Alerte() # verifie si il y a des alertes (demande de positions ....)
