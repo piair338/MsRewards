@@ -466,7 +466,7 @@ def BingMobileSearch(override = randint(22,25)):
         def Mlogin(echec):
             
             try : 
-                MobileDriver.get(f'https://www.bing.com/search?q=test')#{choice([Liste_de_mot])}')
+                MobileDriver.get('https://www.bing.com/search?q=test+speed&qs=LS&pq=test+s&sk=PRES1&sc=8-6&cvid=19&FORM=QBRE&sp=1')
                 CustomSleep(uniform(3,5))
                 printf("debut du login", Mobdriver=MobileDriver)
                 MobileDriver.find_element(By.ID, 'mHamburger').click()
