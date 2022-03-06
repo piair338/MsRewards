@@ -533,7 +533,7 @@ def BingMobileSearch(override = randint(22,25)):
                 send_keys_wait( MobileDriver.find_element(By.ID, 'sb_form_q'),mot)
                 MobileDriver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
                 progressBar(i,override,name="Mobile")
-                printf(MobileDriver.current_url, Mobdriver=driver)
+                printf(MobileDriver.current_url, Mobdriver=MobileDriver)
                 sleep(uniform(5,20)) 
 
                 Alerte() # verifie si il y a des alertes (demande de positions ....)
