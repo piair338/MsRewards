@@ -763,7 +763,7 @@ def CustomStart(Credentials):
         _mail =Credentials[ids.index(i)][0]
         _password = Credentials[ids.index(i)][1]
         driver = FirefoxPC()
-        driver.implicitly_wait(20)
+        driver.implicitly_wait(10)
         
         login()
         if "tout" in Actions : 
@@ -814,7 +814,7 @@ else :
         printf("debut du driver")
         driver = FirefoxPC()
         printf("driver demarré")
-        driver.implicitly_wait(20)
+        driver.implicitly_wait(10)
 
         try :
             DailyRoutine()
