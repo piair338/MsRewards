@@ -185,7 +185,6 @@ def Close(fenetre, SwitchTo = 0):
 
 
 def RGPD():
-    driver.implicitly_wait(0)
     try :
         driver.find_element(By.ID, 'bnp_btn_accept').click()
     except :
@@ -194,7 +193,6 @@ def RGPD():
         driver.find_element(By.ID, 'bnp_hfly_cta2').click()
     except :
         pass
-    driver.implicitly_wait(10)
 
 
 def PlayQuiz2(override):
@@ -400,7 +398,8 @@ def login() :
         mail = driver.find_element(By.ID, 'i0116')
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
-        CustomSleep(5)
+        CustomSleep(5
+        )
         """
         try :
             driver.find_element(By.ID, 'idChkBx_PWD_KMSI0Pwd').click()
