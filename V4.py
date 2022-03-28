@@ -247,7 +247,7 @@ def PlayQuiz8(override = 3):
                 except Exception as e :
                     LogError("playquiz8 - 1 - " + e)
             shuffle(ListeOfGood)
-
+            
             for i in ListeOfGood :
                 sleep(uniform(3,5))
                 c+=1
@@ -581,7 +581,7 @@ def TryPlay(nom ="inconnu"):
         if number == 8 or number == 9 :
             try :
                 printf(f'Quiz 8 détécté sur la page {nom}')
-                PlayQuiz8(override)
+                PlayQuiz8()
                 printf(f'Quiz 8 reussit sur {nom}')
             except Exception as e :
                 printf(f'echec de PlayQuiz 8. Aborted {e}')
@@ -589,7 +589,7 @@ def TryPlay(nom ="inconnu"):
         elif number == 5 or number == 4 :
             try :
                 printf(f'Quiz 4 détécté sur la page {nom}')
-                PlayQuiz4(override)
+                PlayQuiz4()
                 print(f'Quiz 4 reussit sur {nom}')
             except Exception as e :
                 printf(f'echec de PlayQuiz 4. Aborted {e}')
@@ -597,7 +597,7 @@ def TryPlay(nom ="inconnu"):
         elif number == 3 or number == 2 :
             try :
                 printf(f'Quiz 2 détécté sur la page {nom}')
-                PlayQuiz2(override)
+                PlayQuiz2()
                 print(f'Quiz 2 reussit sur la page {nom}')
             except Exception as e :
                 printf(f'echec de PlayQuiz 2. Aborted {e}')
