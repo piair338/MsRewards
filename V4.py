@@ -8,7 +8,7 @@ from queue import Full
 from random import choice, randint, shuffle, uniform
 from re import findall, search
 from sys import platform
-from time import sleep
+from time import sleep, time
 
 import discord
 from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
@@ -34,10 +34,14 @@ Log = args.log
 FullLog = args.fulllog
 
 IsLinux = platform == "linux"
+start_time = time()
 
+def Timer(text = "undefined"):
+    print(f"-- Temps  {time() - start_time} fonction : {text} --")
 
 if IsLinux :
     import enquiries
+    Timer()
 else :
     system("") #enable colors in cmd
 
@@ -60,6 +64,8 @@ g.close()
 
 webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
+
+Timer("config loaded")
 
 def resource_path(relative_path): #permet de recuperer l'emplacement de chaque fichier, sur linux et windows
     try:
@@ -227,6 +233,7 @@ def PlayQuiz2(override):
 
 
 def PlayQuiz8(override = 3):
+    Timer("PlayQuiz8 : start")
     printf(f"override : {override}")
     try : 
         c = 0
@@ -262,9 +269,10 @@ def PlayQuiz8(override = 3):
           
     except Exception as e :
         LogError("PlayQuiz8 - 4 - " + str(e) + str(ListeOfGood))        
-    
+    Timer("PlayQuiz8 : start")
 
 def PlayQuiz4(override = None):
+    Timer("PlayQuiz4 : start")
     if not override :
         try : #permet de gerer les truc de fidélité, qui sont plus long
             override = int(findall("rqQuestionState([\d]{1,2})\"", driver.page_source)[-1])
@@ -289,9 +297,10 @@ def PlayQuiz4(override = None):
     except Exception as e :
         LogError("PlayQuiz4" + str(e))
         raise ValueError(e)
-
+    Timer("PlayQuiz4 : end")
 
 def PlayPoll():
+    Timer("PlayPoll : start")
     try :
         try : 
             elem = driver.find_element(By.ID, f'btoption{choice([0,1])}')
@@ -302,7 +311,7 @@ def PlayPoll():
     except Exception as e :
         LogError("PlayPoll" +  str(e))
         raise ValueError(e)
-
+    Timer("PlayPoll : end")
 
 def AllCard(): #fonction qui clique sur les cartes
 
@@ -323,6 +332,7 @@ def AllCard(): #fonction qui clique sur les cartes
             for i in range(3):
                 sleep(1)
                 try :
+                    titre = "erreur"
                     driver.find_element(By.XPATH, f'/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]').click()
                     sleep(1)
                     titre = driver.title
@@ -331,7 +341,7 @@ def AllCard(): #fonction qui clique sur les cartes
                     reset()
                     print(f"DailyCard {titre} ok ")
                 except Exception as e :
-                    printf(f"Allcard card {i+1} error")
+                    printf(f"Allcard card {i+1} error ({titre})")
         except Exception as e :
             LogError(f'Dailycards {e}')
 
@@ -373,8 +383,11 @@ def send_keys_wait(element,keys):
 
 
 def login() :
+    Timer("login : start")
     try :
+
         driver.get('https://www.bing.com/rewardsapp/flyout')
+        Timer("login : page chargé")
         try :
             driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click() #depend of the language of the page
         except :
@@ -405,7 +418,7 @@ def login() :
             driver.find_element(By.ID, 'idSIButton9').click()
         except Exception as e  :
             printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}") 
-
+        Timer("printf")
         print("login completed")
         sleep(3)
         RGPD()
@@ -557,6 +570,9 @@ def TryPlay(nom ="inconnu"):
     RGPD()
     sleep(10)
     printf("TryPlay en cours")
+
+    print(driver.page_source)
+    Timer("Tryplay : debut")
     def play(number, override = None) : 
         if number == 8 or number == 9 :
             try :
