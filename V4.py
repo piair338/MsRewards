@@ -102,7 +102,6 @@ def FirefoxPC(Headless = Headless):
 
 def printf(txt, end="", Mobdriver = None):
     if Log :
-        print(txt, end=end)
         Timer(txt)
     if FullLog :
         LogError(txt, Mobdriver=Mobdriver)
@@ -233,6 +232,7 @@ def PlayQuiz2(override):
             break
     printf("PlayQuiz2 finis")
 
+
 def PlayQuiz8(override = 3):
     printf(f"PlayQuiz8 : start, override : {override}")
     try : 
@@ -271,6 +271,7 @@ def PlayQuiz8(override = 3):
         LogError("PlayQuiz8 - 4 - " + str(e) + str(ListeOfGood))      
     printf("PlayQuiz8 : fin ")
 
+
 def PlayQuiz4(override = None):
     printf("PlayQuiz4 : start")
     if not override :
@@ -300,6 +301,7 @@ def PlayQuiz4(override = None):
         raise ValueError(e)
     printf("PlayQuiz4 : end")
 
+
 def PlayPoll():
     printf("PlayPoll : start")
     try :
@@ -313,6 +315,7 @@ def PlayPoll():
         LogError("PlayPoll" +  str(e))
         raise ValueError(e)
     printf("PlayPoll : end")
+
 
 def AllCard(): #fonction qui clique sur les cartes
 
@@ -342,7 +345,7 @@ def AllCard(): #fonction qui clique sur les cartes
                     reset()
                     print(f"DailyCard {titre} ok ")
                 except Exception as e :
-                    printf(f"Allcard card {i+1} error ({titre})")
+                    printf(f"Allcard card {titre} error ({e})")
         except Exception as e :
             LogError(f'Dailycards {e}')
 
@@ -397,7 +400,7 @@ def login() :
         mail = driver.find_element(By.ID, 'i0116')
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
-        
+        """
         try :
             driver.find_element(By.ID, 'idChkBx_PWD_KMSI0Pwd').click()
         except :
@@ -406,7 +409,7 @@ def login() :
                 driver.find_element(By.CSS_SELECTOR, '''[data-bind="text: str['CT_PWD_STR_KeepMeSignedInCB_Text']"]''').click()
             except :
                 printf("a degager 2")
-
+        """
         pwd = driver.find_element(By.ID, 'i0118')
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
