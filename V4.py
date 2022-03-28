@@ -606,8 +606,8 @@ def TryPlay(nom ="inconnu"):
         number = driver.page_source.count('rqAnswerOption')
         play(number)
             
-    except :
-        
+    except Exception as e :
+        printf(e)
         if "bt_PollRadio" in driver.page_source :
             try :
                 print('Poll détected',  end ="\r")
