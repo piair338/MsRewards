@@ -86,17 +86,17 @@ def FirefoxMobile(Headless = Headless):
 
 
 def FirefoxPC(Headless = Headless):
-    PC_USER_AGENT = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                'AppleWebKit/537.36 (KHTML, like Gecko) '
-                'Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134')
-
+    #PC_USER_AGENT = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+    #            'AppleWebKit/537.36 (KHTML, like Gecko) '
+    #            'Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134')
+    #options.set_preference("general.useragent.override", PC_USER_AGENT)
     options = Options()
     options.set_preference("browser.link.open_newwindow", 3)
     
     if Headless :
         options.add_argument("-headless")
 
-    options.set_preference("general.useragent.override", PC_USER_AGENT)
+    
     return(webdriver.Firefox(options=options))
 
 
