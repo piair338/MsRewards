@@ -267,7 +267,8 @@ def PlayQuiz8(override = 3):
                         LogError("playquizz8 - 3 - " + e)
           
     except Exception as e :
-        LogError("PlayQuiz8 - 4 - " + str(e) + str(ListeOfGood))      
+        LogError("PlayQuiz8 - 4 - " + str(e))   
+        print(str(ListeOfGood))   
     printf("PlayQuiz8 : fin ")
 
 
