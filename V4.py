@@ -400,6 +400,7 @@ def login() :
         mail = driver.find_element(By.ID, 'i0116')
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
+        CustomSleep(5)
         """
         try :
             driver.find_element(By.ID, 'idChkBx_PWD_KMSI0Pwd').click()
