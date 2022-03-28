@@ -103,7 +103,7 @@ def FirefoxPC(Headless = Headless):
 def printf(txt, end="", Mobdriver = None):
     if Log :
         print(txt, end=end)
-        CustomSleep(5)
+        Timer(txt)
     if FullLog :
         LogError(txt, Mobdriver=Mobdriver)
 
@@ -115,7 +115,6 @@ def CustomSleep(temps):
         for i in range (int(temps)):
             c = True
             for i in range (8):
-                
                 sleep(0.125)
                 print(points[i], end='\r')
 
@@ -127,7 +126,7 @@ def CustomSleep(temps):
         sleep(temps)
 
 
-def ListTabs(Mdriver = None ):
+def ListTabs(Mdriver = None):
     tabs = []
     if Mdriver :
         ldriver = Mdriver
@@ -145,7 +144,7 @@ def LogError(message,log = FullLog, Mobdriver = None):
     else :
         gdriver = driver
     if not log :
-        print(f'\033[93m Erreur : {str(message)}  \033[0m')
+        print(f'\n\n\033[93m Erreur : {str(message)}  \033[0m\n\n')
     if IsLinux :
         with open('page.html', 'w') as f:
             f.write(gdriver.page_source)
@@ -187,18 +186,20 @@ def Close(fenetre, SwitchTo = 0):
 
 
 def RGPD():
+    driver.implicitly_wait(0)
     try :
         driver.find_element(By.ID, 'bnp_btn_accept').click()
     except :
         pass
-    
     try :
         driver.find_element(By.ID, 'bnp_hfly_cta2').click()
     except :
         pass
+    driver.implicitly_wait(10)
 
 
 def PlayQuiz2(override):
+    printf("debut de PlayQuiz2")
     if not override :
         override = 10
     for j in range (override):
@@ -230,11 +231,10 @@ def PlayQuiz2(override):
         except Exception as e:
             LogError("PlayQuiz2" + str(e))
             break
-
+    printf("PlayQuiz2 finis")
 
 def PlayQuiz8(override = 3):
-    Timer("PlayQuiz8 : start")
-    printf(f"override : {override}")
+    printf(f"PlayQuiz8 : start, override : {override}")
     try : 
         c = 0
         for i in range(override):
@@ -268,14 +268,15 @@ def PlayQuiz8(override = 3):
                         LogError("playquizz8 - 3 - " + e)
           
     except Exception as e :
-        LogError("PlayQuiz8 - 4 - " + str(e) + str(ListeOfGood))        
-    Timer("PlayQuiz8 : start")
+        LogError("PlayQuiz8 - 4 - " + str(e) + str(ListeOfGood))      
+    printf("PlayQuiz8 : fin ")
 
 def PlayQuiz4(override = None):
-    Timer("PlayQuiz4 : start")
+    printf("PlayQuiz4 : start")
     if not override :
         try : #permet de gerer les truc de fidélité, qui sont plus long
             override = int(findall("rqQuestionState([\d]{1,2})\"", driver.page_source)[-1])
+            printf(f"Override : {override}")
         except :
             override = 3    
     
@@ -297,10 +298,10 @@ def PlayQuiz4(override = None):
     except Exception as e :
         LogError("PlayQuiz4" + str(e))
         raise ValueError(e)
-    Timer("PlayQuiz4 : end")
+    printf("PlayQuiz4 : end")
 
 def PlayPoll():
-    Timer("PlayPoll : start")
+    printf("PlayPoll : start")
     try :
         try : 
             elem = driver.find_element(By.ID, f'btoption{choice([0,1])}')
@@ -311,7 +312,7 @@ def PlayPoll():
     except Exception as e :
         LogError("PlayPoll" +  str(e))
         raise ValueError(e)
-    Timer("PlayPoll : end")
+    printf("PlayPoll : end")
 
 def AllCard(): #fonction qui clique sur les cartes
 
@@ -322,7 +323,7 @@ def AllCard(): #fonction qui clique sur les cartes
                 driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click()
         else : 
             driver.switch_to.window(driver.window_handles[1])
-            printf(f"on ferme la fenetre {driver.current_url}")
+            printf(f"fermeture : {driver.current_url}")
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
             reset(Partie2)
@@ -379,15 +380,15 @@ def AllCard(): #fonction qui clique sur les cartes
 def send_keys_wait(element,keys):
     for i in keys :
         element.send_keys(i)
-        sleep(uniform(0, 0.5))
+        sleep(uniform(0, 0.2))
 
 
 def login() :
-    Timer("login : start")
+    printf("login : start")
     try :
 
         driver.get('https://www.bing.com/rewardsapp/flyout')
-        Timer("login : page chargé")
+
         try :
             driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click() #depend of the language of the page
         except :
@@ -400,27 +401,29 @@ def login() :
         try :
             driver.find_element(By.ID, 'idChkBx_PWD_KMSI0Pwd').click()
         except :
+            printf("a degager")
             try :
                 driver.find_element(By.CSS_SELECTOR, '''[data-bind="text: str['CT_PWD_STR_KeepMeSignedInCB_Text']"]''').click()
             except :
-                pass
-        CustomSleep(3)
+                printf("a degager 2")
+
         pwd = driver.find_element(By.ID, 'i0118')
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
         CustomSleep(5)
+        printf("pwd envoyé")
+
         try : 
             driver.find_element(By.ID, 'KmsiCheckboxField').click()
         except Exception as e  :
             printf(f"login - 1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}") 
-        CustomSleep(5)
+
         try : 
             driver.find_element(By.ID, 'idSIButton9').click()
         except Exception as e  :
             printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}") 
-        Timer("printf")
-        print("login completed")
-        sleep(3)
+        
+        printf("login completed")
         RGPD()
         driver.get('https://www.bing.com/rewardsapp/flyout')
         
@@ -568,11 +571,7 @@ def BingMobileSearch(override = randint(22,25)):
 
 def TryPlay(nom ="inconnu"):
     RGPD()
-    sleep(10)
     printf("TryPlay en cours")
-
-    print(driver.page_source)
-    Timer("Tryplay : debut")
     def play(number, override = None) : 
         if number == 8 or number == 9 :
             try :
@@ -697,7 +696,7 @@ def Fidelité():
         LogError("Fidélité" + str(e))
 
 
-def CheckPoint():# a fix, ne marche pas dans  80% des cas pas appelé aujourd'hui
+def CheckPoint():# a fix, ne marche pas dans  80% des cas, pas appelé aujourd'hui
     driver.get("https://rewards.microsoft.com/pointsbreakdown")
     txt = driver.page_source
     pc = search('([0-9][0-9]|[0-9])</b> / 90',txt)
@@ -761,7 +760,7 @@ def CustomStart(Credentials):
         _mail =Credentials[ids.index(i)][0]
         _password = Credentials[ids.index(i)][1]
         driver = FirefoxPC()
-        driver.implicitly_wait(15)
+        driver.implicitly_wait(20)
         
         login()
         if "tout" in Actions : 
@@ -809,9 +808,10 @@ else :
         print('\n\n')
         print(_mail)
         CustomSleep(1)
-    
+        printf("debut du driver")
         driver = FirefoxPC()
-        driver.implicitly_wait(15)
+        printf("driver demarré")
+        driver.implicitly_wait(20)
 
         try :
             DailyRoutine()
