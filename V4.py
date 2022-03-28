@@ -602,6 +602,7 @@ def TryPlay(nom ="inconnu"):
         else :
                 LogError('probleme dans la carte : il y a un bouton play et aucun quiz detecté')
     try :
+        LogError('value="Commencez à jouer !"')
         driver.find_element(By.ID, 'rqStartQuiz').click() #start the quiz
         number = driver.page_source.count('rqAnswerOption')
         play(number)
