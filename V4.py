@@ -609,7 +609,7 @@ def TryPlay(nom ="inconnu"):
         play(number)
             
     except Exception as e :
-        printf(e)
+        #printf(e) #normal error here, used to detect quizz
         if "bt_PollRadio" in driver.page_source :
             try :
                 print('Poll détected',  end ="\r")
