@@ -402,7 +402,7 @@ def login() :
         mail.send_keys(Keys.ENTER)
         CustomSleep(5
         )
-        """
+        """ no issues for now, delete in a few real updates
         try :
             driver.find_element(By.ID, 'idChkBx_PWD_KMSI0Pwd').click()
         except :
@@ -580,31 +580,30 @@ def TryPlay(nom ="inconnu"):
     def play(number, override = None) : 
         if number == 8 or number == 9 :
             try :
-                printf(f'Quiz 8 détécté sur la page {nom}')
+                printf(f'\033[96m Quiz 8 détécté sur la page {nom} \033[0m')
                 PlayQuiz8()
-                printf(f'Quiz 8 reussit sur {nom}')
+                printf(f'\033[92m Quiz 8 reussit sur {nom} \033[0m')
             except Exception as e :
-                printf(f'echec de PlayQuiz 8. Aborted {e}')
+                printf(f'echec de PlayQuiz 8. Aborted {e} \033[0m')
 
         elif number == 5 or number == 4 :
             try :
-                printf(f'Quiz 4 détécté sur la page {nom}')
+                printf(f'\033[96m Quiz 4 détécté sur la page {nom} \033[0m')
                 PlayQuiz4()
-                print(f'Quiz 4 reussit sur {nom}')
+                print(f'\033[92m Quiz 4 reussit sur {nom} \033[0m')
             except Exception as e :
-                printf(f'echec de PlayQuiz 4. Aborted {e}')
+                printf(f'echec de PlayQuiz 4. Aborted {e} \033[0m')
 
         elif number == 3 or number == 2 :
             try :
-                printf(f'Quiz 2 détécté sur la page {nom}')
+                printf(f'\033[96m Quiz 2 détécté sur la page {nom}\033[0m')
                 PlayQuiz2()
-                print(f'Quiz 2 reussit sur la page {nom}')
+                print(f'\033[92m Quiz 2 reussit sur la page {nom}\033[0m')
             except Exception as e :
                 printf(f'echec de PlayQuiz 2. Aborted {e}')
         else :
                 LogError('probleme dans la carte : il y a un bouton play et aucun quiz detecté')
     try :
-        LogError('value="Commencez à jouer !"')
         driver.find_element(By.ID, 'rqStartQuiz').click() #start the quiz
         number = driver.page_source.count('rqAnswerOption')
         play(number)
