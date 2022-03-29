@@ -2,3 +2,4 @@
 geckodriver.log
 config
 .vscode/settings.json
+update.sh
