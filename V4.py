@@ -104,8 +104,10 @@ def printf(txt, end="", Mobdriver = None):
     if Log :
         Timer(txt)
     if FullLog :
-        LogError(txt, Mobdriver=Mobdriver)
-
+        try : 
+            LogError(txt, Mobdriver=Mobdriver)
+        except Exception as e: 
+            print(e)
 
 def CustomSleep(temps):
     if Log or not IsLinux :
