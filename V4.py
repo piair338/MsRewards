@@ -65,7 +65,6 @@ g.close()
 webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 
-Timer("config loaded")
 
 def resource_path(relative_path): #permet de recuperer l'emplacement de chaque fichier, sur linux et windows
     try:
@@ -196,7 +195,7 @@ def RGPD():
         pass
 
 
-def PlayQuiz2(override):
+def PlayQuiz2(override= None):
     printf("debut de PlayQuiz2")
     if not override :
         override = 10
