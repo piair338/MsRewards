@@ -100,7 +100,7 @@ def FirefoxPC(Headless = Headless):
     return(webdriver.Firefox(options=options))
 
 
-def printf(txt, end="", Mobdriver = driver):
+def printf(txt, end="", Mobdriver = None):
     if Log :
         Timer(txt)
     if FullLog :
