@@ -1,10 +1,8 @@
----
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
+if you have a rare bug, i'll not fix it. If you have a reccurent bug, send : 
 
----
-
-Don't report bug please, I'll not fix them
+| python version |
+| --- |
+| page.html |
+ screenshot of error 
+ ---
+ and i may try to fix it.
