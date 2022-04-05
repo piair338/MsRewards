@@ -66,13 +66,6 @@ webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 
 
-def resource_path(relative_path): #permet de recuperer l'emplacement de chaque fichier, sur linux et windows
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = path.dirname(__file__)
-    return path.join(base_path, relative_path)
-
 
 def FirefoxMobile(Headless = Headless):
     MOBILE_USER_AGENT = ('Mozilla/5.0 (iPhone; CPU iPhone OS 14_8_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1')
@@ -88,13 +81,9 @@ def FirefoxPC(Headless = Headless):
     PC_USER_AGENT = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36 Edg/99.0.1150.46')
     options = Options()
     options.set_preference("general.useragent.override", PC_USER_AGENT)
-    
     options.set_preference("browser.link.open_newwindow", 3)
-    
     if Headless :
         options.add_argument("-headless")
-
-    
     return(webdriver.Firefox(options=options))
 
 
@@ -147,7 +136,6 @@ def LogError(message,log = FullLog, Mobdriver = None):
     if IsLinux :
         with open('page.html', 'w') as f:
             f.write(gdriver.page_source)
-
         gdriver.save_screenshot("screenshot.png")
         if not log : 
             embed = discord.Embed(
@@ -163,7 +151,6 @@ def LogError(message,log = FullLog, Mobdriver = None):
                 url = ListTabs(Mdriver=Mobdriver)[0],
                 colour = Colour.blue()
             )
-
         file = discord.File("screenshot.png")
         embed.set_image(url="attachment://screenshot.png")
         embed.set_footer(text=_mail)
