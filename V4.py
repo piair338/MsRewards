@@ -99,7 +99,7 @@ def FirefoxPC(Headless = Headless):
     
     return(webdriver.Firefox(options=options))
 
-
+driver = ""
 def printf(txt, end="", Mobdriver = driver):
     if Log :
         Timer(txt)
