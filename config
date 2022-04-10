@@ -1,0 +1,9 @@
+[DEFAULT]
+motpath = /your/path/to/words/list.txt
+logpath = /your/path/to/words/loginandpass.csv
+successlink = https://discord.com/api/webhooks/[put your webhook here]
+errorlink =https://discord.com/api/webhooks/[put your webhook here]
+fidelity = Null
+embeds = False
+Headless = True
+Log = False
