@@ -9,7 +9,7 @@ from random import choice, randint, shuffle, uniform
 from re import findall, search
 from sys import platform
 from time import sleep, time
-
+from requests import get
 import discord
 from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
     Colour, Embed, RequestsWebhookAdapter, Webhook)
@@ -53,7 +53,7 @@ MotPath = config["DEFAULT"]["motpath"]
 LogPath = config["DEFAULT"]["logpath"]
 SuccessLink = config["DEFAULT"]["successlink"]
 ErrorLink = config["DEFAULT"]["errorlink"]
-
+fidelity = config["DEFAULT"]["fidelity"]
 embeds = config["DEFAULT"]["embeds"] == "True"
 Headless = config["DEFAULT"]["headless"] == "True"
 
@@ -631,7 +631,7 @@ def TryPlay(nom ="inconnu"):
         elif search("([0-9]) de ([0-9]) finalisée",driver.page_source) :
             print('fidélité')
             RGPD()
-            Fidelité()
+            Fidelite()
                 
         else :
             print(f'rien a faire sur la page {nom}')
@@ -677,22 +677,24 @@ def LogPoint(account="unknown"): #log des points sur discord
         webhookSuccess.send(f'{account} actuellement à {str(point)} points')
 
 
-def Fidelité():
+def Fidelite(lien):
     try :
-        driver.switch_to.window(driver.window_handles[1])
-        choix = driver.find_element(By.CLASS_NAME,'spacer-48-bottom')
-        nb = search("([0-9]) de ([0-9]) finalisée",driver.page_source)
+        driver.get(lien)
+        sleep(2)
+        choix = driver.find_element(By.CSS_SELECTOR,'div[class="pull-left spacer-48-bottom punchcard-row"]') #pull-left spacer-48-bottom punchcard-row
+        nb = search("([0-9]) of ([0-9]) completed",driver.page_source)
+        if not nb :
+            nb = search("([0-9]) de ([0-9]) finalisé",driver.page_source)
+        print(choix, nb)
         for i in range(int(nb[2])-int(nb[1])):
             choix = driver.find_element(By.CLASS_NAME,'spacer-48-bottom')
             ButtonText = search('<span class=\"pull-left margin-right-15\">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
             bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
             bouton.click()
             CustomSleep(uniform(3,5))
-            driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
+            driver.switch_to.window(driver.window_handles[0])
             TryPlay(driver.title)
-            CustomSleep(uniform(3,5))
-            Close(driver.window_handles[2],SwitchTo=1)
-            driver.refresh()
+            driver.get(lien)
             CustomSleep(uniform(3,5))
 
         Close(driver.window_handles[1])
@@ -746,6 +748,15 @@ def close():
     driver.quit()
     quit()
 
+def dev():
+    try :
+        result = get(fidelity)
+        lien = result.content.decode("UTF-8")
+        print(lien)
+        Fidelite(lien)
+    except Exception as e :
+        print(f"erreur dans la partie dev : {e}")
+
 
 def CustomStart(Credentials):
     global driver
@@ -753,7 +764,7 @@ def CustomStart(Credentials):
     global _password
 
     ids = [x[0] for x in Credentials] #list of all email adresses
-    actions=["tout", "daily", "pc", "mobile", "LogPoint"]
+    actions=["tout", "daily", "pc", "mobile", "LogPoint", "dev"]
 
     system("clear") #clear from previous command to allow a clean choice
     Comptes = enquiries.choose('quels comptes ?', ids, multi=True)
@@ -789,7 +800,13 @@ def CustomStart(Credentials):
             except Exception as e:
                 LogError(f'BingMobileSearch - {e} -- override')
 
-        
+        if "dev" in Actions:
+            try :
+                dev()
+            except Exception as e :
+                printf(e)
+                break
+
         try :
             LogPoint(_mail)
         except Exception as e :
