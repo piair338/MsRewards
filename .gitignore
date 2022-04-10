@@ -4,3 +4,5 @@ config
 .vscode/settings.json
 update.sh
 /Git
+page.html
+screenshot.png
