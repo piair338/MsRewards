@@ -400,18 +400,7 @@ def login() :
         mail = driver.find_element(By.ID, 'i0116')
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
-        CustomSleep(5
-        )
-        """ no issues for now, delete in a few real updates
-        try :
-            driver.find_element(By.ID, 'idChkBx_PWD_KMSI0Pwd').click()
-        except :
-            printf("a degager")
-            try :
-                driver.find_element(By.CSS_SELECTOR, '''[data-bind="text: str['CT_PWD_STR_KeepMeSignedInCB_Text']"]''').click()
-            except :
-                printf("a degager 2")
-        """
+        CustomSleep(5)
         pwd = driver.find_element(By.ID, 'i0118')
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
@@ -514,7 +503,7 @@ def BingMobileSearch(override = randint(22,25)):
             except Exception as e :
                 echec += 1
                 if echec <= 3 :
-                    print(f'echec du login sur la version mobile. on reesaye ({echec}/3), {e}')
+                    printf(f'echec du login sur la version mobile. on reesaye ({echec}/3), {e}')
                     CustomSleep(uniform(5,10))
                     Mlogin(echec)
                 else :
@@ -679,13 +668,13 @@ def LogPoint(account="unknown"): #log des points sur discord
 
 def Fidelite(lien):
     try :
+        driver.switch_to.window(driver.window_handles[0])
         driver.get(lien)
         sleep(2)
         choix = driver.find_element(By.CSS_SELECTOR,'div[class="pull-left spacer-48-bottom punchcard-row"]') #pull-left spacer-48-bottom punchcard-row
         nb = search("([0-9]) of ([0-9]) completed",driver.page_source)
         if not nb :
             nb = search("([0-9]) de ([0-9]) finalisé",driver.page_source)
-        print(choix, nb)
         for i in range(int(nb[2])-int(nb[1])):
             choix = driver.find_element(By.CLASS_NAME,'spacer-48-bottom')
             ButtonText = search('<span class=\"pull-left margin-right-15\">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
@@ -696,8 +685,11 @@ def Fidelite(lien):
             TryPlay(driver.title)
             driver.get(lien)
             CustomSleep(uniform(3,5))
+        try :
+            Close(driver.window_handles[1])
+        except Exception as e :
+            printf(e)
 
-        Close(driver.window_handles[1])
         printf('on a passer la partie fidélité')
     except Exception as e :
         LogError("Fidélité" + str(e))
@@ -737,6 +729,10 @@ def DailyRoutine():
         LogError(f'BingMobileSearch - {e}')
     print('\n')
     CustomSleep(uniform(3,20))
+    try :
+        FidelityTest()
+    except :
+        pass
     
     try :
         LogPoint(_mail)
@@ -748,7 +744,7 @@ def close():
     driver.quit()
     quit()
 
-def dev():
+def FidelityTest():
     try :
         result = get(fidelity)
         lien = result.content.decode("UTF-8")
