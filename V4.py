@@ -683,6 +683,8 @@ def Fidelite(lien):
         if not nb :
             nb = search("([0-9]) de ([0-9]) finalisé",driver.page_source)
         for i in range(int(nb[2])-int(nb[1])):
+            driver.refresh()
+            CustomSleep(2)
             choix = driver.find_element(By.CLASS_NAME,'spacer-48-bottom')
             ButtonText = search('<span class=\"pull-left margin-right-15\">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
             bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
@@ -781,7 +783,7 @@ def CustomStart(Credentials):
         _mail =Credentials[ids.index(i)][0]
         _password = Credentials[ids.index(i)][1]
         driver = FirefoxPC()
-        driver.implicitly_wait(10)
+        driver.implicitly_wait(7)
         
         login()
         if "tout" in Actions : 
@@ -838,7 +840,7 @@ else :
         printf("debut du driver")
         driver = FirefoxPC()
         printf("driver demarré")
-        driver.implicitly_wait(10)
+        driver.implicitly_wait(7)
 
         try :
             DailyRoutine()
