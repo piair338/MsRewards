@@ -201,6 +201,7 @@ def PlayQuiz2(override= None):
         override = 10
     for j in range (override):
         try :
+            RGPD()
             CustomSleep(uniform(3,5))
             txt = driver.page_source
             secret = search('IG:\"([^\"]+)\"', txt)[1] #variable dans la page, pour calculer le offset
@@ -236,6 +237,7 @@ def PlayQuiz8(override = 3):
     try : 
         c = 0
         for i in range(override):
+            RGPD()
             sleep(uniform(3,5))
             ListeOfGood =[]
             for i in range(1,9):
@@ -284,7 +286,7 @@ def PlayQuiz4(override = None):
         for i in range(override):
             CustomSleep(uniform(3,5))
             txt = driver.page_source
-            
+            RGPD()
             reponse = search("correctAnswer\":\"([^\"]+)", txt)[1] #je suis pas sur qu'il y ait un espace
             reponse = reponse.replace('\\u0027',"'") #il faut cancel l'unicode avec un double \ (on replacer les caracteres en unicode en caracteres utf-8) 
             printf(f"validation de la reponse                                     " , end="\r")
