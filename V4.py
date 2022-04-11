@@ -668,7 +668,12 @@ def LogPoint(account="unknown"): #log des points sur discord
 
 def Fidelite(lien):
     try :
-        driver.switch_to.window(driver.window_handles[0])
+        while 1 :
+            try : 
+                Close(1)
+            except :
+                break
+
         driver.get(lien)
         sleep(2)
         choix = driver.find_element(By.CSS_SELECTOR,'div[class="pull-left spacer-48-bottom punchcard-row"]') #pull-left spacer-48-bottom punchcard-row
@@ -681,14 +686,14 @@ def Fidelite(lien):
             bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
             bouton.click()
             CustomSleep(uniform(3,5))
-            driver.switch_to.window(driver.window_handles[0])
+            driver.switch_to.window(driver.window_handles[1])
             TryPlay(driver.title)
             driver.get(lien)
             CustomSleep(uniform(3,5))
-        try :
-            Close(driver.window_handles[1])
-        except Exception as e :
-            printf(e)
+            try :
+                Close(driver.window_handles[1])
+            except Exception as e :
+                printf(e)
 
         printf('on a passer la partie fidélité')
     except Exception as e :
