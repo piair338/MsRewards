@@ -758,6 +758,8 @@ def FidelityTest():
     except Exception as e :
         print(f"erreur dans la partie dev : {e}")
 
+def dev():
+    FidelityTest()
 
 def CustomStart(Credentials):
     global driver
