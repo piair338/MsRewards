@@ -699,7 +699,7 @@ def Fidelite(lien):
             except Exception as e :
                 printf(e)
 
-        printf('on a passer la partie fidélité')
+        printf('on a reussit la partie fidélité')
     except Exception as e :
         LogError("Fidélité" + str(e))
 
