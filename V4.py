@@ -12,7 +12,11 @@ from time import sleep, time
 from requests import get
 import discord
 from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
-    Colour, Embed, RequestsWebhookAdapter, Webhook)
+    Colour,
+    Embed,
+    RequestsWebhookAdapter,
+    Webhook,
+)
 from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.common.by import By
@@ -24,9 +28,19 @@ import argparse
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-o" , "--override", help="override", dest="override", action = "store_true")
-parser.add_argument("-l", "--log",dest="log",help="enable logging in terminal", action ="store_true")
-parser.add_argument("-fl", "--fulllog",dest="fulllog",help="enable full logging in terminal", action ="store_true")
+parser.add_argument(
+    "-o", "--override", help="override", dest="override", action="store_true"
+)
+parser.add_argument(
+    "-l", "--log", dest="log", help="enable logging in terminal", action="store_true"
+)
+parser.add_argument(
+    "-fl",
+    "--fulllog",
+    dest="fulllog",
+    help="enable full logging in terminal",
+    action="store_true",
+)
 
 args = parser.parse_args()
 override = args.override
@@ -36,14 +50,17 @@ FullLog = args.fulllog
 IsLinux = platform == "linux"
 start_time = time()
 
-def Timer(text = "undefined"):
+
+def Timer(text="undefined"):
     print(f"-- Temps  {time() - start_time} fonction : {text} --")
 
-if IsLinux :
+
+if IsLinux:
     import enquiries
+
     Timer()
-else :
-    system("") #enable colors in cmd
+else:
+    system("")  # enable colors in cmd
 
 config_path = "/home/pi/MsReward/config"
 config = configparser.ConfigParser()
@@ -58,15 +75,17 @@ embeds = config["DEFAULT"]["embeds"] == "True"
 Headless = config["DEFAULT"]["headless"] == "True"
 
 
-g =  open(MotPath, "r" , encoding="utf-8")
-Liste_de_mot=(list(g.readline().split(',')))
+g = open(MotPath, "r", encoding="utf-8")
+Liste_de_mot = list(g.readline().split(","))
 g.close()
 
 webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 
 
-def resource_path(relative_path): #permet de recuperer l'emplacement de chaque fichier, sur linux et windows
+def resource_path(
+    relative_path
+):  # permet de recuperer l'emplacement de chaque fichier, sur linux et windows
     try:
         base_path = sys._MEIPASS
     except Exception:
@@ -74,157 +93,170 @@ def resource_path(relative_path): #permet de recuperer l'emplacement de chaque f
     return path.join(base_path, relative_path)
 
 
-def FirefoxMobile(Headless = Headless):
-    MOBILE_USER_AGENT = ('Mozilla/5.0 (iPhone; CPU iPhone OS 14_8_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1')
+def FirefoxMobile(Headless=Headless):
+    MOBILE_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_8_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1"
     options = Options()
     options.set_preference("browser.link.open_newwindow", 3)
-    if Headless :
-        options.add_argument("-headless") 
+    if Headless:
+        options.add_argument("-headless")
     options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
-    return(webdriver.Firefox(options=options))
+    return webdriver.Firefox(options=options)
 
 
-def FirefoxPC(Headless = Headless):
-    PC_USER_AGENT = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                'AppleWebKit/537.36 (KHTML, like Gecko) '
-                'Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134')
+def FirefoxPC(Headless=Headless):
+    PC_USER_AGENT = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134"
+    )
     options = Options()
     options.set_preference("general.useragent.override", PC_USER_AGENT)
-    
+
     options.set_preference("browser.link.open_newwindow", 3)
-    
-    if Headless :
+
+    if Headless:
         options.add_argument("-headless")
 
-    
-    return(webdriver.Firefox(options=options))
+    return webdriver.Firefox(options=options)
+
 
 driver = ""
-def printf(txt, end="", Mobdriver = driver):
-    if Log :
+
+
+def printf(txt, end="", Mobdriver=driver):
+    if Log:
         Timer(txt)
-    if FullLog :
+    if FullLog:
         LogError(txt, Mobdriver=Mobdriver)
 
 
 def CustomSleep(temps):
-    if Log or not IsLinux :
+    if Log or not IsLinux:
         c = False
-        points = [" .   ", "  .  ", "   . ", "    .", "    .", "   . ", "  .  "," .   "]
-        for i in range (int(temps)):
+        points = [
+            " .   ",
+            "  .  ",
+            "   . ",
+            "    .",
+            "    .",
+            "   . ",
+            "  .  ",
+            " .   ",
+        ]
+        for i in range(int(temps)):
             c = True
-            for i in range (8):
+            for i in range(8):
                 sleep(0.125)
-                print(points[i], end='\r')
+                print(points[i], end="\r")
 
         if c:
-            print('.   ', end="\r")
+            print(".   ", end="\r")
         sleep(temps - int(temps))
         print("\n")
-    else : 
+    else:
         sleep(temps)
 
 
-def ListTabs(Mdriver = None):
+def ListTabs(Mdriver=None):
     tabs = []
-    if Mdriver :
+    if Mdriver:
         ldriver = Mdriver
-    else :
+    else:
         ldriver = driver
-    for i in ldriver.window_handles :
+    for i in ldriver.window_handles:
         ldriver.switch_to.window(i)
         tabs.append(ldriver.current_url)
-    return(tabs)
+    return tabs
 
 
-def LogError(message,log = FullLog, Mobdriver = None):
-    if Mobdriver :
+def LogError(message, log=FullLog, Mobdriver=None):
+    if Mobdriver:
         gdriver = Mobdriver
-    else :
+    else:
         gdriver = driver
-    if not log :
-        print(f'\n\n\033[93m Erreur : {str(message)}  \033[0m\n\n')
-    if IsLinux :
-        with open('page.html', 'w') as f:
+    if not log:
+        print(f"\n\n\033[93m Erreur : {str(message)}  \033[0m\n\n")
+    if IsLinux:
+        with open("page.html", "w") as f:
             f.write(gdriver.page_source)
 
         gdriver.save_screenshot("screenshot.png")
-        if not log : 
+        if not log:
             embed = discord.Embed(
                 title="An Error has occured",
                 description=str(message),
-                url = ListTabs(Mdriver=Mobdriver)[0],
-                colour = Colour.red()
+                url=ListTabs(Mdriver=Mobdriver)[0],
+                colour=Colour.red(),
             )
-        else : 
+        else:
             embed = discord.Embed(
                 title="Full log is enabled",
                 description=str(message),
-                url = ListTabs(Mdriver=Mobdriver)[0],
-                colour = Colour.blue()
+                url=ListTabs(Mdriver=Mobdriver)[0],
+                colour=Colour.blue(),
             )
 
         file = discord.File("screenshot.png")
         embed.set_image(url="attachment://screenshot.png")
         embed.set_footer(text=_mail)
         webhookFailure.send(embed=embed, file=file)
-        webhookFailure.send(file=discord.File('page.html'))
+        webhookFailure.send(file=discord.File("page.html"))
 
 
-def progressBar(current, total=30, barLength = 20, name ="Progress"):
-    percent = float(current+1) * 100 / total
-    arrow   = '-' * int(percent/100 * barLength - 1) + '>'
-    spaces  = ' ' * (barLength - len(arrow))
-    print(name + ': [%s%s] %d %%' % (arrow, spaces, percent), end='\r')
+def progressBar(current, total=30, barLength=20, name="Progress"):
+    percent = float(current + 1) * 100 / total
+    arrow = "-" * int(percent / 100 * barLength - 1) + ">"
+    spaces = " " * (barLength - len(arrow))
+    print(name + ": [%s%s] %d %%" % (arrow, spaces, percent), end="\r")
 
 
-def Close(fenetre, SwitchTo = 0):
+def Close(fenetre, SwitchTo=0):
     driver.switch_to.window(fenetre)
     driver.close()
     driver.switch_to.window(driver.window_handles[SwitchTo])
 
 
 def RGPD():
-    try :
-        driver.find_element(By.ID, 'bnp_btn_accept').click()
-    except :
+    try:
+        driver.find_element(By.ID, "bnp_btn_accept").click()
+    except:
         pass
-    try :
-        driver.find_element(By.ID, 'bnp_hfly_cta2').click()
-    except :
+    try:
+        driver.find_element(By.ID, "bnp_hfly_cta2").click()
+    except:
         pass
 
 
-def PlayQuiz2(override= None):
+def PlayQuiz2(override=None):
     printf("debut de PlayQuiz2")
-    if not override :
+    if not override:
         override = 10
-    for j in range (override):
-        try :
+    for j in range(override):
+        try:
             RGPD()
-            CustomSleep(uniform(3,5))
+            CustomSleep(uniform(3, 5))
             txt = driver.page_source
-            secret = search('IG:\"([^\"]+)\"', txt)[1] #variable dans la page, pour calculer le offset
-            reponse1 = search("data-option=\"([^\"]+)\"", txt)[1]
-            offset = int(secret[-2:],16) # la conversion ec decimal des deux dernier caracteres de IG
-            reponse = search("correctAnswer\":\"([0-9]+)", txt)[1]
-            somme = 0 
+            secret = search('IG:"([^"]+)"', txt)[1]  # variable dans la page, pour calculer le offset
+            reponse1 = search('data-option="([^"]+)"', txt)[1]
+            offset = int(secret[-2:], 16)  # la conversion ec decimal des deux dernier caracteres de IG
+            reponse = search('correctAnswer":"([0-9]+)', txt)[1]
+            somme = 0
 
-            for i in reponse1 :
+            for i in reponse1:
                 somme += ord(i)
 
-            if somme + offset == int(reponse) :
-                elem = driver.find_element(By.ID, 'rqAnswerOption0')
+            if somme + offset == int(reponse):
+                elem = driver.find_element(By.ID, "rqAnswerOption0")
                 elem.click()
-                progressBar(j,10, name="quiz 2")
-                
-            else : 
-                elem = driver.find_element(By.ID, 'rqAnswerOption1')
-                elem.click()
-                progressBar(j,10, name="quiz 2")
+                progressBar(j, 10, name="quiz 2")
 
-        except exceptions.ElementNotInteractableException as e :
-            driver.execute_script("arguments[0].click();", elem) 
+            else:
+                elem = driver.find_element(By.ID, "rqAnswerOption1")
+                elem.click()
+                progressBar(j, 10, name="quiz 2")
+
+        except exceptions.ElementNotInteractableException as e:
+            driver.execute_script("arguments[0].click();", elem)
 
         except Exception as e:
             LogError("PlayQuiz2" + str(e))
@@ -232,72 +264,74 @@ def PlayQuiz2(override= None):
     printf("PlayQuiz2 finis")
 
 
-def PlayQuiz8(override = 3):
+def PlayQuiz8(override=3):
     printf(f"PlayQuiz8 : start, override : {override}")
-    try : 
+    try:
         c = 0
         for i in range(override):
             RGPD()
-            sleep(uniform(3,5))
-            ListeOfGood =[]
-            for i in range(1,9):
-                try : 
-                    Card= driver.find_element(By.ID, f'rqAnswerOption{i-1}')
-                    if 'iscorrectoption="True" 'in Card.get_attribute('outerHTML') :
-                        ListeOfGood.append(f'rqAnswerOption{i-1}') #premier div = 3 ?
-                except Exception as e :
+            sleep(uniform(3, 5))
+            ListeOfGood = []
+            for i in range(1, 9):
+                try:
+                    Card = driver.find_element(By.ID, f"rqAnswerOption{i-1}")
+                    if 'iscorrectoption="True" ' in Card.get_attribute("outerHTML"):
+                        ListeOfGood.append(f"rqAnswerOption{i-1}")  # premier div = 3 ?
+                except Exception as e:
                     LogError("playquiz8 - 1 - " + e)
             shuffle(ListeOfGood)
-            
-            for i in ListeOfGood :
-                sleep(uniform(3,5))
-                c+=1
-                progressBar(c,16, name="Quiz 8 ")
-                try : 
+
+            for i in ListeOfGood:
+                sleep(uniform(3, 5))
+                c += 1
+                progressBar(c, 16, name="Quiz 8 ")
+                try:
                     elem = driver.find_element(By.ID, i)
                     elem.click()
                 except exceptions.ElementNotInteractableException as e:
-                    try : 
-                        driver.execute_script("arguments[0].click();", elem)   
-                    except Exception as e :
+                    try:
+                        driver.execute_script("arguments[0].click();", elem)
+                    except Exception as e:
                         LogError("playquizz8 - 2 - " + e)
-                except Exception as e :
-                    if override :
-                        printf("playquiz8 - 3 -" +e)
-                    else :
+                except Exception as e:
+                    if override:
+                        printf("playquiz8 - 3 -" + e)
+                    else:
                         LogError("playquizz8 - 3 - " + e)
-          
-    except Exception as e :
-        LogError("PlayQuiz8 - 4 - " + str(e))   
-        print(str(ListeOfGood))   
+
+    except Exception as e:
+        LogError("PlayQuiz8 - 4 - " + str(e))
+        print(str(ListeOfGood))
     printf("PlayQuiz8 : fin ")
 
 
-def PlayQuiz4(override = None):
+def PlayQuiz4(override=None):
     printf("PlayQuiz4 : start")
-    if not override :
-        try : #permet de gerer les truc de fidélité, qui sont plus long
-            override = int(findall("rqQuestionState([\d]{1,2})\"", driver.page_source)[-1])
+    if not override:
+        try:  # permet de gerer les truc de fidélité, qui sont plus long
+            override = int(findall('rqQuestionState([\d]{1,2})"', driver.page_source)[-1])
             printf(f"Override : {override}")
-        except :
-            override = 3    
-    
-    try :
+        except:
+            override = 3
+
+    try:
         for i in range(override):
-            CustomSleep(uniform(3,5))
+            CustomSleep(uniform(3, 5))
             txt = driver.page_source
             RGPD()
-            reponse = search("correctAnswer\":\"([^\"]+)", txt)[1] #je suis pas sur qu'il y ait un espace
-            reponse = reponse.replace('\\u0027',"'") #il faut cancel l'unicode avec un double \ (on replacer les caracteres en unicode en caracteres utf-8) 
-            printf(f"validation de la reponse                                     " , end="\r")
-            printf(f"validation de la reponse {i+1}/{override} {reponse}" , end="\r")
-            try : 
-                elem = driver.find_element(By.CSS_SELECTOR, f'[data-option="{reponse}"]')
+            reponse = search('correctAnswer":"([^"]+)', txt)[1]  # je suis pas sur qu'il y ait un espace
+            reponse = reponse.replace("\\u0027", "'")  # il faut cancel l'unicode avec un double \ (on replacer les caracteres en unicode en caracteres utf-8)
+            printf(f"validation de la reponse                                     ",end="\r",)
+            printf(f"validation de la reponse {i+1}/{override} {reponse}", end="\r")
+            try:
+                elem = driver.find_element(
+                    By.CSS_SELECTOR, f'[data-option="{reponse}"]'
+                )
                 elem.click()
             except exceptions.ElementNotInteractableException:
                 driver.execute_script("arguments[0].click();", elem)
 
-    except Exception as e :
+    except Exception as e:
         LogError("PlayQuiz4" + str(e))
         raise ValueError(e)
     printf("PlayQuiz4 : end")
@@ -305,27 +339,28 @@ def PlayQuiz4(override = None):
 
 def PlayPoll():
     printf("PlayPoll : start")
-    try :
-        try : 
-            elem = driver.find_element(By.ID, f'btoption{choice([0,1])}')
+    try:
+        try:
+            elem = driver.find_element(By.ID, f"btoption{choice([0,1])}")
             elem.click()
         except exceptions.ElementNotInteractableException as e:
             driver.execute_script("arguments[0].click();", elem)
-        CustomSleep(uniform(2,2.5))
-    except Exception as e :
-        LogError("PlayPoll" +  str(e))
+        CustomSleep(uniform(2, 2.5))
+    except Exception as e:
+        LogError("PlayPoll" + str(e))
         raise ValueError(e)
     printf("PlayPoll : end")
 
 
-def AllCard(): #fonction qui clique sur les cartes
-
-    def reset(Partie2=False): #retourne sur la page de depart apres avoir finis
-        if len(driver.window_handles) == 1 :
-            driver.get('https://www.bing.com/rewardsapp/flyout')
-            if Partie2 :
-                driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click()
-        else : 
+def AllCard():  # fonction qui clique sur les cartes
+    def reset(Partie2=False):  # retourne sur la page de depart apres avoir finis
+        if len(driver.window_handles) == 1:
+            driver.get("https://www.bing.com/rewardsapp/flyout")
+            if Partie2:
+                driver.find_element(
+                    By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]"
+                ).click()
+        else:
             driver.switch_to.window(driver.window_handles[1])
             printf(f"fermeture : {driver.current_url}")
             driver.close()
@@ -333,492 +368,557 @@ def AllCard(): #fonction qui clique sur les cartes
             reset(Partie2)
 
     def dailyCards():
-        try :
+        try:
             for i in range(3):
                 sleep(1)
-                try :
+                try:
                     titre = "erreur"
-                    driver.find_element(By.XPATH, f'/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]').click()
+                    driver.find_element(
+                        By.XPATH,f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]",
+                    ).click()
                     sleep(1)
                     titre = driver.title
                     TryPlay(titre)
                     sleep(1)
                     reset()
                     print(f"DailyCard {titre} ok ")
-                except Exception as e :
+                except Exception as e:
                     printf(f"Allcard card {titre} error ({e})")
-        except Exception as e :
-            LogError(f'Dailycards {e}')
-    try :
+        except Exception as e:
+            LogError(f"Dailycards {e}")
+
+    try:
         dailyCards()
-    except :
+    except:
         printf("erreur ici")
-    try :    
-        try : 
-            driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click() #declenche la premiere partie ?
-        except :
+    try:
+        try:
+            driver.find_element(
+                By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]"
+            ).click()  # declenche la premiere partie ?
+        except:
             reset()
-            try :
-                driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]').click()#declenche la deuxieme partie ?
-            except :
+            try:
+                driver.find_element(
+                    By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]"
+                ).click()  # declenche la deuxieme partie ?
+            except:
                 pass
-        
+
         for i in range(20):
             printf("debut de l'une des cartes")
-            driver.find_element(By.XPATH, '/html/body/div/div/div[3]/div[2]/div[2]/div[3]/div/div[1]/a/div/div[2]').click()
+            driver.find_element(
+                By.XPATH,
+                "/html/body/div/div/div[3]/div[2]/div[2]/div[3]/div/div[1]/a/div/div[2]",
+            ).click()
             printf("carte cliqué")
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-            sleep(1) 
+            sleep(1)
             titre = driver.title
             print(f"carte {titre} en cours")
             TryPlay(titre)
             reset(True)
             sleep(1)
-            try :
-                link = findall('href="([^<]+)" title=""',driver.page_source)[3] #verifie si on a toujours des cartes 
-            except :
+            try:
+                link = findall('href="([^<]+)" title=""', driver.page_source)[
+                    3
+                ]  # verifie si on a toujours des cartes
+            except:
                 break
     except Exception as e:
-        LogError(f'2eme partie de AllCard (weekly card)\n {e}')
+        LogError(f"2eme partie de AllCard (weekly card)\n {e}")
 
 
-def send_keys_wait(element,keys):
-    for i in keys :
+def send_keys_wait(element, keys):
+    for i in keys:
         element.send_keys(i)
         sleep(uniform(0, 0.2))
 
 
-def login() :
+def login():
     printf("login : start")
-    try :
+    try:
 
-        driver.get('https://www.bing.com/rewardsapp/flyout')
+        driver.get("https://www.bing.com/rewardsapp/flyout")
 
-        try :
-            driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click() #depend of the language of the page
-        except :
-            driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click() #depend of the language of the page
-        
-        mail = driver.find_element(By.ID, 'i0116')
+        try:
+            driver.find_element(
+                By.CSS_SELECTOR, f'[title="Rejoindre"]'
+            ).click()  # depend of the language of the page
+        except:
+            driver.find_element(
+                By.CSS_SELECTOR, f'[title="Join now"]'
+            ).click()  # depend of the language of the page
+
+        mail = driver.find_element(By.ID, "i0116")
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
         CustomSleep(5)
-        pwd = driver.find_element(By.ID, 'i0118')
+        pwd = driver.find_element(By.ID, "i0118")
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
         CustomSleep(5)
         printf("pwd envoyé")
 
-        try : 
-            driver.find_element(By.ID, 'KmsiCheckboxField').click()
-        except Exception as e  :
-            printf(f"login - 1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}") 
+        try:
+            driver.find_element(By.ID, "KmsiCheckboxField").click()
+        except Exception as e:
+            printf(
+                f"login - 1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}"
+            )
 
-        try : 
-            driver.find_element(By.ID, 'idSIButton9').click()
-        except Exception as e  :
-            printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}") 
-        
+        try:
+            driver.find_element(By.ID, "idSIButton9").click()
+        except Exception as e:
+            printf(
+                f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}"
+            )
+
         printf("login completed")
         RGPD()
-        driver.get('https://www.bing.com/rewardsapp/flyout')
-        
+        driver.get("https://www.bing.com/rewardsapp/flyout")
+
         MainWindows = driver.current_window_handle
-        return(MainWindows)
+        return MainWindows
 
     except Exception as e:
         LogError("login - 3 - " + str(e))
-        
 
-def BingPcSearch(override = randint(35,40)):
-    driver.get(f'https://www.bing.com/search?q=test')#{choice(Liste_de_mot)}')
-    CustomSleep(uniform(1,2))
+
+def BingPcSearch(override=randint(35, 40)):
+    driver.get(f"https://www.bing.com/search?q=test")  # {choice(Liste_de_mot)}')
+    CustomSleep(uniform(1, 2))
     RGPD()
-    send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE)
-    
-    
+    send_keys_wait(
+        driver.find_element(By.ID, "sb_form_q"),
+        Keys.BACKSPACE
+        + Keys.BACKSPACE
+        + Keys.BACKSPACE
+        + Keys.BACKSPACE
+        + Keys.BACKSPACE
+        + Keys.BACKSPACE,
+    )
+
     for i in range(override):
         mot = choice(Liste_de_mot)
-        try :
-            send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),mot)
-            driver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
-        except :
+        try:
+            send_keys_wait(driver.find_element(By.ID, "sb_form_q"), mot)
+            driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
+        except:
             sleep(10)
             driver.refresh()
             sleep(10)
-            send_keys_wait( driver.find_element(By.ID, 'sb_form_q'),mot)
-            driver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
+            send_keys_wait(driver.find_element(By.ID, "sb_form_q"), mot)
+            driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
 
-        progressBar(i,override, name="PC")
-        sleep(uniform(5,20)) 
+        progressBar(i, override, name="PC")
+        sleep(uniform(5, 20))
 
-        try :
-            driver.find_element(By.ID, 'sb_form_q').clear()
-        except :
-            try :
+        try:
+            driver.find_element(By.ID, "sb_form_q").clear()
+        except:
+            try:
                 driver.refresh()
-                driver.find_element(By.ID, 'sb_form_q').clear()
+                driver.find_element(By.ID, "sb_form_q").clear()
             except Exception as e:
                 LogError(f"BingPcSearch - clear la barre de recherche - {e}")
 
-    print('\n\n')
+    print("\n\n")
 
 
-def BingMobileSearch(override = randint(22,25)):
-    MobileDriver = "si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
-    try :
-        try :
+def BingMobileSearch(override=randint(22, 25)):
+    MobileDriver = (
+        "si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
+    )
+    try:
+        try:
             MobileDriver = FirefoxMobile()
-        except Exception as e :
+        except Exception as e:
             sleep(30)
-            LogError('BingMobileSearch - 1 - echec de la creation du driver mobile')
+            LogError("BingMobileSearch - 1 - echec de la creation du driver mobile")
             MobileDriver = FirefoxMobile()
 
         echec = 0
+
         def Mlogin(echec):
-            
-            try : 
-                MobileDriver.get('https://www.bing.com/search?q=test+speed&qs=LS&pq=test+s&sk=PRES1&sc=8-6&cvid=19&FORM=QBRE&sp=1')
-                CustomSleep(uniform(3,5))
+
+            try:
+                MobileDriver.get(
+                    "https://www.bing.com/search?q=test+speed&qs=LS&pq=test+s&sk=PRES1&sc=8-6&cvid=19&FORM=QBRE&sp=1"
+                )
+                CustomSleep(uniform(3, 5))
                 printf("debut du login", Mobdriver=MobileDriver)
-                MobileDriver.find_element(By.ID, 'mHamburger').click()
-                CustomSleep(uniform(1,2))
+                MobileDriver.find_element(By.ID, "mHamburger").click()
+                CustomSleep(uniform(1, 2))
                 printf("login - 1", Mobdriver=MobileDriver)
-                MobileDriver.find_element(By.ID, 'hb_s').click()
-                CustomSleep(uniform(1,2))
+                MobileDriver.find_element(By.ID, "hb_s").click()
+                CustomSleep(uniform(1, 2))
                 printf("login - 2", Mobdriver=MobileDriver)
-                mail = MobileDriver.find_element(By.ID, 'i0116')
+                mail = MobileDriver.find_element(By.ID, "i0116")
                 send_keys_wait(mail, _mail)
                 printf("login - 3", Mobdriver=MobileDriver)
-                mail.send_keys( Keys.ENTER)
-                CustomSleep(uniform(1,2))
+                mail.send_keys(Keys.ENTER)
+                CustomSleep(uniform(1, 2))
                 printf("login - 4", Mobdriver=MobileDriver)
-                pwd = MobileDriver.find_element(By.ID, 'i0118')
+                pwd = MobileDriver.find_element(By.ID, "i0118")
                 printf("login - 5", Mobdriver=MobileDriver)
                 send_keys_wait(pwd, _password)
                 printf("login - 6", Mobdriver=MobileDriver)
-                pwd.send_keys( Keys.ENTER)
-                CustomSleep(uniform(1,2))
+                pwd.send_keys(Keys.ENTER)
+                CustomSleep(uniform(1, 2))
                 printf("fin du login", Mobdriver=MobileDriver)
 
-
-            except Exception as e :
+            except Exception as e:
                 echec += 1
-                if echec <= 3 :
-                    printf(f'echec du login sur la version mobile. on reesaye ({echec}/3), {e}')
-                    CustomSleep(uniform(5,10))
+                if echec <= 3:
+                    printf(
+                        f"echec du login sur la version mobile. on reesaye ({echec}/3), {e}"
+                    )
+                    CustomSleep(uniform(5, 10))
                     Mlogin(echec)
-                else :
-                    LogError(f"login impossible 3 fois de suite. {e}",Mobdriver=MobileDriver)
+                else:
+                    LogError(
+                        f"login impossible 3 fois de suite. {e}", Mobdriver=MobileDriver
+                    )
                     MobileDriver.quit()
-                    return(True)
-                    
+                    return True
+
         def MRGPD():
-            try :
-                MobileDriver.find_element(By.ID, 'bnp_btn_accept').click()
-            except :
+            try:
+                MobileDriver.find_element(By.ID, "bnp_btn_accept").click()
+            except:
                 pass
-            try :
-                MobileDriver.find_element(By.ID, 'bnp_hfly_cta2').click()
-            except :
-                pass        
-        
+            try:
+                MobileDriver.find_element(By.ID, "bnp_hfly_cta2").click()
+            except:
+                pass
+
         def Alerte():
             try:
                 alert = MobileDriver.switch_to.alert
                 alert.dismiss()
-            except exceptions.NoAlertPresentException as e :
+            except exceptions.NoAlertPresentException as e:
                 pass
             except Exception as e:
-                LogError(f"error sur une alerte dans le driver mobile. {e}",Mobdriver=MobileDriver)
+                LogError(
+                    f"error sur une alerte dans le driver mobile. {e}",
+                    Mobdriver=MobileDriver,
+                )
 
-        if not Mlogin(echec) :        
+        if not Mlogin(echec):
 
-            CustomSleep(uniform(1,2))
+            CustomSleep(uniform(1, 2))
             MRGPD()
-            CustomSleep(uniform(1,1.5))
-            send_keys_wait( MobileDriver.find_element(By.ID, 'sb_form_q'),Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE+Keys.BACKSPACE)
-            
-            for i in range(override): #20
+            CustomSleep(uniform(1, 1.5))
+            send_keys_wait(
+                MobileDriver.find_element(By.ID, "sb_form_q"),
+                Keys.BACKSPACE
+                + Keys.BACKSPACE
+                + Keys.BACKSPACE
+                + Keys.BACKSPACE
+                + Keys.BACKSPACE
+                + Keys.BACKSPACE,
+            )
+
+            for i in range(override):  # 20
 
                 mot = choice(Liste_de_mot)
-                send_keys_wait( MobileDriver.find_element(By.ID, 'sb_form_q'),mot)
-                MobileDriver.find_element(By.ID, 'sb_form_q').send_keys(Keys.ENTER)
-                progressBar(i,override,name="Mobile")
+                send_keys_wait(MobileDriver.find_element(By.ID, "sb_form_q"), mot)
+                MobileDriver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
+                progressBar(i, override, name="Mobile")
                 printf(MobileDriver.current_url, Mobdriver=MobileDriver)
-                sleep(uniform(5,20)) 
+                sleep(uniform(5, 20))
 
-                Alerte() # verifie si il y a des alertes (demande de positions ....)
-                
-                for i in range (len(mot)):
-                    MobileDriver.find_element(By.ID, 'sb_form_q').clear()
+                Alerte()  # verifie si il y a des alertes (demande de positions ....)
 
+                for i in range(len(mot)):
+                    MobileDriver.find_element(By.ID, "sb_form_q").clear()
 
             MobileDriver.quit()
-            
 
     except Exception as e:
-        LogError("BingMobileSearch" + str(e),Mobdriver=MobileDriver)
-        try :
+        LogError("BingMobileSearch" + str(e), Mobdriver=MobileDriver)
+        try:
             MobileDriver.quit()
-        except Exception as e: 
+        except Exception as e:
             LogError(f"can't close mobile driveer . {e}")
 
 
-def TryPlay(nom ="inconnu"):
+def TryPlay(nom="inconnu"):
     RGPD()
     printf("TryPlay en cours")
-    def play(number, override = None) : 
-        if number == 8 or number == 9 :
-            try :
-                printf(f'\033[96m Quiz 8 détécté sur la page {nom} \033[0m')
+
+    def play(number, override=None):
+        if number == 8 or number == 9:
+            try:
+                printf(f"\033[96m Quiz 8 détécté sur la page {nom} \033[0m")
                 PlayQuiz8()
-                printf(f'\033[92m Quiz 8 reussit sur {nom} \033[0m')
-            except Exception as e :
-                printf(f'echec de PlayQuiz 8. Aborted {e} \033[0m')
+                printf(f"\033[92m Quiz 8 reussit sur {nom} \033[0m")
+            except Exception as e:
+                printf(f"echec de PlayQuiz 8. Aborted {e} \033[0m")
 
-        elif number == 5 or number == 4 :
-            try :
-                printf(f'\033[96m Quiz 4 détécté sur la page {nom} \033[0m')
+        elif number == 5 or number == 4:
+            try:
+                printf(f"\033[96m Quiz 4 détécté sur la page {nom} \033[0m")
                 PlayQuiz4()
-                print(f'\033[92m Quiz 4 reussit sur {nom} \033[0m')
-            except Exception as e :
-                printf(f'echec de PlayQuiz 4. Aborted {e} \033[0m')
+                print(f"\033[92m Quiz 4 reussit sur {nom} \033[0m")
+            except Exception as e:
+                printf(f"echec de PlayQuiz 4. Aborted {e} \033[0m")
 
-        elif number == 3 or number == 2 :
-            try :
-                printf(f'\033[96m Quiz 2 détécté sur la page {nom}\033[0m')
+        elif number == 3 or number == 2:
+            try:
+                printf(f"\033[96m Quiz 2 détécté sur la page {nom}\033[0m")
                 PlayQuiz2()
-                print(f'\033[92m Quiz 2 reussit sur la page {nom}\033[0m')
-            except Exception as e :
-                printf(f'echec de PlayQuiz 2. Aborted {e}')
-        else :
-                LogError('probleme dans la carte : il y a un bouton play et aucun quiz detecté')
-    try :
-        driver.find_element(By.ID, 'rqStartQuiz').click() #start the quiz
-        number = driver.page_source.count('rqAnswerOption')
+                print(f"\033[92m Quiz 2 reussit sur la page {nom}\033[0m")
+            except Exception as e:
+                printf(f"echec de PlayQuiz 2. Aborted {e}")
+        else:
+            LogError(
+                "probleme dans la carte : il y a un bouton play et aucun quiz detecté"
+            )
+
+    try:
+        driver.find_element(By.ID, "rqStartQuiz").click()  # start the quiz
+        number = driver.page_source.count("rqAnswerOption")
         play(number)
-            
-    except Exception as e :
-        #printf(e) normal erreor here
-        if "bt_PollRadio" in driver.page_source :
-            try :
-                print('Poll détected',  end ="\r")
+
+    except Exception as e:
+        # printf(e) normal erreor here
+        if "bt_PollRadio" in driver.page_source:
+            try:
+                print("Poll détected", end="\r")
                 RGPD()
                 PlayPoll()
-                print('Poll reussit  ')
-            except Exception as e :
-                printf(f'TryPlay - 1 - Poll aborted {e}')
+                print("Poll reussit  ")
+            except Exception as e:
+                printf(f"TryPlay - 1 - Poll aborted {e}")
 
-        elif "rqQuestionState" in driver.page_source :
-            try : 
-                number = driver.page_source.count('rqAnswerOption')
-                restant = len(findall("\"rqQuestionState.?.\" class=", driver.page_source)) - len(findall("\"rqQuestionState.?.\" class=\"filledCircle\"", driver.page_source))
+        elif "rqQuestionState" in driver.page_source:
+            try:
+                number = driver.page_source.count("rqAnswerOption")
+                restant = len(
+                    findall('"rqQuestionState.?." class=', driver.page_source)
+                ) - len(
+                    findall(
+                        '"rqQuestionState.?." class="filledCircle"', driver.page_source
+                    )
+                )
                 printf(f"recovery détécté. quiz : {number}, restant : {restant +1}")
-                play(number, override=restant + 1 )
-            except Exception as e :
+                play(number, override=restant + 1)
+            except Exception as e:
                 printf("TryPlay - 2 - " + e)
 
-        elif search("([0-9]) de ([0-9]) finalisée",driver.page_source) :
-            print('fidélité')
+        elif search("([0-9]) de ([0-9]) finalisée", driver.page_source):
+            print("fidélité")
             RGPD()
             Fidelite()
-                
-        else :
-            print(f'rien a faire sur la page {nom}')
+
+        else:
+            print(f"rien a faire sur la page {nom}")
             RGPD()
-            CustomSleep(uniform(3,5))
+            CustomSleep(uniform(3, 5))
 
 
-def LogPoint(account="unknown"): #log des points sur discord
-    driver.get('https://www.bing.com/rewardsapp/flyout')
-    if not IsLinux :
+def LogPoint(account="unknown"):  # log des points sur discord
+    driver.get("https://www.bing.com/rewardsapp/flyout")
+    if not IsLinux:
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    else :
+    else:
         asyncio.set_event_loop(asyncio.new_event_loop())
 
-    regex1 = "<a href=\"https://rewards\.bing\.com/\" title=\"((.{1,3}),(.{1,3})) points\" target=\"_blank\""
-    try : 
-        point = search(regex1, driver.page_source)[1].replace(',', '')
-        
-    except Exception as e :
+    regex1 = '<a href="https://rewards\.bing\.com/" title="((.{1,3}),(.{1,3})) points" target="_blank"'
+    try:
+        point = search(regex1, driver.page_source)[1].replace(",", "")
+
+    except Exception as e:
         elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
         elem.click()
         CustomSleep(5)
         driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-        CustomSleep(uniform(10,20))
-        try :
-            point = search("availablePoints\":([\d]+)",driver.page_source)[1]
-        except Exception as e :
+        CustomSleep(uniform(10, 20))
+        try:
+            point = search('availablePoints":([\d]+)', driver.page_source)[1]
+        except Exception as e:
             LogError(f"LogPoint - 2 - {e}")
             point = "erreur"
 
-    CustomSleep(uniform(3,20))
-    
-    account = account.split('@')[0]
+    CustomSleep(uniform(3, 20))
+
+    account = account.split("@")[0]
 
     if embeds:
         embed = discord.Embed(
-                title=f"{account} actuellement à {str(point)} points",
-                colour = Colour.green()
+            title=f"{account} actuellement à {str(point)} points", colour=Colour.green()
         )
         embed.set_footer(text=account)
         webhookSuccess.send(embed=embed)
-    else :
-        webhookSuccess.send(f'{account} actuellement à {str(point)} points')
+    else:
+        webhookSuccess.send(f"{account} actuellement à {str(point)} points")
 
 
 def Fidelite(lien):
-    try :
-        while 1 :
-            try : 
+    try:
+        while 1:
+            try:
                 Close(1)
-            except :
+            except:
                 break
 
         driver.get(lien)
         sleep(2)
-        choix = driver.find_element(By.CSS_SELECTOR,'div[class="pull-left spacer-48-bottom punchcard-row"]') #pull-left spacer-48-bottom punchcard-row
-        nb = search("([0-9]) of ([0-9]) completed",driver.page_source)
-        if not nb :
-            nb = search("([0-9]) de ([0-9]) finalisé",driver.page_source)
-        for i in range(int(nb[2])-int(nb[1])):
+        choix = driver.find_element(
+            By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]'
+        )  # pull-left spacer-48-bottom punchcard-row
+        nb = search("([0-9]) of ([0-9]) completed", driver.page_source)
+        if not nb:
+            nb = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
+        for i in range(int(nb[2]) - int(nb[1])):
             driver.refresh()
             CustomSleep(2)
-            choix = driver.find_element(By.CLASS_NAME,'spacer-48-bottom')
-            ButtonText = search('<span class=\"pull-left margin-right-15\">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
+            choix = driver.find_element(By.CLASS_NAME, "spacer-48-bottom")
+            ButtonText = search(
+                '<span class="pull-left margin-right-15">([^<^>]+)</span>',
+                choix.get_attribute("innerHTML"),
+            )[1]
             bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
             bouton.click()
-            CustomSleep(uniform(3,5))
+            CustomSleep(uniform(3, 5))
             driver.switch_to.window(driver.window_handles[1])
             TryPlay(driver.title)
             driver.get(lien)
-            CustomSleep(uniform(3,5))
-            try :
+            CustomSleep(uniform(3, 5))
+            try:
                 Close(driver.window_handles[1])
-            except Exception as e :
+            except Exception as e:
                 printf(e)
 
-        printf('on a reussit la partie fidélité')
-    except Exception as e :
+        printf("on a reussit la partie fidélité")
+    except Exception as e:
         LogError("Fidélité" + str(e))
 
 
-def CheckPoint():# a fix, ne marche pas dans  80% des cas, pas appelé aujourd'hui
+def CheckPoint():  # a fix, ne marche pas dans  80% des cas, pas appelé aujourd'hui
     driver.get("https://rewards.microsoft.com/pointsbreakdown")
     txt = driver.page_source
-    pc = search('([0-9][0-9]|[0-9])</b> / 90',txt)
-    mobile = search('([0-9][0-9]|[0-9])</b> / 60',txt)
-    if mobile :
+    pc = search("([0-9][0-9]|[0-9])</b> / 90", txt)
+    mobile = search("([0-9][0-9]|[0-9])</b> / 60", txt)
+    if mobile:
         if mobile[1] != 60:
-            BingMobileSearch(22-(int(mobile[1])/3))      
-    if pc :
+            BingMobileSearch(22 - (int(mobile[1]) / 3))
+    if pc:
         if pc[1] != 90:
-            BingPcSearch(32-(int(pc[1])/3))
-             
+            BingPcSearch(32 - (int(pc[1]) / 3))
+
 
 def DailyRoutine():
-    
-    MainWindows = login()
-    
-    try :
-        AllCard()
-    except Exception as e :
-        LogError(f'pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {e}')
 
-    try : 
+    MainWindows = login()
+
+    try:
+        AllCard()
+    except Exception as e:
+        LogError(
+            f"pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {e}"
+        )
+
+    try:
         BingPcSearch()
-    except Exception as e :
+    except Exception as e:
         LogError(f"il y a eu une erreur dans BingPcSearch, {e}")
-    CustomSleep(uniform(3,20)) 
-    
-    try : 
+    CustomSleep(uniform(3, 20))
+
+    try:
         BingMobileSearch()
     except Exception as e:
-        LogError(f'BingMobileSearch - {e}')
-    print('\n')
-    CustomSleep(uniform(3,20))
-    try :
+        LogError(f"BingMobileSearch - {e}")
+    print("\n")
+    CustomSleep(uniform(3, 20))
+    try:
         FidelityTest()
-    except :
+    except:
         pass
-    
-    try :
+
+    try:
         LogPoint(_mail)
     except Exception as e:
-        LogError(f'LogPoint : {e}')
+        LogError(f"LogPoint : {e}")
 
 
 def close():
     driver.quit()
     quit()
 
+
 def FidelityTest():
-    try :
+    try:
         result = get(fidelity)
         lien = result.content.decode("UTF-8")
         print(lien)
         Fidelite(lien)
-    except Exception as e :
+    except Exception as e:
         print(f"erreur dans la partie dev : {e}")
+
 
 def dev():
     FidelityTest()
+
 
 def CustomStart(Credentials):
     global driver
     global _mail
     global _password
 
-    ids = [x[0] for x in Credentials] #list of all email adresses
-    actions=["tout", "daily", "pc", "mobile", "LogPoint", "dev"]
+    ids = [x[0] for x in Credentials]  # list of all email adresses
+    actions = ["tout", "daily", "pc", "mobile", "LogPoint", "dev"]
 
-    system("clear") #clear from previous command to allow a clean choice
-    Comptes = enquiries.choose('quels comptes ?', ids, multi=True)
-    Actions = enquiries.choose('quels Actions ?', actions, multi=True)
+    system("clear")  # clear from previous command to allow a clean choice
+    Comptes = enquiries.choose("quels comptes ?", ids, multi=True)
+    Actions = enquiries.choose("quels Actions ?", actions, multi=True)
 
+    for i in Comptes:
 
-    for i in Comptes :
-
-        _mail =Credentials[ids.index(i)][0]
+        _mail = Credentials[ids.index(i)][0]
         _password = Credentials[ids.index(i)][1]
         driver = FirefoxPC()
         driver.implicitly_wait(7)
-        
+
         login()
-        if "tout" in Actions : 
+        if "tout" in Actions:
             DailyRoutine()
 
-        if "daily" in Actions :
-            try :
+        if "daily" in Actions:
+            try:
                 AllCard()
-            except Exception as e :
-                LogError(f'pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {str(e)}. -- override')
+            except Exception as e:
+                LogError(
+                    f"pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {str(e)}. -- override"
+                )
 
         if "pc" in Actions:
-            try : 
+            try:
                 BingPcSearch()
-            except Exception as e :
+            except Exception as e:
                 LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override")
 
         if "mobile" in Actions:
-            try : 
+            try:
                 BingMobileSearch()
             except Exception as e:
-                LogError(f'BingMobileSearch - {e} -- override')
+                LogError(f"BingMobileSearch - {e} -- override")
 
         if "dev" in Actions:
-            try :
+            try:
                 dev()
-            except Exception as e :
+            except Exception as e:
                 printf(e)
                 break
 
-        try :
+        try:
             LogPoint(_mail)
-        except Exception as e :
+        except Exception as e:
             print("CustomStart " + str(e))
         driver.close()
+
 
 with open(LogPath) as f:
     reader = reader(f)
@@ -826,15 +926,15 @@ with open(LogPath) as f:
 
 shuffle(Credentials)
 
-if override :
+if override:
     CustomStart(Credentials)
-else : 
-    for i in Credentials :
+else:
+    for i in Credentials:
 
-        _mail =i[0]
+        _mail = i[0]
         _password = i[1]
 
-        print('\n\n')
+        print("\n\n")
         print(_mail)
         CustomSleep(1)
         printf("debut du driver")
@@ -842,16 +942,16 @@ else :
         printf("driver demarré")
         driver.implicitly_wait(7)
 
-        try :
+        try:
             DailyRoutine()
             driver.quit()
-            timer = uniform(1200,3600)
+            timer = uniform(1200, 3600)
             print(f"finis. attente de {round(timer/60)}min")
             CustomSleep(timer)
 
-        except KeyboardInterrupt :
-            print('canceled')
+        except KeyboardInterrupt:
+            print("canceled")
             close()
 
-if IsLinux :
+if IsLinux:
     system("pkill -9 firefox")
