@@ -50,18 +50,16 @@ FullLog = args.fulllog
 IsLinux = platform == "linux"
 start_time = time()
 
-driver = None
 global driver
+driver = None
 
 
 def Timer(text="undefined"):
-    print(f"[{time() - start_time}] : ")
+    return(f"[{time() - start_time}] : " + text )
 
 
 if IsLinux:
     import enquiries
-
-    Timer()
 else:
     system("")  # enable colors in cmd
 
@@ -123,11 +121,13 @@ def FirefoxPC(Headless=Headless):
 
 def printf(txt, end="", Mobdriver=driver):
     if Log:
-        Timer(txt)
+        print(Timer(txt))
     elif FullLog and Mobdriver:
-        LogError(txt, Mobdriver=Mobdriver)
+        LogError(Timer(txt), Mobdriver=Mobdriver)
     else :
-        print(txt, Mobdriver)
+        print(timer(txt), Mobdriver)
+
+
 def CustomSleep(temps):
     if Log or not IsLinux:
         c = False
@@ -943,9 +943,9 @@ else:
         try:
             DailyRoutine()
             driver.quit()
-            timer = uniform(1200, 3600)
-            print(f"finis. attente de {round(timer/60)}min")
-            CustomSleep(timer)
+            attente = uniform(1200, 3600)
+            print(f"finis. attente de {round(attente/60)}min")
+            CustomSleep(attente)
 
         except KeyboardInterrupt:
             print("canceled")
