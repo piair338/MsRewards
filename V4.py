@@ -49,10 +49,13 @@ FullLog = args.fulllog
 
 IsLinux = platform == "linux"
 start_time = time()
+
 driver = None
+global driver
+
 
 def Timer(text="undefined"):
-    print(f"-- Temps  {time() - start_time} fonction : {text} --")
+    print(f"[{time() - start_time}] : ")
 
 
 if IsLinux:
