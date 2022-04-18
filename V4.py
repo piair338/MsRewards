@@ -125,7 +125,7 @@ def printf(txt, end="", Mobdriver=driver):
     elif FullLog and Mobdriver:
         LogError(Timer(txt), Mobdriver=Mobdriver)
     else :
-        print(timer(txt), Mobdriver)
+        print(Timer(txt), Mobdriver)
 
 
 def CustomSleep(temps):
