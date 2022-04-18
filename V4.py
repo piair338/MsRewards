@@ -55,7 +55,7 @@ driver = None
 
 
 def Timer(text="undefined"):
-    return(f"[{round(time() - start_time)}] : " + text )
+    return(f"[{round(float(time() - start_time))}] : " + text )
 
 
 if IsLinux:
