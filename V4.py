@@ -122,10 +122,11 @@ def FirefoxPC(Headless=Headless):
 def printf(txt, end="", Mobdriver=driver):
     if Log:
         print(Timer(txt))
-    elif FullLog and Mobdriver:
-        LogError(Timer(txt), Mobdriver=Mobdriver)
-    else :
-        print(Timer(txt), Mobdriver)
+    elif FullLog:
+        try : 
+            LogError(Timer(txt), Mobdriver=Mobdriver)
+        except Exception as e:
+            print(Timer(e))
 
 
 def CustomSleep(temps):
