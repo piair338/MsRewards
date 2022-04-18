@@ -10,6 +10,7 @@ from re import findall, search
 from sys import platform
 from time import sleep, time
 from requests import get
+from datetime import timedelta
 import discord
 from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
     Colour,
@@ -55,7 +56,7 @@ driver = None
 
 
 def Timer(text="undefined"):
-    return(f"[{round(float(time() - start_time))}] : " + text )
+    return(f"[{timedelta(round(float(time() - start_time)))}] : " + text )
 
 
 if IsLinux:
@@ -126,7 +127,7 @@ def printf(txt, end="", Mobdriver=driver):
         try : 
             LogError(Timer(txt), Mobdriver=Mobdriver)
         except Exception as e:
-            print(Timer(e))
+            print("\n" + Timer(e) + "\n")
 
 
 def CustomSleep(temps):
