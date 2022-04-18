@@ -83,9 +83,7 @@ webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 
 
-def resource_path(
-    relative_path
-):  # permet de recuperer l'emplacement de chaque fichier, sur linux et windows
+def resource_path(relative_path):  # permet de recuperer l'emplacement de chaque fichier, sur linux et windows
     try:
         base_path = sys._MEIPASS
     except Exception:
@@ -120,15 +118,13 @@ def FirefoxPC(Headless=Headless):
     return webdriver.Firefox(options=options)
 
 
-
-
 def printf(txt, end="", Mobdriver=driver):
     if Log:
         Timer(txt)
-    if FullLog and Mobdriver:
+    elif FullLog and Mobdriver:
         LogError(txt, Mobdriver=Mobdriver)
-
-
+    else :
+        print(txt, Mobdriver)
 def CustomSleep(temps):
     if Log or not IsLinux:
         c = False
