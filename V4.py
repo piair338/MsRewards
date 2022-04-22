@@ -85,38 +85,25 @@ webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 
 
-def resource_path(relative_path):  # permet de recuperer l'emplacement de chaque fichier, sur linux et windows
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = path.dirname(__file__)
-    return path.join(base_path, relative_path)
-
-
-def FirefoxMobile(Headless=Headless):
-    MOBILE_USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 14_8_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1"
-    options = Options()
-    options.set_preference("browser.link.open_newwindow", 3)
-    if Headless:
-        options.add_argument("-headless")
-    options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
-    return webdriver.Firefox(options=options)
-
-
-def FirefoxPC(Headless=Headless):
+def FirefoxDriver(mobile=False, Headless=Headless):
     PC_USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134"
     )
+    MOBILE_USER_AGENT = (
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 14_8_1 like Mac OS X)"
+        "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Mobile/15E148 Safari/604.1"
+    )
+
     options = Options()
-    options.set_preference("general.useragent.override", PC_USER_AGENT)
-
     options.set_preference("browser.link.open_newwindow", 3)
-
     if Headless:
         options.add_argument("-headless")
-
+    if mobile :
+        options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
+    else :
+        options.set_preference("general.useragent.override", PC_USER_AGENT)
     return webdriver.Firefox(options=options)
 
 
@@ -168,7 +155,7 @@ def ListTabs(Mdriver=None):
         tabs.append(ldriver.current_url)
     return tabs
 
-
+#il faut fix le fait qu'il essaye d'envoyer un truc sans url, listtab[0] = about:blank
 def LogError(message, log=FullLog, Mobdriver=None):
     if Mobdriver:
         gdriver = Mobdriver
@@ -432,15 +419,13 @@ def AllCard():  # fonction qui clique sur les cartes
 def send_keys_wait(element, keys):
     for i in keys:
         element.send_keys(i)
-        sleep(uniform(0, 0.2))
+        sleep(uniform(0.1, 0.3))
 
 
 def login():
     printf("login : start")
     try:
-
         driver.get("https://www.bing.com/rewardsapp/flyout")
-
         try:
             driver.find_element(
                 By.CSS_SELECTOR, f'[title="Rejoindre"]'
@@ -504,10 +489,11 @@ def BingPcSearch(override=randint(35, 40)):
         try:
             send_keys_wait(driver.find_element(By.ID, "sb_form_q"), mot)
             driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
-        except:
+        except Exception as e :
+            printf(e)
             sleep(10)
             driver.refresh()
-            sleep(10)
+            sleep(3)
             send_keys_wait(driver.find_element(By.ID, "sb_form_q"), mot)
             driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
 
@@ -516,7 +502,8 @@ def BingPcSearch(override=randint(35, 40)):
 
         try:
             driver.find_element(By.ID, "sb_form_q").clear()
-        except:
+        except Exception as e:
+            printf(e)
             try:
                 driver.refresh()
                 driver.find_element(By.ID, "sb_form_q").clear()
@@ -532,11 +519,11 @@ def BingMobileSearch(override=randint(22, 25)):
     )
     try:
         try:
-            MobileDriver = FirefoxMobile()
+            MobileDriver = FirefoxDriver(mobile=True)
         except Exception as e:
             sleep(30)
             LogError("BingMobileSearch - 1 - echec de la creation du driver mobile")
-            MobileDriver = FirefoxMobile()
+            MobileDriver = FirefoxDriver(mobile=True)
 
         echec = 0
 
@@ -586,12 +573,12 @@ def BingMobileSearch(override=randint(22, 25)):
         def MRGPD():
             try:
                 MobileDriver.find_element(By.ID, "bnp_btn_accept").click()
-            except:
-                pass
+            except Exception as e:
+                printf(e)
             try:
                 MobileDriver.find_element(By.ID, "bnp_hfly_cta2").click()
-            except:
-                pass
+            except Exception as e:
+                printf(e)
 
         def Alerte():
             try:
@@ -683,7 +670,7 @@ def TryPlay(nom="inconnu"):
         play(number)
 
     except Exception as e:
-        # printf(e) normal erreor here
+        # printf(e) normal error here
         if "bt_PollRadio" in driver.page_source:
             try:
                 print("Poll détected", end="\r")
@@ -811,9 +798,7 @@ def CheckPoint():  # a fix, ne marche pas dans  80% des cas, pas appelé aujourd
 
 
 def DailyRoutine():
-
     MainWindows = login()
-
     try:
         AllCard()
     except Exception as e:
@@ -879,7 +864,7 @@ def CustomStart(Credentials):
 
         _mail = Credentials[ids.index(i)][0]
         _password = Credentials[ids.index(i)][1]
-        driver = FirefoxPC()
+        driver = FirefoxDriver()
         driver.implicitly_wait(7)
 
         login()
@@ -938,7 +923,7 @@ else:
         print(_mail)
         CustomSleep(1)
         printf("debut du driver")
-        driver = FirefoxPC()
+        driver = FirefoxDriver()
         printf("driver demarré")
         driver.implicitly_wait(7)
 
