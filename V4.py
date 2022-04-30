@@ -118,7 +118,7 @@ def printf(txt, end="", Mobdriver=driver):
 
 
 def CustomSleep(temps):
-    if Log or not IsLinux:
+    if Log or not IsLinux: #only print sleep when user see it
         c = False
         points = [
             " .   ",
@@ -172,14 +172,12 @@ def LogError(message, log=FullLog, Mobdriver=None):
             embed = discord.Embed(
                 title="An Error has occured",
                 description=str(message),
-                url=ListTabs(Mdriver=Mobdriver)[0],
                 colour=Colour.red(),
             )
         else:
             embed = discord.Embed(
                 title="Full log is enabled",
                 description=str(message),
-                url=ListTabs(Mdriver=Mobdriver)[0],
                 colour=Colour.blue(),
             )
 
