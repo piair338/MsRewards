@@ -438,16 +438,28 @@ def login():
         pwd.send_keys(Keys.ENTER)
         CustomSleep(5)
         printf("pwd envoyé")
-
+        
         try:
             driver.find_element(By.ID, "KmsiCheckboxField").click()
         except Exception as e:
             printf(f"login - 1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
 
         try:
+            driver.find_element(By.ID, "iLooksGood").click()
+        except Exception as e:
+            printf(f"login - 2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
+
+        try:
             driver.find_element(By.ID, "idSIButton9").click()
         except Exception as e:
             printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}")
+
+        try:
+            driver.find_element(By.ID, "iCancel").click()
+        except Exception as e:
+            printf(f"login - 2 - erreur validation bouton iCancel. pas forcement grave {e}")
+
+
 
         printf("login completed")
         RGPD()
