@@ -72,7 +72,7 @@ MotPath = config["DEFAULT"]["motpath"]
 LogPath = config["DEFAULT"]["logpath"]
 SuccessLink = config["DEFAULT"]["successlink"]
 ErrorLink = config["DEFAULT"]["errorlink"]
-fidelity = config["DEFAULT"]["fidelity"]
+FidelityLink = config["DEFAULT"]["FidelityLink"]
 embeds = config["DEFAULT"]["embeds"] == "True"
 Headless = config["DEFAULT"]["headless"] == "True"
 
@@ -733,14 +733,18 @@ def LogPoint(account="unknown"):  # log des points sur discord
         webhookSuccess.send(f"{account} actuellement à {str(point)} points")
 
 
-def Fidelite(lien):
+def Fidelite():
     try:
         while 1: #close all tabs
             try:
                 Close(1)
             except:
                 break
-        
+
+        result = get(FidelityLink) #get the url of fidelity page
+        lien = result.content.decode("UTF-8")
+        printf(lien)
+
         if (lien.split(":")[0] == "https") or (lien.split(":")[0] == "http") : 
             
             driver.get(lien)
@@ -808,7 +812,7 @@ def DailyRoutine():
     print("\n")
     CustomSleep(uniform(3, 20))
     try:
-        FidelityTest()
+        Fidelite()
     except:
         pass
 
@@ -823,18 +827,8 @@ def close():
     quit()
 
 
-def FidelityTest():
-    try:
-        result = get(fidelity)
-        lien = result.content.decode("UTF-8")
-        print(lien)
-        Fidelite(lien)
-    except Exception as e:
-        print(f"erreur dans la partie dev : {e}")
-
-
 def dev():
-    FidelityTest()
+    printf("il n'y a pas de fonction en cours de dev")
 
 
 def CustomStart(Credentials):
@@ -843,7 +837,7 @@ def CustomStart(Credentials):
     global _password
 
     ids = [x[0] for x in Credentials]  # list of all email adresses
-    actions = ["tout", "daily", "pc", "mobile", "LogPoint", "dev"]
+    actions = ["tout", "daily", "pc", "mobile", "LogPoint","Fidelite", "dev"]
 
     system("clear")  # clear from previous command to allow a clean choice
     Comptes = enquiries.choose("quels comptes ?", ids, multi=True)
@@ -864,9 +858,7 @@ def CustomStart(Credentials):
             try:
                 AllCard()
             except Exception as e:
-                LogError(
-                    f"pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {str(e)}. -- override"
-                )
+                LogError(f"AllCards - {e} -- override")
 
         if "pc" in Actions:
             try:
@@ -879,6 +871,12 @@ def CustomStart(Credentials):
                 BingMobileSearch()
             except Exception as e:
                 LogError(f"BingMobileSearch - {e} -- override")
+
+        if "Fidelite" in Actions:
+            try :
+                Fidelite()
+            except Exception as e :
+                LogError(f"Fidelite - {e} -- override")
 
         if "dev" in Actions:
             try:
