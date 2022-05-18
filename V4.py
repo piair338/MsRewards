@@ -67,15 +67,22 @@ else:
 config_path = "/home/pi/MsReward/config"
 config = configparser.ConfigParser()
 config.read(config_path)
-
-MotPath = config["DEFAULT"]["motpath"]
-LogPath = config["DEFAULT"]["logpath"]
+#path comfigurations
+MotPath = config["PATH"]["motpath"]
+LogPath = config["PATH"]["logpath"]
+#discord configurations
 SuccessLink = config["DEFAULT"]["successlink"]
 ErrorLink = config["DEFAULT"]["errorlink"]
-FidelityLink = config["DEFAULT"]["FidelityLink"]
-embeds = config["DEFAULT"]["embeds"] == "True"
-Headless = config["DEFAULT"]["headless"] == "True"
+#bsae settings
+FidelityLink = config["SETTINGS"]["FidelityLink"]
+embeds = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
+Headless = config["SETTINGS"]["headless"] == "True"
 
+#proxy settings
+
+proxy_enabled = config["PROXY"]["enabled"] == "True"
+proxy_adress = config["SETTINGS"]["url"] 
+proxy_port = config["SETTINGS"]["port"] 
 
 g = open(MotPath, "r", encoding="utf-8")
 Liste_de_mot = list(g.readline().split(","))
@@ -84,8 +91,19 @@ g.close()
 webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 
+def setup_proxy(ip, port) :
+    PROXY = f"{ip}:{port}"
+    webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
+    "httpProxy": PROXY,
+    "sslProxy": PROXY,
+    "proxyType": "MANUAL",
+    }
+
 
 def FirefoxDriver(mobile=False, Headless=Headless):
+    if proxy_enabled :
+        setup_proxy(proxy_adress,proxy_port)
+        
     PC_USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -438,7 +456,7 @@ def login():
         pwd.send_keys(Keys.ENTER)
         CustomSleep(5)
         printf("pwd envoyé")
-        
+
         try:
             driver.find_element(By.ID, "KmsiCheckboxField").click()
         except Exception as e:
@@ -914,7 +932,7 @@ if override:
     CustomStart(Credentials)
 else:
     for i in Credentials:
-
+        system("pkill -9 firefox")
         _mail = i[0]
         _password = i[1]
 
