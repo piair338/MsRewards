@@ -1,3 +1,7 @@
+from logging import root
+from requests import NullHandler
+
+
 [PATH]
 
 motpath = /your/path/to/words_list.txt
@@ -19,3 +23,10 @@ errorlink =https://discord.com/api/webhooks/[put your webhook here]
 enabled = False
 url = Null
 port = 0
+
+[DATABASE]
+enabled = False
+url = Null
+port = 0
+user = root
+password = password

@@ -394,7 +394,8 @@ def AllCard():  # fonction qui clique sur les cartes
         dailyCards()
     except:
         printf("erreur ici")
-    try:
+
+    def weekly_cards() : 
         try:
             driver.find_element(
                 By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]"
@@ -428,8 +429,16 @@ def AllCard():  # fonction qui clique sur les cartes
                 ]  # verifie si on a toujours des cartes
             except:
                 break
-    except Exception as e:
-        LogError(f"2eme partie de AllCard (weekly card)\n {e}")
+    for i in range(3) : 
+        try : 
+            weekly_cards()
+        except Exception as e:
+            LogError(f"weekly_cards, try n°{i} \n {e}")
+            if i == 0 :
+                driver.refresh()
+            else  : 
+                CustomSleep(1800)
+                driver.refresh()
 
 
 def send_keys_wait(element, keys):
@@ -821,26 +830,30 @@ def CheckPoint():  # a fix, ne marche pas dans  80% des cas, pas appelé aujourd
 
 
 def DailyRoutine():
+    
+
+    try:
+        BingMobileSearch()
+    except Exception as e:
+        LogError(f"DalyRoutine - BingMobileSearch - {e}")
+    print("\n")
+    CustomSleep(uniform(3, 20))
+
     MainWindows = login()
     try:
         AllCard()
     except Exception as e:
         LogError(
-            f"pas normal sauf si relancer a la main, juste pour les recherches bing (DalyRoutine -> AllCard) \n {e}"
+            f"DalyRoutine - AllCard - \n {e}"
         )
 
     try:
         BingPcSearch()
     except Exception as e:
-        LogError(f"il y a eu une erreur dans BingPcSearch, {e}")
+        LogError(f"DalyRoutine - BingPcSearch - \n {e}")
     CustomSleep(uniform(3, 20))
 
-    try:
-        BingMobileSearch()
-    except Exception as e:
-        LogError(f"BingMobileSearch - {e}")
-    print("\n")
-    CustomSleep(uniform(3, 20))
+
     try:
         Fidelite()
     except:
@@ -849,7 +862,7 @@ def DailyRoutine():
     try:
         LogPoint(_mail)
     except Exception as e:
-        LogError(f"LogPoint : {e}")
+        LogError(f"DalyRoutine - LogPoint - \n{e}")
 
 
 def close():
