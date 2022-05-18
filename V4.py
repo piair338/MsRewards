@@ -71,8 +71,8 @@ config.read(config_path)
 MotPath = config["PATH"]["motpath"]
 LogPath = config["PATH"]["logpath"]
 #discord configurations
-SuccessLink = config["DEFAULT"]["successlink"]
-ErrorLink = config["DEFAULT"]["errorlink"]
+SuccessLink = config["DISCORD"]["successlink"]
+ErrorLink = config["DISCORD"]["errorlink"]
 #bsae settings
 FidelityLink = config["SETTINGS"]["FidelityLink"]
 embeds = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
