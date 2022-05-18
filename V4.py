@@ -81,8 +81,8 @@ Headless = config["SETTINGS"]["headless"] == "True"
 #proxy settings
 
 proxy_enabled = config["PROXY"]["enabled"] == "True"
-proxy_adress = config["SETTINGS"]["url"] 
-proxy_port = config["SETTINGS"]["port"] 
+proxy_adress = config["PROXY"]["url"] 
+proxy_port = config["PROXY"]["port"] 
 
 g = open(MotPath, "r", encoding="utf-8")
 Liste_de_mot = list(g.readline().split(","))
