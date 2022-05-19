@@ -831,13 +831,10 @@ def CheckPoint():  # a fix, ne marche pas dans  80% des cas, pas appelé aujourd
 
 
 def DailyRoutine():
-    
-
     try:
         BingMobileSearch()
     except Exception as e:
         LogError(f"DalyRoutine - BingMobileSearch - {e}")
-    print("\n")
     CustomSleep(uniform(3, 20))
 
     MainWindows = login()

@@ -1,7 +1,3 @@
-from logging import root
-from requests import NullHandler
-
-
 [PATH]
 
 motpath = /your/path/to/words_list.txt
