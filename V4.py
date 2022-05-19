@@ -432,8 +432,9 @@ def AllCard():  # fonction qui clique sur les cartes
     for i in range(3) : 
         try : 
             weekly_cards()
+            break
         except Exception as e:
-            LogError(f"weekly_cards, try n°{i} \n {e}")
+            LogError(f"weekly_cards, try n°{i+1} \n {e}")
             if i == 0 :
                 driver.refresh()
             else  : 
