@@ -13,7 +13,7 @@ Headless = True
 
 successlink = https://discord.com/api/webhooks/[put your webhook here]
 errorlink =https://discord.com/api/webhooks/[put your webhook here]
-
+enabled = True
 [PROXY]
 
 enabled = False

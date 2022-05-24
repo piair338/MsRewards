@@ -73,6 +73,7 @@ LogPath = config["PATH"]["logpath"]
 #discord configurations
 SuccessLink = config["DISCORD"]["successlink"]
 ErrorLink = config["DISCORD"]["errorlink"]
+discord_enabled = config["DISCORD"]["enabled"]
 #base settings
 FidelityLink = config["SETTINGS"]["FidelityLink"]
 embeds = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
@@ -92,27 +93,30 @@ g = open(MotPath, "r", encoding="utf-8")
 Liste_de_mot = list(g.readline().split(","))
 g.close()
 
-webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
+
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
+
+if sql_enabled : 
+    mycursor = setup_MySQL()
+if discord_enabled:
+    webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 
 def setup_proxy(ip, port) :
     PROXY = f"{ip}:{port}"
     webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
-    "httpProxy": PROXY,
-    "sslProxy": PROXY,
-    "proxyType": "MANUAL",
+        "httpProxy": PROXY,
+        "sslProxy": PROXY,
+        "proxyType": "MANUAL",
     }
 
 def setup_MySQL():
     mydb = mysql.connector.connect(
-    host=sql_host,
-    user=sql_usr,
-    password=sql_pwd,
-    database = sql_database
+        host=sql_host,
+        user=sql_usr,
+        password=sql_pwd,
+        database = sql_database
     )
-    mycursor = mydb.cursor()
-
-
+    return(mydb.cursor())
 
 def add_row(compte, points):
     sql = "INSERT INTO daily (compte, points, date) VALUES (%s, %s, current_date())"
@@ -128,6 +132,7 @@ def update_row(compte, points):
     mydb.commit()
     printf(mycursor.rowcount, "record(s) updated")
 
+
 def get_row(compte, points, same_points = True): #return if there is a line with the same ammount of point or with the same name as well as the same day
     if same_points : 
         mycursor.execute(f"SELECT * FROM daily WHERE points = {points} AND compte = '{compte}' AND date = current_date() ;")
@@ -135,6 +140,7 @@ def get_row(compte, points, same_points = True): #return if there is a line with
         mycursor.execute(f"SELECT * FROM daily WHERE compte = '{compte}' AND date = current_date() ;")
     myresult = mycursor.fetchall()
     return(len(myresult) == 1)
+
 
 def add_to_database(compte, points):
     if get_row(compte, points, True): #check if the row exist with the same ammount of points and do nothind if it does
@@ -145,7 +151,6 @@ def add_to_database(compte, points):
     else : # if the row don't exist, create it with the good ammount of points
         add_row(compte, points)
         printf("row added")
-
 
 
 def FirefoxDriver(mobile=False, Headless=Headless):
@@ -806,23 +811,27 @@ def LogPoint(account="unknown"):  # log des points sur discord
                 point = search('availablePoints":([\d]+)', driver.page_source)[1]
             except Exception as e:
                 LogError(f"LogPoint - 2 - {e}")
-                point = "erreur"
-        return(points)
+                point = -1
+        return(point)
 
     points = get_points()
     CustomSleep(uniform(3, 20))
 
     account = account.split("@")[0]
 
-    if embeds:
-        embed = discord.Embed(
-            title=f"{account} actuellement à {str(point)} points", colour=Colour.green()
-        )
-        embed.set_footer(text=account)
-        webhookSuccess.send(embed=embed)
-    else:
-        webhookSuccess.send(f"{account} actuellement à {str(point)} points")
+    if discord_enabled:
 
+        if embeds:
+            embed = discord.Embed(
+                title=f"{account} actuellement à {str(point)} points", colour=Colour.green()
+            )
+            embed.set_footer(text=account)
+            webhookSuccess.send(embed=embed)
+        else:
+            webhookSuccess.send(f"{account} actuellement à {str(point)} points")
+
+    if sql_enabled :
+        add_to_database(account, points)
 
 def Fidelite():
     try:
