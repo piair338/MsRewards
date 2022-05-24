@@ -93,13 +93,10 @@ g = open(MotPath, "r", encoding="utf-8")
 Liste_de_mot = list(g.readline().split(","))
 g.close()
 
-
-webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
-
-if sql_enabled : 
-    mycursor = setup_MySQL()
 if discord_enabled:
     webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
+webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
+
 
 def setup_proxy(ip, port) :
     PROXY = f"{ip}:{port}"
@@ -108,6 +105,11 @@ def setup_proxy(ip, port) :
         "sslProxy": PROXY,
         "proxyType": "MANUAL",
     }
+
+
+if sql_enabled : 
+    mycursor = setup_MySQL()
+
 
 def setup_MySQL():
     mydb = mysql.connector.connect(
