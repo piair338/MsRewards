@@ -3,8 +3,7 @@ import asyncio
 import configparser
 import os
 from csv import reader
-from os import path, sys, system
-from queue import Full
+from os import sys, system
 from random import choice, randint, shuffle, uniform
 from re import findall, search
 from sys import platform
@@ -26,6 +25,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 import argparse
+import mysql.connector
 
 parser = argparse.ArgumentParser()
 
@@ -73,16 +73,20 @@ LogPath = config["PATH"]["logpath"]
 #discord configurations
 SuccessLink = config["DISCORD"]["successlink"]
 ErrorLink = config["DISCORD"]["errorlink"]
-#bsae settings
+#base settings
 FidelityLink = config["SETTINGS"]["FidelityLink"]
 embeds = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
 Headless = config["SETTINGS"]["headless"] == "True"
-
 #proxy settings
-
 proxy_enabled = config["PROXY"]["enabled"] == "True"
 proxy_adress = config["PROXY"]["url"] 
 proxy_port = config["PROXY"]["port"] 
+#MySQL settings
+sql_enabled = config["SQL"]["enabled"] == "True"
+sql_usr = config["SQL"]["usr"]
+sql_pwd = config["SQL"]["pwd"]
+sql_host = config["SQL"]["host"]
+sql_database = config["SQL"]["database"]
 
 g = open(MotPath, "r", encoding="utf-8")
 Liste_de_mot = list(g.readline().split(","))
@@ -98,6 +102,50 @@ def setup_proxy(ip, port) :
     "sslProxy": PROXY,
     "proxyType": "MANUAL",
     }
+
+def setup_MySQL():
+    mydb = mysql.connector.connect(
+    host=sql_host,
+    user=sql_usr,
+    password=sql_pwd,
+    database = sql_database
+    )
+    mycursor = mydb.cursor()
+
+
+
+def add_row(compte, points):
+    sql = "INSERT INTO daily (compte, points, date) VALUES (%s, %s, current_date())"
+    val = (compte, points)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    printf(mycursor.rowcount, "record creatted.")
+
+
+def update_row(compte, points):
+    sql = f"UPDATE daily SET points = {points} WHERE compte = '{compte}' AND date = current_date() ;"
+    mycursor.execute(sql)
+    mydb.commit()
+    printf(mycursor.rowcount, "record(s) updated")
+
+def get_row(compte, points, same_points = True): #return if there is a line with the same ammount of point or with the same name as well as the same day
+    if same_points : 
+        mycursor.execute(f"SELECT * FROM daily WHERE points = {points} AND compte = '{compte}' AND date = current_date() ;")
+    else :
+        mycursor.execute(f"SELECT * FROM daily WHERE compte = '{compte}' AND date = current_date() ;")
+    myresult = mycursor.fetchall()
+    return(len(myresult) == 1)
+
+def add_to_database(compte, points):
+    if get_row(compte, points, True): #check if the row exist with the same ammount of points and do nothind if it does
+        printf("les points sont deja bon")
+    elif get_row(compte, points, False) : #check if the row exist, but without the same ammount of points and update the point account then
+        update_row(compte, points)
+        printf("row updated")
+    else : # if the row don't exist, create it with the good ammount of points
+        add_row(compte, points)
+        printf("row added")
+
 
 
 def FirefoxDriver(mobile=False, Headless=Headless):
@@ -737,28 +785,31 @@ def TryPlay(nom="inconnu"):
 
 
 def LogPoint(account="unknown"):  # log des points sur discord
-    driver.get("https://www.bing.com/rewardsapp/flyout")
-    if not IsLinux:
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    else:
-        asyncio.set_event_loop(asyncio.new_event_loop())
+    def get_points():
+        driver.get("https://www.bing.com/rewardsapp/flyout")
+        if not IsLinux:
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        else:
+            asyncio.set_event_loop(asyncio.new_event_loop())
 
-    regex1 = '<a href="https://rewards\.bing\.com/" title="((.{1,3}),(.{1,3})) points" target="_blank"'
-    try:
-        point = search(regex1, driver.page_source)[1].replace(",", "")
-
-    except Exception as e:
-        elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
-        elem.click()
-        CustomSleep(5)
-        driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-        CustomSleep(uniform(10, 20))
+        regex1 = '<a href="https://rewards\.bing\.com/" title="((.{1,3}),(.{1,3})) points" target="_blank"'
         try:
-            point = search('availablePoints":([\d]+)', driver.page_source)[1]
-        except Exception as e:
-            LogError(f"LogPoint - 2 - {e}")
-            point = "erreur"
+            point = search(regex1, driver.page_source)[1].replace(",", "")
 
+        except Exception as e:
+            elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
+            elem.click()
+            CustomSleep(5)
+            driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
+            CustomSleep(uniform(10, 20))
+            try:
+                point = search('availablePoints":([\d]+)', driver.page_source)[1]
+            except Exception as e:
+                LogError(f"LogPoint - 2 - {e}")
+                point = "erreur"
+        return(points)
+
+    points = get_points()
     CustomSleep(uniform(3, 20))
 
     account = account.split("@")[0]
