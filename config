@@ -21,8 +21,9 @@ url = Null
 port = 0
 
 [DATABASE]
+
 enabled = False
-url = Null
-port = 0
-user = root
-password = password
+host = Null
+database = MsRewards
+usr = root
+pwd = password
