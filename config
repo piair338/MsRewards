@@ -20,7 +20,7 @@ enabled = False
 url = Null
 port = 0
 
-[DATABASE]
+[SQL]
 
 enabled = False
 host = Null
