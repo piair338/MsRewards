@@ -97,18 +97,6 @@ g.close()
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 
 
-def setup_MySQL():
-    mydb = mysql.connector.connect(
-        host=sql_host,
-        user=sql_usr,
-        password=sql_pwd,
-        database = sql_database
-    )
-    return(mydb.cursor())
-
-
-if sql_enabled : 
-    mycursor = setup_MySQL()
 if discord_enabled:
     webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 
@@ -121,7 +109,7 @@ def setup_proxy(ip, port) :
     }
 
 
-def add_row(compte, points):
+def add_row(compte, points, mycursor, mydb):
     sql = "INSERT INTO daily (compte, points, date) VALUES (%s, %s, current_date())"
     val = (compte, points)
     mycursor.execute(sql, val)
@@ -129,14 +117,14 @@ def add_row(compte, points):
     printf(mycursor.rowcount, "record creatted.")
 
 
-def update_row(compte, points):
+def update_row(compte, points, mycursor, mydb):
     sql = f"UPDATE daily SET points = {points} WHERE compte = '{compte}' AND date = current_date() ;"
     mycursor.execute(sql)
     mydb.commit()
     printf(mycursor.rowcount, "record(s) updated")
 
 
-def get_row(compte, points, same_points = True): #return if there is a line with the same ammount of point or with the same name as well as the same day
+def get_row(compte, points, mycursor, same_points = True): #return if there is a line with the same ammount of point or with the same name as well as the same day
     if same_points : 
         mycursor.execute(f"SELECT * FROM daily WHERE points = {points} AND compte = '{compte}' AND date = current_date() ;")
     else :
@@ -146,14 +134,25 @@ def get_row(compte, points, same_points = True): #return if there is a line with
 
 
 def add_to_database(compte, points):
-    if get_row(compte, points, True): #check if the row exist with the same ammount of points and do nothind if it does
+    mydb = mysql.connector.connect(
+        host=sql_host,
+        user=sql_usr,
+        password=sql_pwd,
+        database = sql_database
+    )
+    mycursor = mydb.cursor()
+    
+    if get_row(compte, points,mycursor, True): #check if the row exist with the same ammount of points and do nothind if it does
         printf("les points sont deja bon")
-    elif get_row(compte, points, False) : #check if the row exist, but without the same ammount of points and update the point account then
-        update_row(compte, points)
+    elif get_row(compte, points,mycursor, False) : #check if the row exist, but without the same ammount of points and update the point account then
+        update_row(compte, points,mycursor,mydb)
         printf("row updated")
     else : # if the row don't exist, create it with the good ammount of points
-        add_row(compte, points)
+        add_row(compte, points,mycursor,mydb)
         printf("row added")
+
+    mycursor.close()
+    mydb.close()
 
 
 def FirefoxDriver(mobile=False, Headless=Headless):
@@ -878,19 +877,6 @@ def Fidelite():
             printf("lien invalide")
     except Exception as e:
         LogError("Fidélité" + str(e))
-
-
-def CheckPoint():  # a fix, ne marche pas dans  80% des cas, pas appelé aujourd'hui
-    driver.get("https://rewards.microsoft.com/pointsbreakdown")
-    txt = driver.page_source
-    pc = search("([0-9][0-9]|[0-9])</b> / 90", txt)
-    mobile = search("([0-9][0-9]|[0-9])</b> / 60", txt)
-    if mobile:
-        if mobile[1] != 60:
-            BingMobileSearch(22 - (int(mobile[1]) / 3))
-    if pc:
-        if pc[1] != 90:
-            BingPcSearch(32 - (int(pc[1]) / 3))
 
 
 def DailyRoutine():
