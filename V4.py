@@ -93,22 +93,8 @@ g = open(MotPath, "r", encoding="utf-8")
 Liste_de_mot = list(g.readline().split(","))
 g.close()
 
-if discord_enabled:
-    webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
+
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
-
-
-def setup_proxy(ip, port) :
-    PROXY = f"{ip}:{port}"
-    webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
-        "httpProxy": PROXY,
-        "sslProxy": PROXY,
-        "proxyType": "MANUAL",
-    }
-
-
-if sql_enabled : 
-    mycursor = setup_MySQL()
 
 
 def setup_MySQL():
@@ -119,6 +105,21 @@ def setup_MySQL():
         database = sql_database
     )
     return(mydb.cursor())
+
+
+if sql_enabled : 
+    mycursor = setup_MySQL()
+if discord_enabled:
+    webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
+
+def setup_proxy(ip, port) :
+    PROXY = f"{ip}:{port}"
+    webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
+        "httpProxy": PROXY,
+        "sslProxy": PROXY,
+        "proxyType": "MANUAL",
+    }
+
 
 def add_row(compte, points):
     sql = "INSERT INTO daily (compte, points, date) VALUES (%s, %s, current_date())"
