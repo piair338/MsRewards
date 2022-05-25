@@ -80,7 +80,7 @@ embeds = config["SETTINGS"]["embeds"] == "True" #print new point value in an emb
 Headless = config["SETTINGS"]["headless"] == "True"
 #proxy settings
 proxy_enabled = config["PROXY"]["enabled"] == "True"
-proxy_adress = config["PROXY"]["url"] 
+proxy_address = config["PROXY"]["url"] 
 proxy_port = config["PROXY"]["port"] 
 #MySQL settings
 sql_enabled = config["SQL"]["enabled"] == "True"
@@ -157,7 +157,7 @@ def add_to_database(compte, points):
 
 def FirefoxDriver(mobile=False, Headless=Headless):
     if proxy_enabled :
-        setup_proxy(proxy_adress,proxy_port)
+        setup_proxy(proxy_address,proxy_port)
         
     PC_USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
