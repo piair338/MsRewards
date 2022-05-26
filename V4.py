@@ -80,8 +80,8 @@ embeds = config["SETTINGS"]["embeds"] == "True" #print new point value in an emb
 Headless = config["SETTINGS"]["headless"] == "True"
 #proxy settings
 proxy_enabled = config["PROXY"]["enabled"] == "True"
-proxy_address = config["PROXY"]["url"] 
-proxy_port = config["PROXY"]["port"] 
+proxy_address = config["PROXY"]["url"]
+proxy_port = config["PROXY"]["port"]
 #MySQL settings
 sql_enabled = config["SQL"]["enabled"] == "True"
 sql_usr = config["SQL"]["usr"]
@@ -125,7 +125,7 @@ def update_row(compte, points, mycursor, mydb):
 
 
 def get_row(compte, points, mycursor, same_points = True): #return if there is a line with the same ammount of point or with the same name as well as the same day
-    if same_points : 
+    if same_points :
         mycursor.execute(f"SELECT * FROM daily WHERE points = {points} AND compte = '{compte}' AND date = current_date() ;")
     else :
         mycursor.execute(f"SELECT * FROM daily WHERE compte = '{compte}' AND date = current_date() ;")
@@ -141,7 +141,7 @@ def add_to_database(compte, points):
         database = sql_database
     )
     mycursor = mydb.cursor()
-    
+
     if get_row(compte, points,mycursor, True): #check if the row exist with the same ammount of points and do nothind if it does
         printf("les points sont deja bon")
     elif get_row(compte, points,mycursor, False) : #check if the row exist, but without the same ammount of points and update the point account then
@@ -158,7 +158,7 @@ def add_to_database(compte, points):
 def FirefoxDriver(mobile=False, Headless=Headless):
     if proxy_enabled :
         setup_proxy(proxy_address,proxy_port)
-        
+
     PC_USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -184,7 +184,7 @@ def printf(txt, end="", Mobdriver=driver):
     if Log:
         print(Timer(txt))
     elif FullLog:
-        try : 
+        try :
             LogError(Timer(txt), Mobdriver=Mobdriver)
         except Exception as e:
             print("\n" + Timer(e) + "\n")
@@ -274,6 +274,9 @@ def Close(fenetre, SwitchTo=0):
     driver.switch_to.window(driver.window_handles[SwitchTo])
 
 
+"""
+Deal with RGPD popup as well as some random popup like 'are you satisfied' one
+"""
 def RGPD():
     try:
         driver.find_element(By.ID, "bnp_btn_accept").click()
@@ -283,12 +286,19 @@ def RGPD():
         driver.find_element(By.ID, "bnp_hfly_cta2").click()
     except:
         pass
+    try : 
+        driver.find_element(By.id, "bnp_hfly_close").click() #are you satisfied popup
+    except :
+        pass
 
 
-def PlayQuiz2(override=None):
+
+"""
+PlayQuiz2([int : override]) make the quizz with 2 choice each time. They usually have 10 questions. 
+override is the number of question, by default, it's 10. Can be usefull in some case, where the programm crashes before finishing the quizz
+"""
+def PlayQuiz2(override=10):
     printf("debut de PlayQuiz2")
-    if not override:
-        override = 10
     for j in range(override):
         try:
             RGPD()
@@ -450,7 +460,7 @@ def AllCard():  # fonction qui clique sur les cartes
     except:
         printf("erreur ici")
 
-    def weekly_cards() : 
+    def weekly_cards():
         try:
             driver.find_element(
                 By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]"
@@ -484,15 +494,15 @@ def AllCard():  # fonction qui clique sur les cartes
                 ]  # verifie si on a toujours des cartes
             except:
                 break
-    for i in range(3) : 
-        try : 
+    for i in range(3):
+        try :
             weekly_cards()
             break
         except Exception as e:
             LogError(f"weekly_cards, try n°{i+1} \n {e}")
             if i == 0 :
                 driver.refresh()
-            else  : 
+            else :
                 CustomSleep(1800)
                 driver.refresh()
 
