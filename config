@@ -1,6 +1,6 @@
 [PATH]
 
-motpath = /your/path/to/words_list.txt
+motpath = /usr/share/dict/french
 logpath = /your/path/to/loginandpass.csv
 
 [SETTINGS]
