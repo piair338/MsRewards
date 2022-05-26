@@ -90,7 +90,11 @@ sql_host = config["SQL"]["host"]
 sql_database = config["SQL"]["database"]
 
 g = open(MotPath, "r", encoding="utf-8")
-Liste_de_mot = list(g.readline().split(","))
+lines = g.readlines()
+if len(lines) < 3 : 
+    Liste_de_mot = list(lines[0].split(","))
+else :
+    Liste_de_mot = [x.replace('\n', "") for x in lines]
 g.close()
 
 
