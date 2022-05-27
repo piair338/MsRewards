@@ -609,7 +609,6 @@ def BingPcSearch(override=randint(35, 40)):
 
     print("\n\n")
 
-
 def BingMobileSearch(override=randint(22, 25)):
     MobileDriver = (
         "si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
@@ -621,7 +620,6 @@ def BingMobileSearch(override=randint(22, 25)):
             sleep(30)
             LogError("BingMobileSearch - 1 - echec de la creation du driver mobile")
             MobileDriver = FirefoxDriver(mobile=True)
-            MobileDriver.implicitly_wait(10)
 
         echec = 0
 
@@ -629,25 +627,16 @@ def BingMobileSearch(override=randint(22, 25)):
 
             try:
                 MobileDriver.get(
-                    "https://login.live.com/login.srf?wa=wsignin1.0&wreply=https%3a%2f%2fwww.bing.com%2fsecure%2fPassport.aspx%3frequrl%3dhttps%253a%252f%252fwww.bing.com%252fsearch%253fq%253dtest%252bdebit&aadredir=1"
+                    "https://www.bing.com/search?q=test+speed&qs=LS&pq=test+s&sk=PRES1&sc=8-6&cvid=19&FORM=QBRE&sp=1"
                 )
                 CustomSleep(uniform(3, 5))
                 printf("debut du login", Mobdriver=MobileDriver)
-                MRGPD()
-                CustomSleep(uniform(3, 5))
-
-                #MobileDriver.find_element(By.ID, "mHamburger").click()
-                #CustomSleep(uniform(1, 2))
-                #printf("login - 1", Mobdriver=MobileDriver)
-                #MobileDriver.find_element(By.ID, "hb_s").click()
-                #CustomSleep(uniform(1, 2))
-                #printf("login - 1.5", Mobdriver=MobileDriver)
-                #try : 
-                #    MobileDriver.find_element(By.ID, "hb_a").click()
-                #    CustomSleep(uniform(1, 2))
-                #    printf("login - 2", Mobdriver=MobileDriver)
-                #except Exception as e :
-                #    LogError(e)
+                MobileDriver.find_element(By.ID, "mHamburger").click()
+                CustomSleep(uniform(1, 2))
+                printf("login - 1", Mobdriver=MobileDriver)
+                MobileDriver.find_element(By.ID, "hb_s").click()
+                CustomSleep(uniform(1, 2))
+                printf("login - 2", Mobdriver=MobileDriver)
                 mail = MobileDriver.find_element(By.ID, "i0116")
                 send_keys_wait(mail, _mail)
                 printf("login - 3", Mobdriver=MobileDriver)
@@ -668,7 +657,6 @@ def BingMobileSearch(override=randint(22, 25)):
                     printf(
                         f"echec du login sur la version mobile. on reesaye ({echec}/3), {e}"
                     )
-                    LogError(e, Mobdriver=MobileDriver)
                     CustomSleep(uniform(5, 10))
                     Mlogin(echec)
                 else:
@@ -682,15 +670,11 @@ def BingMobileSearch(override=randint(22, 25)):
             try:
                 MobileDriver.find_element(By.ID, "bnp_btn_accept").click()
             except Exception as e:
-                printf(f"MRGPD , pas grave, {e}")
+                printf(e)
             try:
                 MobileDriver.find_element(By.ID, "bnp_hfly_cta2").click()
             except Exception as e:
-                printf(f"MRGPD , pas grave, {e}")
-            try:
-                MobileDriver.find_element(By.ID, "dismissNotification").click()
-            except Exception as e:
-                printf(f"MRGPD , pas grave, {e}")
+                printf(e)
 
         def Alerte():
             try:
@@ -741,6 +725,7 @@ def BingMobileSearch(override=randint(22, 25)):
             MobileDriver.quit()
         except Exception as e:
             LogError(f"can't close mobile driveer . {e}")
+
 
 
 def TryPlay(nom="inconnu"):
