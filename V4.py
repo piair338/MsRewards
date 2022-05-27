@@ -633,6 +633,8 @@ def BingMobileSearch(override=randint(22, 25)):
                 CustomSleep(uniform(3, 5))
                 printf("debut du login", Mobdriver=MobileDriver)
                 MRGPD()
+                CustomSleep(uniform(3, 5))
+
                 MobileDriver.find_element(By.ID, "mHamburger").click()
                 CustomSleep(uniform(1, 2))
                 printf("login - 1", Mobdriver=MobileDriver)
@@ -656,6 +658,7 @@ def BingMobileSearch(override=randint(22, 25)):
             except Exception as e:
                 echec += 1
                 if echec <= 3:
+                    LogError(e, Mobdriver=MobileDriver)
                     printf(
                         f"echec du login sur la version mobile. on reesaye ({echec}/3), {e}"
                     )
