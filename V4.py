@@ -609,6 +609,7 @@ def BingPcSearch(override=randint(35, 40)):
 
     print("\n\n")
 
+
 def BingMobileSearch(override=randint(22, 25)):
     MobileDriver = (
         "si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
@@ -743,7 +744,6 @@ def BingMobileSearch(override=randint(22, 25)):
             MobileDriver.quit()
         except Exception as e:
             LogError(f"can't close mobile driveer . {e}")
-
 
 
 def TryPlay(nom="inconnu"):
@@ -914,11 +914,11 @@ def Fidelite():
 
 
 def DailyRoutine():
-    try:
-        BingMobileSearch()
-    except Exception as e:
-        LogError(f"DalyRoutine - BingMobileSearch - {e}")
-    CustomSleep(uniform(3, 20))
+    #try:
+    #    BingMobileSearch()
+    #except Exception as e:
+    #    LogError(f"DalyRoutine - BingMobileSearch - {e}")
+    #CustomSleep(uniform(3, 20))
 
     MainWindows = login()
     try:
