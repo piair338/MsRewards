@@ -862,6 +862,7 @@ def LogPoint(account="unknown"):  # log des points sur discord
     if sql_enabled :
         add_to_database(account, points)
 
+
 def Fidelite():
     try:
         while 1: #close all tabs
@@ -869,39 +870,42 @@ def Fidelite():
                 Close(1)
             except:
                 break
+        try : 
+            result = get(FidelityLink) #get the url of fidelity page
+        except Exception as e :
+            printf(e)
 
-        result = get(FidelityLink) #get the url of fidelity page
-        lien = result.content.decode("UTF-8")
-        printf(lien)
+        if result : 
+            lien = result.content.decode("UTF-8")
+            printf(lien)
 
-        if (lien.split(":")[0] == "https") or (lien.split(":")[0] == "http") : 
-            
-            driver.get(lien)
-            sleep(2)
-            choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row
-            nb = search("([0-9]) of ([0-9]) completed", driver.page_source)
-            if not nb:
-                nb = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
-            for i in range(int(nb[2]) - int(nb[1])):
-                driver.refresh()
-                CustomSleep(2)
-                choix = driver.find_element(By.CLASS_NAME, "spacer-48-bottom")
-                ButtonText = search('<span class="pull-left margin-right-15">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
-                bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
-                bouton.click()
-                CustomSleep(uniform(3, 5))
-                driver.switch_to.window(driver.window_handles[1])
-                TryPlay(driver.title)
+            if (lien.split(":")[0] == "https") or (lien.split(":")[0] == "http") : 
+                
                 driver.get(lien)
-                CustomSleep(uniform(3, 5))
-                try:
-                    Close(driver.window_handles[1])
-                except Exception as e:
-                    printf(e)
-
-            printf("on a reussit la partie fidélité")
-        else :
-            printf("lien invalide")
+                sleep(2)
+                choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row
+                nb = search("([0-9]) of ([0-9]) completed", driver.page_source)
+                if not nb:
+                    nb = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
+                for i in range(int(nb[2]) - int(nb[1])):
+                    driver.refresh()
+                    CustomSleep(2)
+                    choix = driver.find_element(By.CLASS_NAME, "spacer-48-bottom")
+                    ButtonText = search('<span class="pull-left margin-right-15">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
+                    bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
+                    bouton.click()
+                    CustomSleep(uniform(3, 5))
+                    driver.switch_to.window(driver.window_handles[1])
+                    TryPlay(driver.title)
+                    driver.get(lien)
+                    CustomSleep(uniform(3, 5))
+                    try:
+                        Close(driver.window_handles[1])
+                    except Exception as e:
+                        printf(e)
+                printf("on a reussit la partie fidélité")
+            else :
+                printf("lien invalide")
     except Exception as e:
         LogError("Fidélité" + str(e))
 
