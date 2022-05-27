@@ -278,9 +278,7 @@ def Close(fenetre, SwitchTo=0):
     driver.switch_to.window(driver.window_handles[SwitchTo])
 
 
-"""
-Deal with RGPD popup as well as some random popup like 'are you satisfied' one
-"""
+#Deal with RGPD popup as well as some random popup like 'are you satisfied' one
 def RGPD():
     try:
         driver.find_element(By.ID, "bnp_btn_accept").click()
@@ -634,6 +632,7 @@ def BingMobileSearch(override=randint(22, 25)):
                 )
                 CustomSleep(uniform(3, 5))
                 printf("debut du login", Mobdriver=MobileDriver)
+                MRGPD()
                 MobileDriver.find_element(By.ID, "mHamburger").click()
                 CustomSleep(uniform(1, 2))
                 printf("login - 1", Mobdriver=MobileDriver)
@@ -673,11 +672,15 @@ def BingMobileSearch(override=randint(22, 25)):
             try:
                 MobileDriver.find_element(By.ID, "bnp_btn_accept").click()
             except Exception as e:
-                printf(e)
+                printf(f"MRGPD , pas grave, {e}")
             try:
                 MobileDriver.find_element(By.ID, "bnp_hfly_cta2").click()
             except Exception as e:
-                printf(e)
+                printf(f"MRGPD , pas grave, {e}")
+            try:
+                MobileDriver.find_element(By.ID, "dismissNotification").click()
+            except Exception as e:
+                printf(f"MRGPD , pas grave, {e}")
 
         def Alerte():
             try:
