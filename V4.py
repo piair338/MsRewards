@@ -649,6 +649,21 @@ def BingMobileSearch(override=randint(22, 25)):
                 printf("login - 6", Mobdriver=MobileDriver)
                 pwd.send_keys(Keys.ENTER)
                 CustomSleep(uniform(1, 2))
+                try:
+                    MobileDriver.find_element(By.ID, "KmsiCheckboxField").click()
+                except Exception as e:
+                    printf(f"login - 1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
+
+                try:
+                    MobileDriver.find_element(By.ID, "iLooksGood").click()
+                except Exception as e:
+                    printf(f"login - 2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
+
+                try:
+                    MobileDriver.find_element(By.ID, "idSIButton9").click()
+                except Exception as e:
+                    printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}")
+
                 printf("fin du login", Mobdriver=MobileDriver)
 
             except Exception as e:
