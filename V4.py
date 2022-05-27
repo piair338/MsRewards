@@ -621,6 +621,7 @@ def BingMobileSearch(override=randint(22, 25)):
             sleep(30)
             LogError("BingMobileSearch - 1 - echec de la creation du driver mobile")
             MobileDriver = FirefoxDriver(mobile=True)
+            MobileDriver.implicitly_wait(10)
 
         echec = 0
 
@@ -640,7 +641,13 @@ def BingMobileSearch(override=randint(22, 25)):
                 printf("login - 1", Mobdriver=MobileDriver)
                 MobileDriver.find_element(By.ID, "hb_s").click()
                 CustomSleep(uniform(1, 2))
-                printf("login - 2", Mobdriver=MobileDriver)
+                printf("login - 1.5", Mobdriver=MobileDriver)
+                try : 
+                    MobileDriver.find_element(By.ID, "hb_a").click()
+                    CustomSleep(uniform(1, 2))
+                    printf("login - 2", Mobdriver=MobileDriver)
+                except Exception as e :
+                    LogError(e)
                 mail = MobileDriver.find_element(By.ID, "i0116")
                 send_keys_wait(mail, _mail)
                 printf("login - 3", Mobdriver=MobileDriver)
