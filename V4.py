@@ -658,10 +658,10 @@ def BingMobileSearch(override=randint(22, 25)):
             except Exception as e:
                 echec += 1
                 if echec <= 3:
-                    LogError(e, Mobdriver=MobileDriver)
                     printf(
                         f"echec du login sur la version mobile. on reesaye ({echec}/3), {e}"
                     )
+                    LogError(e, Mobdriver=MobileDriver)
                     CustomSleep(uniform(5, 10))
                     Mlogin(echec)
                 else:
