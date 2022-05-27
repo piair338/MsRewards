@@ -616,11 +616,12 @@ def BingMobileSearch(override=randint(22, 25)):
     try:
         try:
             MobileDriver = FirefoxDriver(mobile=True)
+            MobileDriver.implicitly_wait(10)
         except Exception as e:
             sleep(30)
             LogError("BingMobileSearch - 1 - echec de la creation du driver mobile")
             MobileDriver = FirefoxDriver(mobile=True)
-
+            MobileDriver.implicitly_wait(10)
         echec = 0
 
         def Mlogin(echec):
