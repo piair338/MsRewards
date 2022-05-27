@@ -670,6 +670,7 @@ def BingMobileSearch(override=randint(22, 25)):
             except Exception as e:
                 echec += 1
                 if echec <= 3:
+                    LogError("message")
                     printf(
                         f"echec du login sur la version mobile. on reesaye ({echec}/3), {e}"
                     )
