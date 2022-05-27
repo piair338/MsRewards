@@ -914,11 +914,12 @@ def Fidelite():
 
 
 def DailyRoutine():
-    #try:
-    #    BingMobileSearch()
-    #except Exception as e:
-    #    LogError(f"DalyRoutine - BingMobileSearch - {e}")
-    #CustomSleep(uniform(3, 20))
+    if not proxy_enabled:
+        try:
+            BingMobileSearch()
+        except Exception as e:
+            LogError(f"DalyRoutine - BingMobileSearch - {e}")
+        CustomSleep(uniform(3, 20))
 
     MainWindows = login()
     try:
