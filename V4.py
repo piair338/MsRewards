@@ -641,7 +641,7 @@ def BingMobileSearch(override=randint(22, 25)):
                 send_keys_wait(mail, _mail)
                 printf("login - 3", Mobdriver=MobileDriver)
                 mail.send_keys(Keys.ENTER)
-                CustomSleep(uniform(1, 2))
+                CustomSleep(uniform(7, 9))
                 printf("login - 4", Mobdriver=MobileDriver)
                 pwd = MobileDriver.find_element(By.ID, "i0118")
                 printf("login - 5", Mobdriver=MobileDriver)
