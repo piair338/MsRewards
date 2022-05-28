@@ -527,7 +527,7 @@ def login():
         mail = driver.find_element(By.ID, "i0116")
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
-        CustomSleep(5)
+        CustomSleep(10)
         pwd = driver.find_element(By.ID, "i0118")
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
@@ -877,6 +877,7 @@ def Fidelite():
             result = get(FidelityLink) #get the url of fidelity page
         except Exception as e :
             printf(e)
+            result = False
 
         if result : 
             lien = result.content.decode("UTF-8")
