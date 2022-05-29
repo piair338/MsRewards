@@ -954,7 +954,8 @@ def close():
 
 
 def dev():
-    printf("il n'y a pas de fonction en cours de dev")
+    driver.get('http://p.p')
+    LogError("test pour voir si le proxy marche")
 
 
 def CustomStart(Credentials):
