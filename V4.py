@@ -956,7 +956,7 @@ def close():
 def dev():
     driver.get('http://p.p')
     LogError("test pour voir si le proxy marche")
-    driver.get('https://www.whatismyip.com/fr/')
+    driver.get('https://api.ipify.org')
     CustomSleep(5)
     LogError("test pour voir si le proxy marche")
 
