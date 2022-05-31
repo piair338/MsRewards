@@ -348,7 +348,7 @@ def PlayQuiz8(override=3):
                     if 'iscorrectoption="True" ' in Card.get_attribute("outerHTML"):
                         ListeOfGood.append(f"rqAnswerOption{i-1}")  # premier div = 3 ?
                 except Exception as e:
-                    LogError("playquiz8 - 1 - " + e)
+                    LogError("playuiz8 - 1 - " + e)
             shuffle(ListeOfGood)
 
             for i in ListeOfGood:
@@ -955,6 +955,9 @@ def close():
 
 def dev():
     driver.get('http://p.p')
+    LogError("test pour voir si le proxy marche")
+    driver.get('https://www.whatismyip.com/fr/')
+    CustomSleep(5)
     LogError("test pour voir si le proxy marche")
 
 
