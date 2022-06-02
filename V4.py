@@ -232,7 +232,7 @@ def ListTabs(Mdriver=None):
         tabs.append(ldriver.current_url)
     return tabs
 
-#il faut fix le fait qu'il essaye d'envoyer un truc sans url, listtab[0] = about:blank
+
 def LogError(message, log=FullLog, Mobdriver=None):
     if Mobdriver:
         gdriver = Mobdriver
@@ -292,7 +292,6 @@ def RGPD():
         driver.find_element(By.id, "bnp_hfly_close").click() #are you satisfied popup
     except :
         pass
-
 
 
 """
@@ -916,7 +915,6 @@ def Fidelite():
 
 def DailyRoutine():
 
-
     MainWindows = login()
     try:
         AllCard()
@@ -934,14 +932,14 @@ def DailyRoutine():
 
     try:
         Fidelite()
-    except:
-        pass
-
-    
-    try:
-        BingMobileSearch()
     except Exception as e:
-        LogError(f"DalyRoutine - BingMobileSearch - {e}")
+        LogError(f"DailyRoutine - Fidelité - \n {e}")
+
+    if proxy_enabled : 
+        try:
+            BingMobileSearch()
+        except Exception as e:
+            LogError(f"DalyRoutine - BingMobileSearch - {e}")
     CustomSleep(uniform(3, 20))
 
     try:
