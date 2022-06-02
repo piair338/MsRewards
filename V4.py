@@ -459,7 +459,7 @@ def AllCard():  # fonction qui clique sur les cartes
     try:
         dailyCards()
     except:
-        printf("erreur ici")
+        printf("dans les quetes de la semaine")
 
     def weekly_cards():
         try:
@@ -495,7 +495,7 @@ def AllCard():  # fonction qui clique sur les cartes
                 ]  # verifie si on a toujours des cartes
             except:
                 break
-    for i in range(3):
+    for i in range(2): # don't seem useful for fixing error
         try :
             weekly_cards()
             break
@@ -762,7 +762,7 @@ def TryPlay(nom="inconnu"):
             try:
                 printf(f"\033[96m Quiz 4 détécté sur la page {nom} \033[0m")
                 PlayQuiz4()
-                print(f"\033[92m Quiz 4 reussit sur {nom} \033[0m")
+                printf(f"\033[92m Quiz 4 reussit sur {nom} \033[0m")
             except Exception as e:
                 printf(f"echec de PlayQuiz 4. Aborted {e} \033[0m")
 
@@ -770,7 +770,7 @@ def TryPlay(nom="inconnu"):
             try:
                 printf(f"\033[96m Quiz 2 détécté sur la page {nom}\033[0m")
                 PlayQuiz2()
-                print(f"\033[92m Quiz 2 reussit sur la page {nom}\033[0m")
+                printf(f"\033[92m Quiz 2 reussit sur la page {nom}\033[0m")
             except Exception as e:
                 printf(f"echec de PlayQuiz 2. Aborted {e}")
         else:
@@ -787,10 +787,10 @@ def TryPlay(nom="inconnu"):
         # printf(e) normal error here
         if "bt_PollRadio" in driver.page_source:
             try:
-                print("Poll détected", end="\r")
+                printf("Poll détected", end="\r")
                 RGPD()
                 PlayPoll()
-                print("Poll reussit  ")
+                printf("Poll reussit  ")
             except Exception as e:
                 printf(f"TryPlay - 1 - Poll aborted {e}")
 
@@ -815,7 +815,7 @@ def TryPlay(nom="inconnu"):
             Fidelite()
 
         else:
-            print(f"rien a faire sur la page {nom}")
+            printf(f"rien a faire sur la page {nom}")
             RGPD()
             CustomSleep(uniform(3, 5))
 
