@@ -39,7 +39,7 @@ parser.add_argument(
     "-fl",
     "--fulllog",
     dest="fulllog",
-    help="enable full logging in terminal",
+    help="enable full logging in discord",
     action="store_true",
 )
 
@@ -47,6 +47,9 @@ args = parser.parse_args()
 override = args.override
 Log = args.log
 FullLog = args.fulllog
+
+if override :
+    Log = True
 
 IsLinux = platform == "linux"
 start_time = time()
@@ -504,7 +507,7 @@ def AllCard():  # fonction qui clique sur les cartes
             if i == 0 :
                 driver.refresh()
             else :
-                CustomSleep(1800)
+                CustomSleep(1800) 
                 driver.refresh()
 
 
@@ -671,7 +674,6 @@ def BingMobileSearch(override=randint(22, 25)):
             except Exception as e:
                 echec += 1
                 if echec <= 3:
-                    LogError("message")
                     printf(
                         f"echec du login sur la version mobile. on reesaye ({echec}/3), {e}"
                     )
@@ -886,7 +888,8 @@ def Fidelite():
                 
                 driver.get(lien)
                 sleep(2)
-                choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row
+                choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
+                
                 nb = search("([0-9]) of ([0-9]) completed", driver.page_source)
                 if not nb:
                     nb = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
@@ -894,19 +897,27 @@ def Fidelite():
                     driver.refresh()
                     CustomSleep(2)
                     choix = driver.find_element(By.CLASS_NAME, "spacer-48-bottom")
-                    ButtonText = search('<span class="pull-left margin-right-15">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
-                    bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
-                    bouton.click()
+                    try : 
+                        ButtonText = search('<span class="pull-left margin-right-15">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
+                        bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
+                        bouton.click()
+                    except Exception as e1 :
+                        try : 
+                            t = driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/main/div[2]/div[2]/div[7]/div[3]/div[1]')
+                            t.click()
+                        except Exception as e2 :
+                            LogError(f"fidélité - double erreur - e1 : {e1} - e2 {e2}")
+                            break
                     CustomSleep(uniform(3, 5))
                     driver.switch_to.window(driver.window_handles[1])
                     TryPlay(driver.title)
-                    driver.get(lien)
+                    driver.get(lien) # USELESS ?
                     CustomSleep(uniform(3, 5))
                     try:
                         Close(driver.window_handles[1])
                     except Exception as e:
                         printf(e)
-                printf("on a reussit la partie fidélité")
+                printf("on a reussit la partie fidélité (ou pas et tout est pété)")
             else :
                 printf("lien invalide")
     except Exception as e:
@@ -953,15 +964,19 @@ def close():
     quit()
 
 
-def dev():
+def check_proxy():
     driver.get('http://p.p')
     LogError("test pour voir si le proxy marche")
     driver.get('https://api.ipify.org')
     CustomSleep(5)
     LogError("test pour voir si le proxy marche")
 
+def dev():
+    printf("rien en cours de dev")
 
 def CustomStart(Credentials):
+    if not IsLinux :
+        raise NameError('You need to be on linux to do that, sorry.') 
     global driver
     global _mail
     global _password
