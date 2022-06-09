@@ -1,7 +1,6 @@
 #!/usr/bin/python3.10
 import asyncio
 import configparser
-import os
 from csv import reader
 from os import sys, system
 from random import choice, randint, shuffle, uniform
@@ -575,12 +574,10 @@ def login():
             return driver.current_window_handle
         except Exception as e:
             LogError("login - 3 - " + str(e))
-            driver.quit()
+            driver.close()
             CustomSleep(1200)
             driver = FirefoxDriver()
-
-
-    
+    return("STOP")
 
 
 def BingPcSearch(override=randint(35, 40)):
@@ -727,30 +724,23 @@ def BingMobileSearch(override=randint(22, 25)):
             CustomSleep(uniform(1, 2))
             MRGPD()
             CustomSleep(uniform(1, 1.5))
-            send_keys_wait(
-                MobileDriver.find_element(By.ID, "sb_form_q"),
-                Keys.BACKSPACE
-                + Keys.BACKSPACE
-                + Keys.BACKSPACE
-                + Keys.BACKSPACE
-                + Keys.BACKSPACE
-                + Keys.BACKSPACE,
-            )
-
+    
             for i in range(override):  # 20
+                try :
+                    mot = choice(Liste_de_mot)
+                    send_keys_wait(MobileDriver.find_element(By.ID, "sb_form_q"), mot)
+                    MobileDriver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
+                    progressBar(i, override, name="Mobile")
+                    printf(MobileDriver.current_url, Mobdriver=MobileDriver)
+                    sleep(uniform(5, 20))
 
-                mot = choice(Liste_de_mot)
-                send_keys_wait(MobileDriver.find_element(By.ID, "sb_form_q"), mot)
-                MobileDriver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
-                progressBar(i, override, name="Mobile")
-                printf(MobileDriver.current_url, Mobdriver=MobileDriver)
-                sleep(uniform(5, 20))
+                    Alerte()  # verifie si il y a des alertes (demande de positions ....)
 
-                Alerte()  # verifie si il y a des alertes (demande de positions ....)
-
-                for i in range(len(mot)):
                     MobileDriver.find_element(By.ID, "sb_form_q").clear()
-
+                except :
+                    driver.refresh()
+                    CustomSleep(30)
+                    i -= 1
             MobileDriver.quit()
 
     except Exception as e:
@@ -854,14 +844,18 @@ def LogPoint(account="unknown"):  # log des points sur discord
             CustomSleep(5)
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
             CustomSleep(uniform(10, 20))
-            try:
-                point = search('availablePoints":([\d]+)', driver.page_source)[1]
-            except Exception as e:
-                LogError(f"LogPoint - 2 - {e}")
-                point = -1
+            
+            point = search('availablePoints":([\d]+)', driver.page_source)[1]
         return(point)
-
-    points = get_points()
+    for i in range (3):
+        try : 
+            points = get_points()
+            break
+        except Exception as e:
+            CustomSleep(300)
+            
+    if not points : 
+        LogError(f"impossible d'avoir les points : {e}")
     CustomSleep(uniform(3, 20))
 
     account = account.split("@")[0]
@@ -941,37 +935,39 @@ def Fidelite():
 def DailyRoutine():
 
     MainWindows = login()
-    try:
-        AllCard()
-    except Exception as e:
-        LogError(
-            f"DalyRoutine - AllCard - \n {e}"
-        )
-
-    try:
-        BingPcSearch()
-    except Exception as e:
-        LogError(f"DalyRoutine - BingPcSearch - \n {e}")
-    CustomSleep(uniform(3, 20))
-
-
-    try:
-        Fidelite()
-    except Exception as e:
-        LogError(f"DailyRoutine - Fidelité - \n {e}")
-
-    if proxy_enabled : 
+    if MainWindows != "STOP" :
         try:
-            BingMobileSearch()
+            AllCard()
         except Exception as e:
-            LogError(f"DalyRoutine - BingMobileSearch - {e}")
-    CustomSleep(uniform(3, 20))
+            LogError(
+                f"DalyRoutine - AllCard - \n {e}"
+            )
 
-    try:
-        LogPoint(_mail)
-    except Exception as e:
-        LogError(f"DalyRoutine - LogPoint - \n{e}")
+        try:
+            BingPcSearch()
+        except Exception as e:
+            LogError(f"DalyRoutine - BingPcSearch - \n {e}")
+        CustomSleep(uniform(3, 20))
 
+
+        try:
+            Fidelite()
+        except Exception as e:
+            LogError(f"DailyRoutine - Fidelité - \n {e}")
+
+        if proxy_enabled : 
+            try:
+                BingMobileSearch()
+            except Exception as e:
+                LogError(f"DalyRoutine - BingMobileSearch - {e}")
+        CustomSleep(uniform(3, 20))
+
+        try:
+            LogPoint(_mail)
+        except Exception as e:
+            LogError(f"DalyRoutine - LogPoint - \n{e}")
+    else : 
+        LogError(f"probleme de login sur e comte {_mail}")
 
 def close():
     driver.quit()
@@ -1011,45 +1007,45 @@ def CustomStart(Credentials):
         driver = FirefoxDriver()
         driver.implicitly_wait(10)
 
-        login()
-        if "tout" in Actions:
-            DailyRoutine()
+        if login() != "STOP":
+            if "tout" in Actions:
+                DailyRoutine()
 
-        if "daily" in Actions:
+            if "daily" in Actions:
+                try:
+                    AllCard()
+                except Exception as e:
+                    LogError(f"AllCards - {e} -- override")
+
+            if "pc" in Actions:
+                try:
+                    BingPcSearch()
+                except Exception as e:
+                    LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override")
+
+            if "mobile" in Actions:
+                try:
+                    BingMobileSearch()
+                except Exception as e:
+                    LogError(f"BingMobileSearch - {e} -- override")
+
+            if "Fidelite" in Actions:
+                try :
+                    Fidelite()
+                except Exception as e :
+                    LogError(f"Fidelite - {e} -- override")
+
+            if "dev" in Actions:
+                try:
+                    dev()
+                except Exception as e:
+                    printf(e)
+                    break
+
             try:
-                AllCard()
+                LogPoint(_mail)
             except Exception as e:
-                LogError(f"AllCards - {e} -- override")
-
-        if "pc" in Actions:
-            try:
-                BingPcSearch()
-            except Exception as e:
-                LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override")
-
-        if "mobile" in Actions:
-            try:
-                BingMobileSearch()
-            except Exception as e:
-                LogError(f"BingMobileSearch - {e} -- override")
-
-        if "Fidelite" in Actions:
-            try :
-                Fidelite()
-            except Exception as e :
-                LogError(f"Fidelite - {e} -- override")
-
-        if "dev" in Actions:
-            try:
-                dev()
-            except Exception as e:
-                printf(e)
-                break
-
-        try:
-            LogPoint(_mail)
-        except Exception as e:
-            print("CustomStart " + str(e))
+                print("CustomStart " + str(e))
         driver.close()
 
 
