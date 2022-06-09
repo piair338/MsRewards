@@ -130,6 +130,13 @@ def update_row(compte, points, mycursor, mydb):
     printf(mycursor.rowcount, "record(s) updated")
 
 
+def update_last(compte, points, mycursor, mydb):
+    sql = f"UPDATE comptes SET last_pts = {points} WHERE compte = '{compte}';"
+    mycursor.execute(sql)
+    mydb.commit()
+    printf(mycursor.rowcount, "record(s) updated")
+
+
 def get_row(compte, points, mycursor, same_points = True): #return if there is a line with the same ammount of point or with the same name as well as the same day
     if same_points :
         mycursor.execute(f"SELECT * FROM daily WHERE points = {points} AND compte = '{compte}' AND date = current_date() ;")
@@ -156,6 +163,8 @@ def add_to_database(compte, points):
     else : # if the row don't exist, create it with the good ammount of points
         add_row(compte, points,mycursor,mydb)
         printf("row added")
+    if points > 10 :
+        update_last(compte, points, mycursor, mydb)
 
     mycursor.close()
     mydb.close()
