@@ -350,7 +350,7 @@ def PlayQuiz8(override=3):
                     if 'iscorrectoption="True" ' in Card.get_attribute("outerHTML"):
                         ListeOfGood.append(f"rqAnswerOption{i-1}")  # premier div = 3 ?
                 except Exception as e:
-                    LogError("playuiz8 - 1 - " + e)
+                    LogError("playquiz8 - 1 - " + e)
             shuffle(ListeOfGood)
 
             for i in ListeOfGood:
@@ -367,13 +367,13 @@ def PlayQuiz8(override=3):
                         LogError("playquizz8 - 2 - " + e)
                 except Exception as e:
                     if override:
-                        printf("playquiz8 - 3 -" + e)
+                        printf("playquiz8 - 3 -" + e) # may append during 
                     else:
                         LogError("playquizz8 - 3 - " + e)
 
     except Exception as e:
-        LogError("PlayQuiz8 - 4 - " + str(e))
-        print(str(ListeOfGood))
+        LogError(f"PlayQuiz8 - 4 - {e} \n ListOfGood : {str(ListeOfGood)}")
+        
     printf("PlayQuiz8 : fin ")
 
 
@@ -518,13 +518,19 @@ def send_keys_wait(element, keys):
 
 
 def login():
+    global driver
     printf("login : start")
-    try:
+    def sub_login():
         driver.get("https://www.bing.com/rewardsapp/flyout")
         try:
             driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click()  # depend of the language of the page
         except:
-            driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()  # depend of the language of the page
+            try : 
+                driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()  # depend of the language of the page
+            except Exception as e:
+                LogError(f"erreur de login : {e} - probablement deja log ou une langue inconnue")
+                return(driver.current_window_handle)
+
         CustomSleep(10)
         mail = driver.find_element(By.ID, "i0116")
         send_keys_wait(mail, _mail)
@@ -539,22 +545,22 @@ def login():
         try:
             driver.find_element(By.ID, "KmsiCheckboxField").click()
         except Exception as e:
-            printf(f"login - 1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
+            printf(f"login - 2.1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "iLooksGood").click()
         except Exception as e:
-            printf(f"login - 2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
+            printf(f"login - 2.2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "idSIButton9").click()
         except Exception as e:
-            printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}")
+            printf(f"login - 2.3 - erreur validation bouton idSIButton9. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "iCancel").click()
         except Exception as e:
-            printf(f"login - 2 - erreur validation bouton iCancel. pas forcement grave {e}")
+            printf(f"login - 2.4 - erreur validation bouton iCancel. pas forcement grave {e}")
 
 
 
@@ -562,11 +568,19 @@ def login():
         RGPD()
         driver.get("https://www.bing.com/rewardsapp/flyout")
 
-        MainWindows = driver.current_window_handle
-        return MainWindows
 
-    except Exception as e:
-        LogError("login - 3 - " + str(e))
+    for i in range(3) :
+        try : 
+            sub_login()
+            return driver.current_window_handle
+        except Exception as e:
+            LogError("login - 3 - " + str(e))
+            driver.quit()
+            CustomSleep(1200)
+            driver = FirefoxDriver()
+
+
+    
 
 
 def BingPcSearch(override=randint(35, 40)):
@@ -807,7 +821,7 @@ def TryPlay(nom="inconnu"):
                     )
                 )
                 printf(f"recovery détécté. quiz : {number}, restant : {restant +1}")
-                play(number, override=restant + 1)
+                play(number-1, override=restant + 1)
             except Exception as e:
                 printf("TryPlay - 2 - " + e)
 
@@ -971,8 +985,10 @@ def check_proxy():
     CustomSleep(5)
     LogError("test pour voir si le proxy marche")
 
+
 def dev():
     printf("rien en cours de dev")
+
 
 def CustomStart(Credentials):
     if not IsLinux :
@@ -993,7 +1009,7 @@ def CustomStart(Credentials):
         _mail = Credentials[ids.index(i)][0]
         _password = Credentials[ids.index(i)][1]
         driver = FirefoxDriver()
-        driver.implicitly_wait(7)
+        driver.implicitly_wait(10)
 
         login()
         if "tout" in Actions:
