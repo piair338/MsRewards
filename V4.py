@@ -895,9 +895,13 @@ def Fidelite():
             if (lien.split(":")[0] == "https") or (lien.split(":")[0] == "http") : 
                 
                 driver.get(lien)
-                sleep(2)
-                choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
-                
+                CustomSleep(5)
+                try :
+                    choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
+                except :
+                    CustomSleep(300)
+                    choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
+                    
                 nb = search("([0-9]) of ([0-9]) completed", driver.page_source)
                 if not nb:
                     nb = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
