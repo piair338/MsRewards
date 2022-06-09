@@ -163,7 +163,7 @@ def add_to_database(compte, points):
     else : # if the row don't exist, create it with the good ammount of points
         add_row(compte, points,mycursor,mydb)
         printf("row added")
-    if points > 10 :
+    if int(points) > 10 :
         update_last(compte, points, mycursor, mydb)
 
     mycursor.close()
