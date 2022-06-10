@@ -952,27 +952,23 @@ def DailyRoutine():
         try:
             AllCard()
         except Exception as e:
-            LogError(
-                f"DalyRoutine - AllCard - \n {e}"
-            )
+            LogError(f"DalyRoutine - AllCard - \n{e}")
 
         try:
             BingPcSearch()
         except Exception as e:
-            LogError(f"DalyRoutine - BingPcSearch - \n {e}")
+            LogError(f"DalyRoutine - BingPcSearch - \n{e}")
         CustomSleep(uniform(3, 20))
-
 
         try:
             Fidelite()
         except Exception as e:
-            LogError(f"DailyRoutine - Fidelité - \n {e}")
-
-        if proxy_enabled : 
-            try:
-                BingMobileSearch()
-            except Exception as e:
-                LogError(f"DalyRoutine - BingMobileSearch - {e}")
+            LogError(f"DailyRoutine - Fidelité - \n{e}")
+         
+        try:
+            BingMobileSearch()
+        except Exception as e:
+            LogError(f"DalyRoutine - BingMobileSearch - \n{e}")
         CustomSleep(uniform(3, 20))
 
         try:
@@ -980,19 +976,12 @@ def DailyRoutine():
         except Exception as e:
             LogError(f"DalyRoutine - LogPoint - \n{e}")
     else : 
-        LogError(f"probleme de login sur e comte {_mail}")
+        LogError(f"probleme de login sur le comte {_mail}")
+
 
 def close():
     driver.quit()
     quit()
-
-
-def check_proxy():
-    driver.get('http://p.p')
-    LogError("test pour voir si le proxy marche")
-    driver.get('https://api.ipify.org')
-    CustomSleep(5)
-    LogError("test pour voir si le proxy marche")
 
 
 def dev():
