@@ -658,38 +658,38 @@ def BingMobileSearch(override=randint(22, 25)):
                 printf("debut du login", Mobdriver=MobileDriver)
                 MobileDriver.find_element(By.ID, "mHamburger").click()
                 CustomSleep(uniform(1, 2))
-                printf("login - 1", Mobdriver=MobileDriver)
+                printf("Mlogin - 1", Mobdriver=MobileDriver)
                 MobileDriver.find_element(By.ID, "hb_s").click()
                 CustomSleep(uniform(1, 2))
-                printf("login - 2", Mobdriver=MobileDriver)
+                printf("Mlogin - 2", Mobdriver=MobileDriver)
                 mail = MobileDriver.find_element(By.ID, "i0116")
                 send_keys_wait(mail, _mail)
-                printf("login - 3", Mobdriver=MobileDriver)
+                printf("Mlogin - 3", Mobdriver=MobileDriver)
                 mail.send_keys(Keys.ENTER)
                 CustomSleep(uniform(7, 9))
-                printf("login - 4", Mobdriver=MobileDriver)
+                printf("Mlogin - 4", Mobdriver=MobileDriver)
                 pwd = MobileDriver.find_element(By.ID, "i0118")
-                printf("login - 5", Mobdriver=MobileDriver)
+                printf("Mlogin - 5", Mobdriver=MobileDriver)
                 send_keys_wait(pwd, _password)
-                printf("login - 6", Mobdriver=MobileDriver)
+                printf("Mlogin - 6", Mobdriver=MobileDriver)
                 pwd.send_keys(Keys.ENTER)
                 CustomSleep(uniform(1, 2))
                 try:
                     MobileDriver.find_element(By.ID, "KmsiCheckboxField").click()
                 except Exception as e:
-                    printf(f"login - 1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
+                    printf(f"Mlogin - 2.1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
 
                 try:
                     MobileDriver.find_element(By.ID, "iLooksGood").click()
                 except Exception as e:
-                    printf(f"login - 2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
+                    printf(f"Mlogin - 2.2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
 
                 try:
                     MobileDriver.find_element(By.ID, "idSIButton9").click()
                 except Exception as e:
-                    printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}")
+                    printf(f"Mlogin - 2.3 - erreur validation bouton idSIButton9. pas forcement grave {e}")
 
-                printf("fin du login", Mobdriver=MobileDriver)
+                printf("fin du Mlogin", Mobdriver=MobileDriver)
 
             except Exception as e:
                 echec += 1
@@ -710,11 +710,13 @@ def BingMobileSearch(override=randint(22, 25)):
             try:
                 MobileDriver.find_element(By.ID, "bnp_btn_accept").click()
             except Exception as e:
+                pass
                 printf(e)
             try:
                 MobileDriver.find_element(By.ID, "bnp_hfly_cta2").click()
             except Exception as e:
-                printf(e)
+                pass
+                printf(f"MRGPD : e")
 
         def Alerte():
             try:
@@ -753,7 +755,7 @@ def BingMobileSearch(override=randint(22, 25)):
             MobileDriver.quit()
 
     except Exception as e:
-        LogError("BingMobileSearch" + str(e), Mobdriver=MobileDriver)
+        LogError("BingMobileSearch - 4 - " + str(e), Mobdriver=MobileDriver)
         try:
             MobileDriver.quit()
         except Exception as e:
