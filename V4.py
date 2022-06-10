@@ -533,11 +533,8 @@ def login():
         try:
             driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click()  # depend of the language of the page
         except:
-            try : 
-                driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()  # depend of the language of the page
-            except Exception as e:
-                LogError(f"erreur de login : {e} - probablement deja log ou une langue inconnue")
-                return(driver.current_window_handle)
+            driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()  # depend of the language of the page
+            
 
         CustomSleep(10)
         mail = driver.find_element(By.ID, "i0116")
@@ -553,24 +550,31 @@ def login():
         try:
             driver.find_element(By.ID, "KmsiCheckboxField").click()
         except Exception as e:
+            printf("login - 2.1 ", end = "\r")
+            pass
             printf(f"login - 2.1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "iLooksGood").click()
         except Exception as e:
+            printf("login - 2.2 ", end = "\r")
+            pass
             printf(f"login - 2.2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "idSIButton9").click()
         except Exception as e:
+            printf("login - 2.3 ", end = "\r")
+            pass
             printf(f"login - 2.3 - erreur validation bouton idSIButton9. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "iCancel").click()
         except Exception as e:
+            printf("login - 2.4 ", end = "\r")
+            pass
             printf(f"login - 2.4 - erreur validation bouton iCancel. pas forcement grave {e}")
-
-
+            
 
         printf("login completed")
         RGPD()
