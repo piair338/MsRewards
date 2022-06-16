@@ -550,28 +550,24 @@ def login():
         try:
             driver.find_element(By.ID, "KmsiCheckboxField").click()
         except Exception as e:
-            printf("login - 2.1 ", end = "\r")
             pass
             printf(f"login - 2.1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "iLooksGood").click()
         except Exception as e:
-            printf("login - 2.2 ", end = "\r")
             pass
             printf(f"login - 2.2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "idSIButton9").click()
         except Exception as e:
-            printf("login - 2.3 ", end = "\r")
             pass
             printf(f"login - 2.3 - erreur validation bouton idSIButton9. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "iCancel").click()
         except Exception as e:
-            printf("login - 2.4 ", end = "\r")
             pass
             printf(f"login - 2.4 - erreur validation bouton iCancel. pas forcement grave {e}")
             
