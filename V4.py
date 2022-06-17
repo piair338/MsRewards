@@ -123,7 +123,8 @@ def Timer(text="undefined"):
 
 def check_ipv4():
     driver.get("https://api64.ipify.org")
-    if len(driver.page_source.split('.')) == 4 :
+    elm = driver.find_element(By.TAG_NAME, "body")
+    if len(elm.text.split('.')) == 4 :
         return True
     return False
 
@@ -1010,7 +1011,7 @@ def close():
 
 def dev():
     print(check_ipv4())
-    
+
 
 def CustomStart(Credentials):
     if not IsLinux :
