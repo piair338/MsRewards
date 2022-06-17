@@ -26,6 +26,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 import argparse
 import mysql.connector
 
+
+"""
+Setup for option, like --override or --fulllog
+"""
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
@@ -50,15 +55,16 @@ FullLog = args.fulllog
 if override :
     Log = True
 
+
+"""
+gloabal variables used later in the code
+"""
+
 IsLinux = platform == "linux"
 start_time = time()
 
 global driver
 driver = None
-
-
-def Timer(text="undefined"):
-    return(f"[{timedelta(seconds = round(float(time() - start_time)))}] : " + str(text))
 
 
 if IsLinux:
@@ -72,10 +78,19 @@ config.read(config_path)
 #path comfigurations
 MotPath = config["PATH"]["motpath"]
 LogPath = config["PATH"]["logpath"]
-#discord configurations
+
+"""
+discord configuration
+"""
 SuccessLink = config["DISCORD"]["successlink"]
 ErrorLink = config["DISCORD"]["errorlink"]
 discord_enabled = config["DISCORD"]["enabled"]
+
+webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
+
+if discord_enabled:
+    webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
+
 #base settings
 FidelityLink = config["SETTINGS"]["FidelityLink"]
 embeds = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
@@ -100,11 +115,11 @@ else :
 g.close()
 
 
-webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 
 
-if discord_enabled:
-    webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
+def Timer(text="undefined"):
+    return(f"[{timedelta(seconds = round(float(time() - start_time)))}] : " + str(text))
+
 
 def setup_proxy(ip, port) :
     PROXY = f"{ip}:{port}"
