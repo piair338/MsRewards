@@ -82,12 +82,12 @@ LogPath = config["PATH"]["logpath"]
 """
 discord configuration
 """
+
 SuccessLink = config["DISCORD"]["successlink"]
 ErrorLink = config["DISCORD"]["errorlink"]
 discord_enabled = config["DISCORD"]["enabled"]
 
 webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
-
 if discord_enabled:
     webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 
@@ -119,6 +119,13 @@ g.close()
 
 def Timer(text="undefined"):
     return(f"[{timedelta(seconds = round(float(time() - start_time)))}] : " + str(text))
+
+
+def check_ipv4():
+    driver.get("https://api64.ipify.org")
+    if len(driver.page_source.split('.')) == 4 :
+        return True
+    return False
 
 
 def setup_proxy(ip, port) :
@@ -1002,8 +1009,8 @@ def close():
 
 
 def dev():
-    printf("rien en cours de dev")
-
+    print(check_ipv4())
+    
 
 def CustomStart(Credentials):
     if not IsLinux :
