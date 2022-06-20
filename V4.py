@@ -329,8 +329,8 @@ def RGPD():
 
 
 """
-PlayQuiz2([int : override]) make the quizz with 2 choice each time. They usually have 10 questions. 
-override is the number of question, by default, it's 10. Can be usefull in some case, where the programm crashes before finishing the quizz
+PlayQuiz[N]([int : override]) make the quizz with N choice each time. They usually have between 4 and 10 questions. 
+override is the number of question, by default, it's the number of question in this specific quizz. Can be usefull in some case, where the programm crashes before finishing the quizz
 """
 def PlayQuiz2(override=10):
     printf("debut de PlayQuiz2")
@@ -574,25 +574,25 @@ def login():
             driver.find_element(By.ID, "KmsiCheckboxField").click()
         except Exception as e:
             pass
-            printf(f"login - 2.1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
+            #printf(f"login - 2.1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "iLooksGood").click()
         except Exception as e:
             pass
-            printf(f"login - 2.2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
+            #printf(f"login - 2.2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "idSIButton9").click()
         except Exception as e:
             pass
-            printf(f"login - 2.3 - erreur validation bouton idSIButton9. pas forcement grave {e}")
+            #printf(f"login - 2.3 - erreur validation bouton idSIButton9. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "iCancel").click()
         except Exception as e:
             pass
-            printf(f"login - 2.4 - erreur validation bouton iCancel. pas forcement grave {e}")
+            #printf(f"login - 2.4 - erreur validation bouton iCancel. pas forcement grave {e}")
             
 
         printf("login completed")
