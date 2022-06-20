@@ -221,7 +221,7 @@ def FirefoxDriver(mobile=False, Headless=Headless):
 def printf(txt, end="", Mobdriver=driver):
     if Log:
         print(Timer(txt))
-    elif FullLog:
+    if FullLog:
         try :
             LogError(Timer(txt), Mobdriver=Mobdriver)
         except Exception as e:
@@ -241,16 +241,15 @@ def CustomSleep(temps):
             "  .  ",
             " .   ",
         ]
+        passe = 0
         for i in range(int(temps)):
-            c = True
             for i in range(8):
                 sleep(0.125)
-                print(points[i], end="\r")
+                passe =+ 0.125
+                print(f"{points[i]} {float(temps) - passe}", end="\r")
 
-        if c:
-            print(".   ", end="\r")
-        sleep(temps - int(temps))
-        print("\n")
+        print("                        ", end="\r")
+
     else:
         sleep(temps)
 
