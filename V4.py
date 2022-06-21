@@ -394,12 +394,20 @@ def PlayQuiz8(override=3):
                     try:
                         driver.execute_script("arguments[0].click();", elem)
                     except Exception as e:
-                        LogError("playquizz8 - 2 - " + e)
+                        LogError(f"playquizz8 - 2 - {e}")
+                except exceptions.NoSuchElementException as e :
+                    try : 
+                        driver.refresh()
+                        CustomSleep(10)
+                        elem = driver.find_element(By.ID, i)
+                        elem.click()
+                    except Exception as e :
+                        LogError(f"playquizz8 - 5 -  {e}")
                 except Exception as e:
                     if override:
-                        printf("playquiz8 - 3 -" + e) # may append during 
+                        printf(f"playquiz8 - 3 -  {e}") # may append during 
                     else:
-                        LogError("playquizz8 - 3 - " + e)
+                        LogError(f"playquizz8 - 3 -  {e}")
 
     except Exception as e:
         LogError(f"PlayQuiz8 - 4 - {e} \n ListOfGood : {str(ListeOfGood)}")
@@ -485,7 +493,7 @@ def AllCard():  # fonction qui clique sur les cartes
                     TryPlay(titre)
                     sleep(1)
                     reset()
-                    print(f"DailyCard {titre} ok ")
+                    printf(f"DailyCard {titre} ok ")
                 except Exception as e:
                     printf(f"Allcard card {titre} error ({e})")
         except Exception as e:
@@ -493,8 +501,8 @@ def AllCard():  # fonction qui clique sur les cartes
 
     try:
         dailyCards()
-    except:
-        printf("dans les quetes de la semaine")
+    except Exception as e:
+        printf(f"erreur dans les quetes de la semaine {e}")
 
     def weekly_cards():
         try:
@@ -664,9 +672,7 @@ def BingPcSearch(override=randint(35, 40)):
 
 
 def BingMobileSearch(override=randint(22, 25)):
-    MobileDriver = (
-        "si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
-    )
+    MobileDriver = "unable to start"
     try:
         try:
             MobileDriver = FirefoxDriver(mobile=True)
