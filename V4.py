@@ -229,30 +229,30 @@ def printf(txt, end="", Mobdriver=driver):
 
 
 def CustomSleep(temps):
-    if Log or not IsLinux: #only print sleep when user see it
-        c = False
-        points = [
-            " .   ",
-            "  .  ",
-            "   . ",
-            "    .",
-            "    .",
-            "   . ",
-            "  .  ",
-            " .   ",
-        ]
-        passe = 0
-        for i in range(int(temps)):
-            for i in range(8):
-                sleep(0.125)
-                passe =+ 0.125
-                print(f"{points[i]} {float(temps) - passe}", end="\r")
+    try : 
+        if Log or not IsLinux: #only print sleep when user see it
+            points = [
+                " .   ",
+                "  .  ",
+                "   . ",
+                "    .",
+                "    .",
+                "   . ",
+                "  .  ",
+                " .   ",
+            ]
+            passe = 0
+            for i in range(int(temps)):
+                for i in range(8):
+                    sleep(0.125)
+                    passe += 0.125
+                    print(f"{points[i]}  -  {round(float(temps) - passe, 3)}", end="\r")
+            print("                        ", end="\r")
 
-        print("                        ", end="\r")
-
-    else:
-        sleep(temps)
-
+        else:
+            sleep(temps)
+    except KeyboardInterrupt :
+        printf("attente annulée")
 
 def ListTabs(Mdriver=None):
     tabs = []
@@ -438,7 +438,9 @@ def PlayQuiz4(override=None):
         raise ValueError(e)
     printf("PlayQuiz4 : end")
 
-
+"""
+PlayPoll() reply a random thing to poll
+"""
 def PlayPoll():
     printf("PlayPoll : start")
     try:
@@ -541,12 +543,19 @@ def AllCard():  # fonction qui clique sur les cartes
                 driver.refresh()
 
 
+"""
+send_keys_wait([selenium element:element, str:keys]) send the different keys to the field element, with a random time between each press to simulate human action.
+keys can be an string, but alos selenium keys
+"""
 def send_keys_wait(element, keys):
     for i in keys:
         element.send_keys(i)
         sleep(uniform(0.1, 0.3))
 
-
+"""
+login() tries to login to your micrososft account.
+it uses global variable _mail and _password to login
+"""
 def login():
     global driver
     printf("login : start")
