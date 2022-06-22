@@ -1,15 +1,27 @@
 #/usr/bin/python3.10
 
-import enquiries
 import configparser
 import os 
-
+print
 config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/config"
 config = configparser.ConfigParser()
 config.read(config_path)
 
-
-
+def confirm(texte, default = False):
+    if default : 
+        txt = '[y/N]'
+    else :
+        txt = '[Y/n]'
+    
+    yes = ['y', 'yes', 'o', 'oui']
+    no = ['n', 'non', 'no']
+    a = input(f"{texte} {txt}").lower()
+    if a in yes :
+        return True
+    elif a in no :
+        return False
+    return default
+    
 lang = "fr"
 
 text = {"fr" : {
@@ -44,13 +56,13 @@ def setup():
 
 def setup_comptes():
     lc = []
-    compte = enquiries.freetext(t["compte"])
-    mdp = enquiries.freetext(t["mdp"])
+    compte = input(t["compte"])
+    mdp = input(t["mdp"])
     lc.append(f"{compte},{mdp}")
     for i in range(5):
-        if enquiries.confirm(t["next"], default = True, single_key = True):
-            compte = enquiries.freetext(t["compte"])
-            mdp = enquiries.freetext(t["mdp"])
+        if enquiries.confirm(t["next"], default = True):
+            compte = input(t["compte"])
+            mdp = input(t["mdp"])
             lc.append(f"{compte},{mdp}\n")
         else:
             print(t["finc"])
@@ -84,39 +96,39 @@ def setup_settings():
     sql()
     
 def general():
-    if enquiries.confirm(t["fidelity"], single_key = True):
-        lien = enquiries.freetext(t["lien"])
+    if enquiries.confirm(t["fidelity"]):
+        lien = input(t["lien"])
         edit_config(7,lien)
     
 def discord():
-    enabled = enquiries.confirm(t["discorde"], single_key = True, default = True)
+    enabled = enquiries.confirm(t["discorde"], default = True)
     if enabled : 
         edit_config(13, True)
-        w1 = enquiries.freetext(t["w1"])
+        w1 = input(t["w1"])
         edit_config(14,w1)
-        w2 = enquiries.freetext(t["w2"])
+        w2 = input(t["w2"])
         edit_config(15,w2)
         
 def sql() :
-    enabled = enquiries.confirm(t["msqle"], single_key = True, default = False)
+    enabled = enquiries.confirm(t["msqle"], default = False)
     if enabled : 
         edit_config(25, True)
-        lien = enquiries.freetext(t["msqll"])
+        lien = input(t["msqll"])
         edit_config(26,lien)
-        table = enquiries.freetext(t["msqlt"])
+        table = input(t["msqlt"])
         edit_config(27,table)
-        user = enquiries.freetext(t["msqlu"])
+        user = input(t["msqlu"])
         edit_config(28,user)
-        pwd = enquiries.freetext(t["msqlp"])
+        pwd = input(t["msqlp"])
         edit_config(29,pwd)
      
 def proxy() :
-    enabled = enquiries.confirm(t["proxye"], single_key = True, default = False)
+    enabled = enquiries.confirm(t["proxye"], default = False)
     if enabled : 
         edit_config(19, True)
-        lien = enquiries.freetext(t["proxyl"])
+        lien = input(t["proxyl"])
         edit_config(20,lien)
-        port = enquiries.freetext(t["proxyp"])
+        port = input(t["proxyp"])
         edit_config(21,port)
      
 
