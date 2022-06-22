@@ -60,7 +60,7 @@ def setup_comptes():
     mdp = input(t["mdp"])
     lc.append(f"{compte},{mdp}")
     for i in range(5):
-        if enquiries.confirm(t["next"], default = True):
+        if confirm(t["next"], default = True):
             compte = input(t["compte"])
             mdp = input(t["mdp"])
             lc.append(f"{compte},{mdp}\n")
@@ -96,12 +96,12 @@ def setup_settings():
     sql()
     
 def general():
-    if enquiries.confirm(t["fidelity"]):
+    if confirm(t["fidelity"]):
         lien = input(t["lien"])
         edit_config(7,lien)
     
 def discord():
-    enabled = enquiries.confirm(t["discorde"], default = True)
+    enabled = confirm(t["discorde"], default = True)
     if enabled : 
         edit_config(13, True)
         w1 = input(t["w1"])
@@ -110,7 +110,7 @@ def discord():
         edit_config(15,w2)
         
 def sql() :
-    enabled = enquiries.confirm(t["msqle"], default = False)
+    enabled = confirm(t["msqle"], default = False)
     if enabled : 
         edit_config(25, True)
         lien = input(t["msqll"])
@@ -123,7 +123,7 @@ def sql() :
         edit_config(29,pwd)
      
 def proxy() :
-    enabled = enquiries.confirm(t["proxye"], default = False)
+    enabled = confirm(t["proxye"], default = False)
     if enabled : 
         edit_config(19, True)
         lien = input(t["proxyl"])
