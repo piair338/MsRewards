@@ -9,9 +9,9 @@ config.read(config_path)
 
 def confirm(texte, default = False):
     if default : 
-        txt = '[y/N]'
-    else :
         txt = '[Y/n]'
+    else :
+        txt = '[y/N]'
     
     yes = ['y', 'yes', 'o', 'oui']
     no = ['n', 'non', 'no']
