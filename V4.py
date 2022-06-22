@@ -72,7 +72,7 @@ if IsLinux:
 else:
     system("")  # enable colors in cmd
 
-config_path = "/home/pi/MsReward/config"
+config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/config"
 config = configparser.ConfigParser()
 config.read(config_path)
 #path comfigurations

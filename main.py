@@ -4,7 +4,7 @@ import enquiries
 import configparser
 import os 
 
-config_path = "/home/pi/MsReward/Git/MsReward/config"
+config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/config"
 config = configparser.ConfigParser()
 config.read(config_path)
 
