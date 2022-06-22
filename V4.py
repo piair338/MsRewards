@@ -573,7 +573,7 @@ def login():
             driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click()  # depend of the language of the page
         except:
             driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()  # depend of the language of the page
-            
+
 
         CustomSleep(10)
         mail = driver.find_element(By.ID, "i0116")
@@ -619,7 +619,7 @@ def login():
     for i in range(3) :
         try : 
             sub_login()
-            return driver.current_window_handle
+            return (driver.current_window_handle)
         except Exception as e:
             LogError("login - 3 - " + str(e))
             driver.close()
