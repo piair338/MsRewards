@@ -2,7 +2,7 @@
 import asyncio
 import configparser
 from csv import reader
-from os import sys, system
+from os import sys, system, path
 from random import choice, randint, shuffle, uniform
 from re import findall, search
 from sys import platform
@@ -72,7 +72,7 @@ if IsLinux:
 else:
     system("")  # enable colors in cmd
 
-config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/config"
+config_path = f"{path.abspath( os.path.dirname( __file__ ) )}/config"
 config = configparser.ConfigParser()
 config.read(config_path)
 #path comfigurations
