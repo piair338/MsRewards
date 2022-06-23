@@ -72,7 +72,7 @@ if IsLinux:
 else:
     system("")  # enable colors in cmd
 
-config_path = f"{path.abspath( os.path.dirname( __file__ ) )}/config"
+config_path = f"{path.abspath( path.dirname( __file__ ) )}/config"
 config = configparser.ConfigParser()
 config.read(config_path)
 #path comfigurations
