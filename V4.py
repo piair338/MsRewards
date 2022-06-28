@@ -1,10 +1,8 @@
 #!/usr/bin/python3.10
 import asyncio
 import configparser
-import os
 from csv import reader
-from os import path, sys, system
-from queue import Full
+from os import sys, system, path
 from random import choice, randint, shuffle, uniform
 from re import findall, search
 from sys import platform
@@ -26,6 +24,12 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 import argparse
+import mysql.connector
+
+
+"""
+Setup for option, like --override or --fulllog
+"""
 
 parser = argparse.ArgumentParser()
 
@@ -39,7 +43,7 @@ parser.add_argument(
     "-fl",
     "--fulllog",
     dest="fulllog",
-    help="enable full logging in terminal",
+    help="enable full logging in discord",
     action="store_true",
 )
 
@@ -48,6 +52,14 @@ override = args.override
 Log = args.log
 FullLog = args.fulllog
 
+if override :
+    Log = True
+
+
+"""
+gloabal variables used later in the code
+"""
+
 IsLinux = platform == "linux"
 start_time = time()
 
@@ -55,55 +67,136 @@ global driver
 driver = None
 
 
-def Timer(text="undefined"):
-    return(f"[{timedelta(seconds = round(float(time() - start_time)))}] : " + str(text))
-
-
 if IsLinux:
     import enquiries
 else:
     system("")  # enable colors in cmd
 
-config_path = "/home/pi/MsReward/config"
+config_path = f"{path.abspath( path.dirname( __file__ ) )}/config"
 config = configparser.ConfigParser()
 config.read(config_path)
 #path comfigurations
 MotPath = config["PATH"]["motpath"]
 LogPath = config["PATH"]["logpath"]
-#discord configurations
+
+"""
+discord configuration
+"""
+
 SuccessLink = config["DISCORD"]["successlink"]
 ErrorLink = config["DISCORD"]["errorlink"]
-#bsae settings
+discord_enabled = config["DISCORD"]["enabled"]
+
+webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
+if discord_enabled:
+    webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
+
+#base settings
 FidelityLink = config["SETTINGS"]["FidelityLink"]
 embeds = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
 Headless = config["SETTINGS"]["headless"] == "True"
-
 #proxy settings
-
 proxy_enabled = config["PROXY"]["enabled"] == "True"
-proxy_adress = config["PROXY"]["url"] 
-proxy_port = config["PROXY"]["port"] 
+proxy_address = config["PROXY"]["url"]
+proxy_port = config["PROXY"]["port"]
+#MySQL settings
+sql_enabled = config["SQL"]["enabled"] == "True"
+sql_usr = config["SQL"]["usr"]
+sql_pwd = config["SQL"]["pwd"]
+sql_host = config["SQL"]["host"]
+sql_database = config["SQL"]["database"]
 
 g = open(MotPath, "r", encoding="utf-8")
-Liste_de_mot = list(g.readline().split(","))
+lines = g.readlines()
+if len(lines) < 3 : 
+    Liste_de_mot = list(lines[0].split(","))
+else :
+    Liste_de_mot = [x.replace('\n', "") for x in lines]
 g.close()
 
-webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
-webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
+
+
+
+def Timer(text="undefined"):
+    return(f"[{timedelta(seconds = round(float(time() - start_time)))}] : " + str(text))
+
+
+def check_ipv4():
+    driver.get("https://api64.ipify.org")
+    elm = driver.find_element(By.TAG_NAME, "body")
+    if len(elm.text.split('.')) == 4 :
+        return True
+    return False
+
 
 def setup_proxy(ip, port) :
     PROXY = f"{ip}:{port}"
     webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
-    "httpProxy": PROXY,
-    "sslProxy": PROXY,
-    "proxyType": "MANUAL",
+        "httpProxy": PROXY,
+        "sslProxy": PROXY,
+        "proxyType": "MANUAL",
     }
+
+
+def add_row(compte, points, mycursor, mydb):
+    sql = "INSERT INTO daily (compte, points, date) VALUES (%s, %s, current_date())"
+    val = (compte, points)
+    mycursor.execute(sql, val)
+    mydb.commit()
+    printf(mycursor.rowcount, "record creatted.")
+
+
+def update_row(compte, points, mycursor, mydb):
+    sql = f"UPDATE daily SET points = {points} WHERE compte = '{compte}' AND date = current_date() ;"
+    mycursor.execute(sql)
+    mydb.commit()
+    printf(mycursor.rowcount, "record(s) updated")
+
+
+def update_last(compte, points, mycursor, mydb):
+    sql = f"UPDATE comptes SET last_pts = {points} WHERE compte = '{compte}';"
+    mycursor.execute(sql)
+    mydb.commit()
+    printf(mycursor.rowcount, "record(s) updated")
+
+
+def get_row(compte, points, mycursor, same_points = True): #return if there is a line with the same ammount of point or with the same name as well as the same day
+    if same_points :
+        mycursor.execute(f"SELECT * FROM daily WHERE points = {points} AND compte = '{compte}' AND date = current_date() ;")
+    else :
+        mycursor.execute(f"SELECT * FROM daily WHERE compte = '{compte}' AND date = current_date() ;")
+    myresult = mycursor.fetchall()
+    return(len(myresult) == 1)
+
+
+def add_to_database(compte, points):
+    mydb = mysql.connector.connect(
+        host=sql_host,
+        user=sql_usr,
+        password=sql_pwd,
+        database = sql_database
+    )
+    mycursor = mydb.cursor()
+
+    if get_row(compte, points,mycursor, True): #check if the row exist with the same ammount of points and do nothind if it does
+        printf("les points sont deja bon")
+    elif get_row(compte, points,mycursor, False) : #check if the row exist, but without the same ammount of points and update the point account then
+        update_row(compte, points,mycursor,mydb)
+        printf("row updated")
+    else : # if the row don't exist, create it with the good ammount of points
+        add_row(compte, points,mycursor,mydb)
+        printf("row added")
+    if int(points) > 10 :
+        update_last(compte, points, mycursor, mydb)
+
+    mycursor.close()
+    mydb.close()
 
 
 def FirefoxDriver(mobile=False, Headless=Headless):
     if proxy_enabled :
-        setup_proxy(proxy_adress,proxy_port)
-        
+        setup_proxy(proxy_address,proxy_port)
+
     PC_USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         "AppleWebKit/537.36 (KHTML, like Gecko)"
@@ -129,39 +222,38 @@ def FirefoxDriver(mobile=False, Headless=Headless):
 def printf(txt, end="", Mobdriver=driver):
     if Log:
         print(Timer(txt))
-    elif FullLog:
-        try : 
+    if FullLog:
+        try :
             LogError(Timer(txt), Mobdriver=Mobdriver)
         except Exception as e:
             print("\n" + Timer(e) + "\n")
 
 
 def CustomSleep(temps):
-    if Log or not IsLinux: #only print sleep when user see it
-        c = False
-        points = [
-            " .   ",
-            "  .  ",
-            "   . ",
-            "    .",
-            "    .",
-            "   . ",
-            "  .  ",
-            " .   ",
-        ]
-        for i in range(int(temps)):
-            c = True
-            for i in range(8):
-                sleep(0.125)
-                print(points[i], end="\r")
+    try : 
+        if Log or not IsLinux: #only print sleep when user see it
+            points = [
+                " .   ",
+                "  .  ",
+                "   . ",
+                "    .",
+                "    .",
+                "   . ",
+                "  .  ",
+                " .   ",
+            ]
+            passe = 0
+            for i in range(int(temps)):
+                for i in range(8):
+                    sleep(0.125)
+                    passe += 0.125
+                    print(f"{points[i]}  -  {round(float(temps) - passe, 3)}", end="\r")
+            print("                        ", end="\r")
 
-        if c:
-            print(".   ", end="\r")
-        sleep(temps - int(temps))
-        print("\n")
-    else:
-        sleep(temps)
-
+        else:
+            sleep(temps)
+    except KeyboardInterrupt :
+        printf("attente annulée")
 
 def ListTabs(Mdriver=None):
     tabs = []
@@ -174,7 +266,7 @@ def ListTabs(Mdriver=None):
         tabs.append(ldriver.current_url)
     return tabs
 
-#il faut fix le fait qu'il essaye d'envoyer un truc sans url, listtab[0] = about:blank
+
 def LogError(message, log=FullLog, Mobdriver=None):
     if Mobdriver:
         gdriver = Mobdriver
@@ -220,6 +312,7 @@ def Close(fenetre, SwitchTo=0):
     driver.switch_to.window(driver.window_handles[SwitchTo])
 
 
+#Deal with RGPD popup as well as some random popup like 'are you satisfied' one
 def RGPD():
     try:
         driver.find_element(By.ID, "bnp_btn_accept").click()
@@ -229,12 +322,18 @@ def RGPD():
         driver.find_element(By.ID, "bnp_hfly_cta2").click()
     except:
         pass
+    try : 
+        driver.find_element(By.id, "bnp_hfly_close").click() #are you satisfied popup
+    except :
+        pass
 
 
-def PlayQuiz2(override=None):
+"""
+PlayQuiz[N]([int : override]) make the quizz with N choice each time. They usually have between 4 and 10 questions. 
+override is the number of question, by default, it's the number of question in this specific quizz. Can be usefull in some case, where the programm crashes before finishing the quizz
+"""
+def PlayQuiz2(override=10):
     printf("debut de PlayQuiz2")
-    if not override:
-        override = 10
     for j in range(override):
         try:
             RGPD()
@@ -296,16 +395,24 @@ def PlayQuiz8(override=3):
                     try:
                         driver.execute_script("arguments[0].click();", elem)
                     except Exception as e:
-                        LogError("playquizz8 - 2 - " + e)
+                        LogError(f"playquizz8 - 2 - {e}")
+                except exceptions.NoSuchElementException as e :
+                    try : 
+                        driver.refresh()
+                        CustomSleep(10)
+                        elem = driver.find_element(By.ID, i)
+                        elem.click()
+                    except Exception as e :
+                        LogError(f"playquizz8 - 5 -  {e}")
                 except Exception as e:
                     if override:
-                        printf("playquiz8 - 3 -" + e)
+                        printf(f"playquiz8 - 3 -  {e}") # may append during 
                     else:
-                        LogError("playquizz8 - 3 - " + e)
+                        LogError(f"playquizz8 - 3 -  {e}")
 
     except Exception as e:
-        LogError("PlayQuiz8 - 4 - " + str(e))
-        print(str(ListeOfGood))
+        LogError(f"PlayQuiz8 - 4 - {e} \n ListOfGood : {str(ListeOfGood)}")
+        
     printf("PlayQuiz8 : fin ")
 
 
@@ -340,7 +447,9 @@ def PlayQuiz4(override=None):
         raise ValueError(e)
     printf("PlayQuiz4 : end")
 
-
+"""
+PlayPoll() reply a random thing to poll
+"""
 def PlayPoll():
     printf("PlayPoll : start")
     try:
@@ -385,7 +494,7 @@ def AllCard():  # fonction qui clique sur les cartes
                     TryPlay(titre)
                     sleep(1)
                     reset()
-                    print(f"DailyCard {titre} ok ")
+                    printf(f"DailyCard {titre} ok ")
                 except Exception as e:
                     printf(f"Allcard card {titre} error ({e})")
         except Exception as e:
@@ -393,10 +502,10 @@ def AllCard():  # fonction qui clique sur les cartes
 
     try:
         dailyCards()
-    except:
-        printf("erreur ici")
+    except Exception as e:
+        printf(f"erreur dans les quetes de la semaine {e}")
 
-    def weekly_cards() : 
+    def weekly_cards():
         try:
             driver.find_element(
                 By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]"
@@ -430,37 +539,48 @@ def AllCard():  # fonction qui clique sur les cartes
                 ]  # verifie si on a toujours des cartes
             except:
                 break
-    for i in range(3) : 
-        try : 
+    for i in range(2): # don't seem useful for fixing error
+        try :
             weekly_cards()
+            break
         except Exception as e:
-            LogError(f"weekly_cards, try n°{i} \n {e}")
+            LogError(f"weekly_cards, try n°{i+1} \n {e}")
             if i == 0 :
                 driver.refresh()
-            else  : 
-                CustomSleep(1800)
+            else :
+                CustomSleep(1800) 
                 driver.refresh()
 
 
+"""
+send_keys_wait([selenium element:element, str:keys]) send the different keys to the field element, with a random time between each press to simulate human action.
+keys can be an string, but alos selenium keys
+"""
 def send_keys_wait(element, keys):
     for i in keys:
         element.send_keys(i)
         sleep(uniform(0.1, 0.3))
 
-
+"""
+login() tries to login to your micrososft account.
+it uses global variable _mail and _password to login
+"""
 def login():
+    global driver
     printf("login : start")
-    try:
+    def sub_login():
         driver.get("https://www.bing.com/rewardsapp/flyout")
         try:
             driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click()  # depend of the language of the page
         except:
             driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()  # depend of the language of the page
 
+
+        CustomSleep(10)
         mail = driver.find_element(By.ID, "i0116")
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
-        CustomSleep(5)
+        CustomSleep(10)
         pwd = driver.find_element(By.ID, "i0118")
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
@@ -470,34 +590,43 @@ def login():
         try:
             driver.find_element(By.ID, "KmsiCheckboxField").click()
         except Exception as e:
-            printf(f"login - 1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
+            pass
+            #printf(f"login - 2.1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "iLooksGood").click()
         except Exception as e:
-            printf(f"login - 2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
+            pass
+            #printf(f"login - 2.2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "idSIButton9").click()
         except Exception as e:
-            printf(f"login - 2 - erreur validation bouton idSIButton9. pas forcement grave {e}")
+            pass
+            #printf(f"login - 2.3 - erreur validation bouton idSIButton9. pas forcement grave {e}")
 
         try:
             driver.find_element(By.ID, "iCancel").click()
         except Exception as e:
-            printf(f"login - 2 - erreur validation bouton iCancel. pas forcement grave {e}")
-
-
+            pass
+            #printf(f"login - 2.4 - erreur validation bouton iCancel. pas forcement grave {e}")
+            
 
         printf("login completed")
         RGPD()
         driver.get("https://www.bing.com/rewardsapp/flyout")
 
-        MainWindows = driver.current_window_handle
-        return MainWindows
 
-    except Exception as e:
-        LogError("login - 3 - " + str(e))
+    for i in range(3) :
+        try : 
+            sub_login()
+            return (driver.current_window_handle)
+        except Exception as e:
+            LogError("login - 3 - " + str(e))
+            driver.close()
+            CustomSleep(1200)
+            driver = FirefoxDriver()
+    return("STOP")
 
 
 def BingPcSearch(override=randint(35, 40)):
@@ -544,46 +673,61 @@ def BingPcSearch(override=randint(35, 40)):
 
 
 def BingMobileSearch(override=randint(22, 25)):
-    MobileDriver = (
-        "si il y a ca dans les logs, c'est que Mobiledriver n'a pas demarrer "
-    )
+    MobileDriver = "unable to start"
     try:
         try:
             MobileDriver = FirefoxDriver(mobile=True)
+            MobileDriver.implicitly_wait(15)
         except Exception as e:
             sleep(30)
             LogError("BingMobileSearch - 1 - echec de la creation du driver mobile")
             MobileDriver = FirefoxDriver(mobile=True)
-
+            MobileDriver.implicitly_wait(15)
         echec = 0
 
         def Mlogin(echec):
 
             try:
                 MobileDriver.get(
-                    "https://www.bing.com/search?q=test+speed&qs=LS&pq=test+s&sk=PRES1&sc=8-6&cvid=19&FORM=QBRE&sp=1"
+                    "https://www.bing.com/search?q=test+speed"
                 )
+                MRGPD()
                 CustomSleep(uniform(3, 5))
                 printf("debut du login", Mobdriver=MobileDriver)
                 MobileDriver.find_element(By.ID, "mHamburger").click()
                 CustomSleep(uniform(1, 2))
-                printf("login - 1", Mobdriver=MobileDriver)
+                printf("Mlogin - 1", Mobdriver=MobileDriver)
                 MobileDriver.find_element(By.ID, "hb_s").click()
                 CustomSleep(uniform(1, 2))
-                printf("login - 2", Mobdriver=MobileDriver)
+                printf("Mlogin - 2", Mobdriver=MobileDriver)
                 mail = MobileDriver.find_element(By.ID, "i0116")
                 send_keys_wait(mail, _mail)
-                printf("login - 3", Mobdriver=MobileDriver)
+                printf("Mlogin - 3", Mobdriver=MobileDriver)
                 mail.send_keys(Keys.ENTER)
-                CustomSleep(uniform(1, 2))
-                printf("login - 4", Mobdriver=MobileDriver)
+                CustomSleep(uniform(7, 9))
+                printf("Mlogin - 4", Mobdriver=MobileDriver)
                 pwd = MobileDriver.find_element(By.ID, "i0118")
-                printf("login - 5", Mobdriver=MobileDriver)
+                printf("Mlogin - 5", Mobdriver=MobileDriver)
                 send_keys_wait(pwd, _password)
-                printf("login - 6", Mobdriver=MobileDriver)
+                printf("Mlogin - 6", Mobdriver=MobileDriver)
                 pwd.send_keys(Keys.ENTER)
                 CustomSleep(uniform(1, 2))
-                printf("fin du login", Mobdriver=MobileDriver)
+                try:
+                    MobileDriver.find_element(By.ID, "KmsiCheckboxField").click()
+                except Exception as e:
+                    printf(f"Mlogin - 2.1 - erreur validation bouton KmsiCheckboxField. pas forcement grave {e}")
+
+                try:
+                    MobileDriver.find_element(By.ID, "iLooksGood").click()
+                except Exception as e:
+                    printf(f"Mlogin - 2.2 - erreur validation bouton iLooksGood. pas forcement grave {e}")
+
+                try:
+                    MobileDriver.find_element(By.ID, "idSIButton9").click()
+                except Exception as e:
+                    printf(f"Mlogin - 2.3 - erreur validation bouton idSIButton9. pas forcement grave {e}")
+
+                printf("fin du Mlogin", Mobdriver=MobileDriver)
 
             except Exception as e:
                 echec += 1
@@ -604,11 +748,13 @@ def BingMobileSearch(override=randint(22, 25)):
             try:
                 MobileDriver.find_element(By.ID, "bnp_btn_accept").click()
             except Exception as e:
+                pass
                 printf(e)
             try:
                 MobileDriver.find_element(By.ID, "bnp_hfly_cta2").click()
             except Exception as e:
-                printf(e)
+                pass
+                printf(f"MRGPD : e")
 
         def Alerte():
             try:
@@ -627,34 +773,27 @@ def BingMobileSearch(override=randint(22, 25)):
             CustomSleep(uniform(1, 2))
             MRGPD()
             CustomSleep(uniform(1, 1.5))
-            send_keys_wait(
-                MobileDriver.find_element(By.ID, "sb_form_q"),
-                Keys.BACKSPACE
-                + Keys.BACKSPACE
-                + Keys.BACKSPACE
-                + Keys.BACKSPACE
-                + Keys.BACKSPACE
-                + Keys.BACKSPACE,
-            )
-
+    
             for i in range(override):  # 20
+                try :
+                    mot = choice(Liste_de_mot)
+                    send_keys_wait(MobileDriver.find_element(By.ID, "sb_form_q"), mot)
+                    MobileDriver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
+                    progressBar(i, override, name="Mobile")
+                    printf(MobileDriver.current_url, Mobdriver=MobileDriver)
+                    sleep(uniform(5, 20))
 
-                mot = choice(Liste_de_mot)
-                send_keys_wait(MobileDriver.find_element(By.ID, "sb_form_q"), mot)
-                MobileDriver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
-                progressBar(i, override, name="Mobile")
-                printf(MobileDriver.current_url, Mobdriver=MobileDriver)
-                sleep(uniform(5, 20))
+                    Alerte()  # verifie si il y a des alertes (demande de positions ....)
 
-                Alerte()  # verifie si il y a des alertes (demande de positions ....)
-
-                for i in range(len(mot)):
                     MobileDriver.find_element(By.ID, "sb_form_q").clear()
-
+                except :
+                    driver.refresh()
+                    CustomSleep(30)
+                    i -= 1
             MobileDriver.quit()
 
     except Exception as e:
-        LogError("BingMobileSearch" + str(e), Mobdriver=MobileDriver)
+        LogError("BingMobileSearch - 4 - " + str(e), Mobdriver=MobileDriver)
         try:
             MobileDriver.quit()
         except Exception as e:
@@ -678,7 +817,7 @@ def TryPlay(nom="inconnu"):
             try:
                 printf(f"\033[96m Quiz 4 détécté sur la page {nom} \033[0m")
                 PlayQuiz4()
-                print(f"\033[92m Quiz 4 reussit sur {nom} \033[0m")
+                printf(f"\033[92m Quiz 4 reussit sur {nom} \033[0m")
             except Exception as e:
                 printf(f"echec de PlayQuiz 4. Aborted {e} \033[0m")
 
@@ -686,7 +825,7 @@ def TryPlay(nom="inconnu"):
             try:
                 printf(f"\033[96m Quiz 2 détécté sur la page {nom}\033[0m")
                 PlayQuiz2()
-                print(f"\033[92m Quiz 2 reussit sur la page {nom}\033[0m")
+                printf(f"\033[92m Quiz 2 reussit sur la page {nom}\033[0m")
             except Exception as e:
                 printf(f"echec de PlayQuiz 2. Aborted {e}")
         else:
@@ -703,10 +842,10 @@ def TryPlay(nom="inconnu"):
         # printf(e) normal error here
         if "bt_PollRadio" in driver.page_source:
             try:
-                print("Poll détected", end="\r")
+                printf("Poll détected", end="\r")
                 RGPD()
                 PlayPoll()
-                print("Poll reussit  ")
+                printf("Poll reussit  ")
             except Exception as e:
                 printf(f"TryPlay - 1 - Poll aborted {e}")
 
@@ -721,7 +860,7 @@ def TryPlay(nom="inconnu"):
                     )
                 )
                 printf(f"recovery détécté. quiz : {number}, restant : {restant +1}")
-                play(number, override=restant + 1)
+                play(number-1, override=restant + 1)
             except Exception as e:
                 printf("TryPlay - 2 - " + e)
 
@@ -731,46 +870,58 @@ def TryPlay(nom="inconnu"):
             Fidelite()
 
         else:
-            print(f"rien a faire sur la page {nom}")
+            printf(f"rien a faire sur la page {nom}")
             RGPD()
             CustomSleep(uniform(3, 5))
 
 
 def LogPoint(account="unknown"):  # log des points sur discord
-    driver.get("https://www.bing.com/rewardsapp/flyout")
-    if not IsLinux:
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    else:
-        asyncio.set_event_loop(asyncio.new_event_loop())
+    def get_points():
+        driver.get("https://www.bing.com/rewardsapp/flyout")
+        if not IsLinux:
+            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        else:
+            asyncio.set_event_loop(asyncio.new_event_loop())
 
-    regex1 = '<a href="https://rewards\.bing\.com/" title="((.{1,3}),(.{1,3})) points" target="_blank"'
-    try:
-        point = search(regex1, driver.page_source)[1].replace(",", "")
-
-    except Exception as e:
-        elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
-        elem.click()
-        CustomSleep(5)
-        driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-        CustomSleep(uniform(10, 20))
+        regex1 = '<a href="https://rewards\.bing\.com/" title="((.{1,3}),(.{1,3})) points" target="_blank"'
         try:
-            point = search('availablePoints":([\d]+)', driver.page_source)[1]
-        except Exception as e:
-            LogError(f"LogPoint - 2 - {e}")
-            point = "erreur"
+            point = search(regex1, driver.page_source)[1].replace(",", "")
 
+        except Exception as e:
+            elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
+            elem.click()
+            CustomSleep(5)
+            driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
+            CustomSleep(uniform(10, 20))
+            
+            point = search('availablePoints":([\d]+)', driver.page_source)[1]
+        return(point)
+    for i in range (3):
+        try : 
+            points = get_points()
+            break
+        except Exception as e:
+            CustomSleep(300)
+            
+    if not points : 
+        LogError(f"impossible d'avoir les points : {e}")
     CustomSleep(uniform(3, 20))
 
     account = account.split("@")[0]
 
-    if embeds:
-        embed = discord.Embed(
-            title=f"{account} actuellement à {str(point)} points", colour=Colour.green()
-        )
-        embed.set_footer(text=account)
-        webhookSuccess.send(embed=embed)
-    else:
-        webhookSuccess.send(f"{account} actuellement à {str(point)} points")
+    if discord_enabled:
+
+        if embeds:
+            embed = discord.Embed(
+                title=f"{account} actuellement à {str(points)} points", colour=Colour.green()
+            )
+            embed.set_footer(text=account)
+            webhookSuccess.send(embed=embed)
+        else:
+            webhookSuccess.send(f"{account} actuellement à {str(points)} points")
+
+    if sql_enabled :
+        add_to_database(account, points)
 
 
 def Fidelite():
@@ -780,90 +931,92 @@ def Fidelite():
                 Close(1)
             except:
                 break
+        try : 
+            result = get(FidelityLink) #get the url of fidelity page
+        except Exception as e :
+            printf(e)
+            result = False
 
-        result = get(FidelityLink) #get the url of fidelity page
-        lien = result.content.decode("UTF-8")
-        printf(lien)
+        if result : 
+            lien = result.content.decode("UTF-8")
+            printf(lien)
 
-        if (lien.split(":")[0] == "https") or (lien.split(":")[0] == "http") : 
-            
-            driver.get(lien)
-            sleep(2)
-            choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row
-            nb = search("([0-9]) of ([0-9]) completed", driver.page_source)
-            if not nb:
-                nb = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
-            for i in range(int(nb[2]) - int(nb[1])):
-                driver.refresh()
-                CustomSleep(2)
-                choix = driver.find_element(By.CLASS_NAME, "spacer-48-bottom")
-                ButtonText = search('<span class="pull-left margin-right-15">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
-                bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
-                bouton.click()
-                CustomSleep(uniform(3, 5))
-                driver.switch_to.window(driver.window_handles[1])
-                TryPlay(driver.title)
+            if (lien.split(":")[0] == "https") or (lien.split(":")[0] == "http") : 
+                
                 driver.get(lien)
-                CustomSleep(uniform(3, 5))
-                try:
-                    Close(driver.window_handles[1])
-                except Exception as e:
-                    printf(e)
-
-            printf("on a reussit la partie fidélité")
-        else :
-            printf("lien invalide")
+                CustomSleep(5)
+                try :
+                    choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
+                except :
+                    CustomSleep(300)
+                    choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
+                    
+                nb = search("([0-9]) of ([0-9]) completed", driver.page_source)
+                if not nb:
+                    nb = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
+                for i in range(int(nb[2]) - int(nb[1])):
+                    driver.refresh()
+                    CustomSleep(2)
+                    choix = driver.find_element(By.CLASS_NAME, "spacer-48-bottom")
+                    try : 
+                        ButtonText = search('<span class="pull-left margin-right-15">([^<^>]+)</span>',choix.get_attribute("innerHTML"))[1]
+                        bouton = driver.find_element(By.XPATH, f'//span[text()="{ButtonText}"]')
+                        bouton.click()
+                    except Exception as e1 :
+                        try : 
+                            t = driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/main/div[2]/div[2]/div[7]/div[3]/div[1]')
+                            t.click()
+                        except Exception as e2 :
+                            LogError(f"fidélité - double erreur - e1 : {e1} - e2 {e2}")
+                            break
+                    CustomSleep(uniform(3, 5))
+                    driver.switch_to.window(driver.window_handles[1])
+                    TryPlay(driver.title)
+                    driver.get(lien) # USELESS ?
+                    CustomSleep(uniform(3, 5))
+                    try:
+                        Close(driver.window_handles[1])
+                    except Exception as e:
+                        printf(e)
+                printf("on a reussit la partie fidélité (ou pas et tout est pété)")
+            else :
+                printf("lien invalide")
     except Exception as e:
         LogError("Fidélité" + str(e))
 
 
-def CheckPoint():  # a fix, ne marche pas dans  80% des cas, pas appelé aujourd'hui
-    driver.get("https://rewards.microsoft.com/pointsbreakdown")
-    txt = driver.page_source
-    pc = search("([0-9][0-9]|[0-9])</b> / 90", txt)
-    mobile = search("([0-9][0-9]|[0-9])</b> / 60", txt)
-    if mobile:
-        if mobile[1] != 60:
-            BingMobileSearch(22 - (int(mobile[1]) / 3))
-    if pc:
-        if pc[1] != 90:
-            BingPcSearch(32 - (int(pc[1]) / 3))
-
-
 def DailyRoutine():
-    
-
-    try:
-        BingMobileSearch()
-    except Exception as e:
-        LogError(f"DalyRoutine - BingMobileSearch - {e}")
-    print("\n")
-    CustomSleep(uniform(3, 20))
 
     MainWindows = login()
-    try:
-        AllCard()
-    except Exception as e:
-        LogError(
-            f"DalyRoutine - AllCard - \n {e}"
-        )
+    if MainWindows != "STOP" :
+        try:
+            AllCard()
+        except Exception as e:
+            LogError(f"DalyRoutine - AllCard - \n{e}")
 
-    try:
-        BingPcSearch()
-    except Exception as e:
-        LogError(f"DalyRoutine - BingPcSearch - \n {e}")
-    CustomSleep(uniform(3, 20))
+        try:
+            BingPcSearch()
+        except Exception as e:
+            LogError(f"DalyRoutine - BingPcSearch - \n{e}")
+        CustomSleep(uniform(3, 20))
 
+        try:
+            Fidelite()
+        except Exception as e:
+            LogError(f"DailyRoutine - Fidelité - \n{e}")
+         
+        try:
+            BingMobileSearch()
+        except Exception as e:
+            LogError(f"DalyRoutine - BingMobileSearch - \n{e}")
+        CustomSleep(uniform(3, 20))
 
-    try:
-        Fidelite()
-    except:
-        pass
-
-    try:
-        LogPoint(_mail)
-    except Exception as e:
-        LogError(f"DalyRoutine - LogPoint - \n{e}")
+        try:
+            LogPoint(_mail)
+        except Exception as e:
+            LogError(f"DalyRoutine - LogPoint - \n{e}")
+    else : 
+        LogError(f"probleme de login sur le comte {_mail}")
 
 
 def close():
@@ -872,10 +1025,12 @@ def close():
 
 
 def dev():
-    printf("il n'y a pas de fonction en cours de dev")
+    print(check_ipv4())
 
 
 def CustomStart(Credentials):
+    if not IsLinux :
+        raise NameError('You need to be on linux to do that, sorry.') 
     global driver
     global _mail
     global _password
@@ -892,47 +1047,47 @@ def CustomStart(Credentials):
         _mail = Credentials[ids.index(i)][0]
         _password = Credentials[ids.index(i)][1]
         driver = FirefoxDriver()
-        driver.implicitly_wait(7)
+        driver.implicitly_wait(10)
 
-        login()
-        if "tout" in Actions:
-            DailyRoutine()
+        if login() != "STOP":
+            if "tout" in Actions:
+                DailyRoutine()
 
-        if "daily" in Actions:
+            if "daily" in Actions:
+                try:
+                    AllCard()
+                except Exception as e:
+                    LogError(f"AllCards - {e} -- override")
+
+            if "pc" in Actions:
+                try:
+                    BingPcSearch()
+                except Exception as e:
+                    LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override")
+
+            if "mobile" in Actions:
+                try:
+                    BingMobileSearch()
+                except Exception as e:
+                    LogError(f"BingMobileSearch - {e} -- override")
+
+            if "Fidelite" in Actions:
+                try :
+                    Fidelite()
+                except Exception as e :
+                    LogError(f"Fidelite - {e} -- override")
+
+            if "dev" in Actions:
+                try:
+                    dev()
+                except Exception as e:
+                    printf(e)
+                    break
+
             try:
-                AllCard()
+                LogPoint(_mail)
             except Exception as e:
-                LogError(f"AllCards - {e} -- override")
-
-        if "pc" in Actions:
-            try:
-                BingPcSearch()
-            except Exception as e:
-                LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override")
-
-        if "mobile" in Actions:
-            try:
-                BingMobileSearch()
-            except Exception as e:
-                LogError(f"BingMobileSearch - {e} -- override")
-
-        if "Fidelite" in Actions:
-            try :
-                Fidelite()
-            except Exception as e :
-                LogError(f"Fidelite - {e} -- override")
-
-        if "dev" in Actions:
-            try:
-                dev()
-            except Exception as e:
-                printf(e)
-                break
-
-        try:
-            LogPoint(_mail)
-        except Exception as e:
-            print("CustomStart " + str(e))
+                print("CustomStart " + str(e))
         driver.close()
 
 

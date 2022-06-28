@@ -1,10 +1,6 @@
-from logging import root
-from requests import NullHandler
-
-
 [PATH]
 
-motpath = /your/path/to/words_list.txt
+motpath = /usr/share/dict/french
 logpath = /your/path/to/loginandpass.csv
 
 [SETTINGS]
@@ -15,6 +11,7 @@ Headless = True
 
 [DISCORD]
 
+enabled = True
 successlink = https://discord.com/api/webhooks/[put your webhook here]
 errorlink =https://discord.com/api/webhooks/[put your webhook here]
 
@@ -24,9 +21,10 @@ enabled = False
 url = Null
 port = 0
 
-[DATABASE]
+[SQL]
+
 enabled = False
-url = Null
-port = 0
-user = root
-password = password
+host = Null
+database = MsRewards
+usr = root
+pwd = password
