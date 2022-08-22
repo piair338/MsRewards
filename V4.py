@@ -207,7 +207,7 @@ def FirefoxDriver(mobile=False, Headless=Headless):
         "AppleWebKit/605.1.15 (KHTML, like Gecko)"
         "CriOS/103.0.5060.63 Mobile/15E148 Safari/604.1"
     )
-
+    
     options = Options()
     options.set_preference("browser.link.open_newwindow", 3)
     if Headless:
@@ -610,8 +610,11 @@ def login():
         except Exception as e:
             pass
             #printf(f"login - 2.4 - erreur validation bouton iCancel. pas forcement grave {e}")
-            
-
+        try : 
+            elm = driver.find_element(By.TAG_NAME, "body")
+            elm.send_keys(Keys.ENTER)
+        except :
+            pass
         printf("login completed")
         RGPD()
         driver.get("https://www.bing.com/rewardsapp/flyout")
