@@ -269,12 +269,12 @@ def ListTabs(Mdriver=None):
 
 
 def LogError(message, log=FullLog, Mobdriver=None):
+    print(f"\n\n\033[93m Erreur : {str(message)}  \033[0m\n\n")
     if Mobdriver:
         gdriver = Mobdriver
     else:
         gdriver = driver
-    if not log:
-        print(f"\n\n\033[93m Erreur : {str(message)}  \033[0m\n\n")
+
     if IsLinux:
         with open("page.html", "w") as f:
             f.write(gdriver.page_source)
@@ -569,14 +569,16 @@ it uses global variable _mail and _password to login
 """
 def login():
     global driver
-    printf("login : start")
     def sub_login():
+        printf("sublogin : start")
         driver.get("https://www.bing.com/rewardsapp/flyout")
         try:
             driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click()  # depend of the language of the page
         except:
-            driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()  # depend of the language of the page
-
+            try :
+                driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()  # depend of the language of the page
+            except :
+                raise ValueError('already logged in')
 
         CustomSleep(10)
         mail = driver.find_element(By.ID, "i0116")
@@ -587,8 +589,6 @@ def login():
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
         CustomSleep(5)
-        printf("pwd envoyé")
-
         try:
             driver.find_element(By.ID, "KmsiCheckboxField").click()
         except Exception as e:
