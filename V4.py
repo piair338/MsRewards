@@ -993,7 +993,9 @@ def Fidelite():
 def DailyRoutine(custom = False):
     if not custom :
         MainWindows = login()
-
+    else :
+        MainWindows = ""
+        
     if MainWindows != "STOP" :
         try:
             AllCard()
