@@ -139,7 +139,7 @@ def setup_proxy(ip, port) :
 
 
 def add_row(compte, points, mycursor, mydb):
-    sql = "INSERT INTO daily (compte, points, date, date2) VALUES (%s, %s, current_date())"
+    sql = "INSERT INTO daily (compte, points, date) VALUES (%s, %s, current_date())"
     val = (compte, points)
     mycursor.execute(sql, val)
     mydb.commit()
