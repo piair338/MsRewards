@@ -139,7 +139,7 @@ def setup_proxy(ip, port) :
 
 
 def add_row(compte, points, mycursor, mydb):
-    sql = "INSERT INTO daily (compte, points, date) VALUES (%s, %s, current_date())"
+    sql = "INSERT INTO daily (compte, points, date, date2) VALUES (%s, %s, current_date())"
     val = (compte, points)
     mycursor.execute(sql, val)
     mydb.commit()
@@ -226,7 +226,7 @@ def printf(txt, end="", Mobdriver=driver):
         try :
             LogError(Timer(txt), Mobdriver=Mobdriver)
         except Exception as e:
-            print("\n" + Timer(e) + "\n")
+            print("\n" + Timer(e) + "\n" + Timer(txt) + "\n" )
 
 
 def CustomSleep(temps):
@@ -254,6 +254,7 @@ def CustomSleep(temps):
             sleep(temps)
     except KeyboardInterrupt :
         printf("attente annulée")
+
 
 def ListTabs(Mdriver=None):
     tabs = []
@@ -381,7 +382,7 @@ def PlayQuiz8(override=3):
                     if 'iscorrectoption="True" ' in Card.get_attribute("outerHTML"):
                         ListeOfGood.append(f"rqAnswerOption{i-1}")  # premier div = 3 ?
                 except Exception as e:
-                    LogError("playquiz8 - 1 - " + e)
+                    LogError(f"playquiz8 - 1 - {e}")
             shuffle(ListeOfGood)
 
             for i in ListeOfGood:
@@ -443,12 +444,13 @@ def PlayQuiz4(override=None):
                 driver.execute_script("arguments[0].click();", elem)
 
     except Exception as e:
-        LogError("PlayQuiz4" + str(e))
+        LogError(f"PlayQuiz4 {str(e)}")
         raise ValueError(e)
     printf("PlayQuiz4 : end")
 
+
 """
-PlayPoll() reply a random thing to poll
+PlayPoll() reply a random thing to poll, on of daily activities
 """
 def PlayPoll():
     printf("PlayPoll : start")
@@ -654,7 +656,7 @@ def BingPcSearch(override=randint(35, 40)):
         except Exception as e :
             printf(e)
             sleep(10)
-            driver.refresh()
+            driver.get('https://www.bing.com/search?q=pls')
             sleep(3)
             send_keys_wait(driver.find_element(By.ID, "sb_form_q"), mot)
             driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
@@ -667,7 +669,7 @@ def BingPcSearch(override=randint(35, 40)):
         except Exception as e:
             printf(e)
             try:
-                driver.refresh()
+                driver.get('https://www.bing.com/search?q=pls')
                 driver.find_element(By.ID, "sb_form_q").clear()
             except Exception as e:
                 LogError(f"BingPcSearch - clear la barre de recherche - {e}")
