@@ -990,9 +990,10 @@ def Fidelite():
         LogError("Fidélité" + str(e))
 
 
-def DailyRoutine():
+def DailyRoutine(custom = False):
+    if not custom :
+        MainWindows = login()
 
-    MainWindows = login()
     if MainWindows != "STOP" :
         try:
             AllCard()
@@ -1035,7 +1036,7 @@ def dev():
 
 def CustomStart(Credentials):
     if not IsLinux :
-        raise NameError('You need to be on linux to do that, sorry.') 
+        raise NameError('You need to be on linux to do that, due to the utilisation of a module named enquieries, sorry.') 
     global driver
     global _mail
     global _password
@@ -1056,7 +1057,7 @@ def CustomStart(Credentials):
 
         if login() != "STOP":
             if "tout" in Actions:
-                DailyRoutine()
+                DailyRoutine(True)
 
             if "daily" in Actions:
                 try:
