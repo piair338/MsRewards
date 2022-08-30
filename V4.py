@@ -118,7 +118,7 @@ g.close()
 
 
 def Timer(text="undefined"):
-    return(f"[{timedelta(seconds = round(float(time() - start_time)))}] : " + str(text))
+    return(f"[ {_mail} - {timedelta(seconds = round(float(time() - start_time)))} ]" + str(text))
 
 
 def check_ipv4():
@@ -620,8 +620,9 @@ def login():
             pass
         printf("login completed")
         RGPD()
+        CustomSleep(uniform(3,5))
         driver.get("https://www.bing.com/rewardsapp/flyout")
-
+        CustomSleep(uniform(3,5))
 
     for i in range(3) :
         try : 
