@@ -196,11 +196,10 @@ def add_to_database(compte, points):
 def FirefoxDriver(mobile=False, Headless=Headless):
     if proxy_enabled :
         setup_proxy(proxy_address,proxy_port)
-
     PC_USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         "AppleWebKit/537.36 (KHTML, like Gecko)"
-        "Chrome/103.0.0.0 Safari/537.36 Edg/103.0.1264.37"
+        "Chrome/104.0.5112.102 Safari/537.36 Edg/104.0.1293.70"
     )
     MOBILE_USER_AGENT = (
         "Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X)"
@@ -216,7 +215,9 @@ def FirefoxDriver(mobile=False, Headless=Headless):
         options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
     else :
         options.set_preference("general.useragent.override", PC_USER_AGENT)
-    return webdriver.Firefox(options=options)
+    driver = webdriver.Firefox(options=options)
+    driver.set_window_size(1900 + hash(_mail)%20 , 1070 + hash(_password + "salt")%10)
+    return driver
 
 
 def printf(txt, end="", Mobdriver=driver):
