@@ -485,8 +485,9 @@ def AllCard():  # fonction qui clique sur les cartes
     def dailyCards():
         try:
             for i in range(3):
-                sleep(1)
+                sleep(uniform(3, 5))
                 try:
+                    printf("dailycards - show pannels")
                     titre = "erreur"
                     driver.find_element(
                         By.XPATH,f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]",
