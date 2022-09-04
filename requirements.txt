@@ -2,4 +2,5 @@ mysql-connector-python
 argparse
 discord.py==1.7.3
 discord==1.7.3
-
+selenium
+enquiries
