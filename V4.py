@@ -21,8 +21,6 @@ from selenium.common import exceptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 import argparse
 import mysql.connector
 
@@ -48,26 +46,30 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-override = args.override
-Log = args.log
-FullLog = args.fulllog
+CUSTOM_START = args.override
+LOG = args.log
+FULL_LOG = args.fulllog
 
-if override :
-    Log = True
+if CUSTOM_START :
+    LOG = True
+
+#SOON (maybe)
+#logpath = ("/".join(__file__.split("/")[:-1])+"/LogFile.out")
+#logfile = open(logpath, "w")
 
 
 """
 gloabal variables used later in the code
 """
 
-IsLinux = platform == "linux"
-start_time = time()
+LINUX_HOST = platform == "linux"
+START_TIME = time()
 
 global driver
 driver = None
 
 
-if IsLinux:
+if LINUX_HOST:
     import enquiries
 else:
     system("")  # enable colors in cmd
@@ -77,7 +79,7 @@ config = configparser.ConfigParser()
 config.read(config_path)
 #path comfigurations
 MotPath = config["PATH"]["motpath"]
-LogPath = config["PATH"]["logpath"]
+CREDENTIALS_PATH = config["PATH"]["logpath"]
 
 """
 discord configuration
@@ -118,7 +120,7 @@ g.close()
 
 
 def Timer(text="undefined"):
-    return(f"[ {_mail} - {timedelta(seconds = round(float(time() - start_time)))} ]" + str(text))
+    return(f"[ {_mail} - {timedelta(seconds = round(float(time() - START_TIME)))} ]" + str(text))
 
 
 def check_ipv4():
@@ -223,7 +225,7 @@ def FirefoxDriver(mobile=False, Headless=Headless):
 def printf(txt, end="", Mobdriver=driver):
     if Log:
         print(Timer(txt))
-    if FullLog:
+    if FULL_LOG:
         try :
             LogError(Timer(txt), Mobdriver=Mobdriver)
         except Exception as e:
@@ -232,7 +234,7 @@ def printf(txt, end="", Mobdriver=driver):
 
 def CustomSleep(temps):
     try : 
-        if Log or not IsLinux: #only print sleep when user see it
+        if Log or not LINUX_HOST: #only print sleep when user see it
             points = [
                 " .   ",
                 "  .  ",
@@ -269,14 +271,14 @@ def ListTabs(Mdriver=None):
     return tabs
 
 
-def LogError(message, log=FullLog, Mobdriver=None):
+def LogError(message, log=FULL_LOG, Mobdriver=None):
     print(f"\n\n\033[93m Erreur : {str(message)}  \033[0m\n\n")
     if Mobdriver:
         gdriver = Mobdriver
     else:
         gdriver = driver
 
-    if IsLinux:
+    if LINUX_HOST:
         with open("page.html", "w") as f:
             f.write(gdriver.page_source)
 
@@ -407,7 +409,7 @@ def PlayQuiz8(override=3):
                     except Exception as e :
                         LogError(f"playquizz8 - 5 -  {e}")
                 except Exception as e:
-                    if override:
+                    if CUSTOM_START:
                         printf(f"playquiz8 - 3 -  {e}") # may append during 
                     else:
                         LogError(f"playquizz8 - 3 -  {e}")
@@ -886,7 +888,7 @@ def TryPlay(nom="inconnu"):
 def LogPoint(account="unknown"):  # log des points sur discord
     def get_points():
         driver.get("https://www.bing.com/rewardsapp/flyout")
-        if not IsLinux:
+        if not LINUX_HOST:
             asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         else:
             asyncio.set_event_loop(asyncio.new_event_loop())
@@ -1040,7 +1042,7 @@ def dev():
 
 
 def CustomStart(Credentials):
-    if not IsLinux :
+    if not LINUX_HOST :
         raise NameError('You need to be on linux to do that, due to the utilisation of a module named enquieries, sorry.') 
     global driver
     global _mail
@@ -1102,13 +1104,13 @@ def CustomStart(Credentials):
         driver.close()
 
 
-with open(LogPath) as f:
+with open(CREDENTIALS_PATH) as f:
     reader = reader(f)
     Credentials = list(reader)
 
 shuffle(Credentials)
 
-if override:
+if CUSTOM_START:
     CustomStart(Credentials)
 else:
     for i in Credentials:
@@ -1135,5 +1137,5 @@ else:
             print("canceled")
             close()
 
-if IsLinux:
+if LINUX_HOST:
     system("pkill -9 firefox")

@@ -1,7 +1,7 @@
 /old
 geckodriver.log
 config
-.vscode/settings.json
+.vscode/
 update.sh
 /Git
 page.html
