@@ -120,7 +120,7 @@ g.close()
 
 
 def Timer(text="undefined"):
-    return(f"[ {_mail} - {timedelta(seconds = round(float(time() - START_TIME)))} ]" + str(text))
+    return(f"[{_mail} - {timedelta(seconds = round(float(time() - START_TIME)))}] " + str(text))
 
 
 def check_ipv4():
@@ -337,7 +337,7 @@ PlayQuiz[N]([int : override]) make the quizz with N choice each time. They usual
 override is the number of question, by default, it's the number of question in this specific quizz. Can be usefull in some case, where the programm crashes before finishing the quizz
 """
 def PlayQuiz2(override=10):
-    printf("debut de PlayQuiz2")
+    printf("début de PlayQuiz2")
     for j in range(override):
         try:
             RGPD()
@@ -526,12 +526,12 @@ def AllCard():  # fonction qui clique sur les cartes
                 pass
 
         for i in range(20):
-            printf("debut de l'une des cartes")
+            printf("début de l'une des cartes")
             driver.find_element(
                 By.XPATH,
                 "/html/body/div/div/div[3]/div[2]/div[2]/div[3]/div/div[1]/a/div/div[2]",
             ).click()
-            printf("carte cliqué")
+            printf("carte cliquée")
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
             sleep(1)
             titre = driver.title
@@ -703,7 +703,7 @@ def BingMobileSearch(override=randint(22, 25)):
                 )
                 MRGPD()
                 CustomSleep(uniform(3, 5))
-                printf("debut du login", Mobdriver=MobileDriver)
+                printf("début du login", Mobdriver=MobileDriver)
                 MobileDriver.find_element(By.ID, "mHamburger").click()
                 CustomSleep(uniform(1, 2))
                 printf("Mlogin - 1", Mobdriver=MobileDriver)
@@ -817,7 +817,7 @@ def TryPlay(nom="inconnu"):
     def play(number, override=None):
         if number == 8 or number == 9:
             try:
-                printf(f"\033[96m Quiz 8 détécté sur la page {nom} \033[0m")
+                printf(f"\033[96m Quiz 8 détecté sur la page {nom} \033[0m")
                 PlayQuiz8()
                 printf(f"\033[92m Quiz 8 reussit sur {nom} \033[0m")
             except Exception as e:
@@ -825,7 +825,7 @@ def TryPlay(nom="inconnu"):
 
         elif number == 5 or number == 4:
             try:
-                printf(f"\033[96m Quiz 4 détécté sur la page {nom} \033[0m")
+                printf(f"\033[96m Quiz 4 détecté sur la page {nom} \033[0m")
                 PlayQuiz4()
                 printf(f"\033[92m Quiz 4 reussit sur {nom} \033[0m")
             except Exception as e:
@@ -833,7 +833,7 @@ def TryPlay(nom="inconnu"):
 
         elif number == 3 or number == 2:
             try:
-                printf(f"\033[96m Quiz 2 détécté sur la page {nom}\033[0m")
+                printf(f"\033[96m Quiz 2 détecté sur la page {nom}\033[0m")
                 PlayQuiz2()
                 printf(f"\033[92m Quiz 2 reussit sur la page {nom}\033[0m")
             except Exception as e:
@@ -869,7 +869,7 @@ def TryPlay(nom="inconnu"):
                         '"rqQuestionState.?." class="filledCircle"', driver.page_source
                     )
                 )
-                printf(f"recovery détécté. quiz : {number}, restant : {restant +1}")
+                printf(f"recovery détecté. quiz : {number}, restant : {restant +1}")
                 play(number-1, override=restant + 1)
             except Exception as e:
                 printf("TryPlay - 2 - " + e)
@@ -880,7 +880,7 @@ def TryPlay(nom="inconnu"):
             Fidelite()
 
         else:
-            printf(f"rien a faire sur la page {nom}")
+            printf(f"rien à faire sur la page {nom}")
             RGPD()
             CustomSleep(uniform(3, 5))
 
@@ -1005,12 +1005,12 @@ def DailyRoutine(custom = False):
         try:
             AllCard()
         except Exception as e:
-            LogError(f"DalyRoutine - AllCard - \n{e}")
+            LogError(f"DailyRoutine - AllCard - \n{e}")
 
         try:
             BingPcSearch()
         except Exception as e:
-            LogError(f"DalyRoutine - BingPcSearch - \n{e}")
+            LogError(f"DailyRoutine - BingPcSearch - \n{e}")
         CustomSleep(uniform(3, 20))
 
         try:
@@ -1021,13 +1021,13 @@ def DailyRoutine(custom = False):
         try:
             BingMobileSearch()
         except Exception as e:
-            LogError(f"DalyRoutine - BingMobileSearch - \n{e}")
+            LogError(f"DailyRoutine - BingMobileSearch - \n{e}")
         CustomSleep(uniform(3, 20))
 
         try:
             LogPoint(_mail)
         except Exception as e:
-            LogError(f"DalyRoutine - LogPoint - \n{e}")
+            LogError(f"DailyRoutine - LogPoint - \n{e}")
     else : 
         LogError(f"probleme de login sur le comte {_mail}")
 
@@ -1121,7 +1121,7 @@ else:
         print("\n\n")
         print(_mail)
         CustomSleep(1)
-        printf("debut du driver")
+        printf("début du driver")
         driver = FirefoxDriver()
         printf("driver demarré")
         driver.implicitly_wait(7)
