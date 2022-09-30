@@ -22,7 +22,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 import argparse
-from modules.MySQL import add_to_database
+from modules.db import add_to_database
 
 
 """
