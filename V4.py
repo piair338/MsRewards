@@ -44,12 +44,15 @@ parser.add_argument(
     help="enable full logging in discord",
     action="store_true",
 )
+parser.add_argument(
+    "-r", "--risky", help="make the program faster, probably better risk of ban", dest="fast", action="store_true"
+)
 
 args = parser.parse_args()
 CUSTOM_START = args.override
 LOG = args.log
 FULL_LOG = args.fulllog
-
+FAST = args.fast
 if CUSTOM_START :
     LOG = True
 
@@ -145,7 +148,7 @@ def add_row(compte, points, mycursor, mydb):
     val = (compte, points)
     mycursor.execute(sql, val)
     mydb.commit()
-    printf(mycursor.rowcount, "record creatted.")
+    printf(mycursor.rowcount, "record created.")
 
 
 def update_row(compte, points, mycursor, mydb):
@@ -234,6 +237,9 @@ def printf(txt, end="", Mobdriver=driver):
 
 def CustomSleep(temps):
     try : 
+        if FAST :
+            sleep(temps/10)
+            return()
         if LOG or not LINUX_HOST: #only print sleep when user see it
             points = [
                 " .   ",
@@ -377,7 +383,7 @@ def PlayQuiz8(override=3):
         c = 0
         for i in range(override):
             RGPD()
-            sleep(uniform(3, 5))
+            CustomSleep(uniform(3, 5))
             ListeOfGood = []
             for i in range(1, 9):
                 try:
@@ -389,7 +395,7 @@ def PlayQuiz8(override=3):
             shuffle(ListeOfGood)
 
             for i in ListeOfGood:
-                sleep(uniform(3, 5))
+                CustomSleep(uniform(3, 5))
                 c += 1
                 progressBar(c, 16, name="Quiz 8 ")
                 try:
@@ -488,7 +494,7 @@ def AllCard():  # fonction qui clique sur les cartes
     def dailyCards():
         try:
             for i in range(3):
-                sleep(uniform(3, 5))
+                CustomSleep(uniform(3, 5))
                 try:
                     printf("dailycards - show pannels")
                     titre = "erreur"
@@ -565,7 +571,10 @@ keys can be an string, but alos selenium keys
 def send_keys_wait(element, keys):
     for i in keys:
         element.send_keys(i)
-        sleep(uniform(0.1, 0.3))
+        if FAST :
+            pass
+        else :
+            sleep(uniform(0.1, 0.3))
 
 """
 login() tries to login to your micrososft account.
@@ -667,7 +676,7 @@ def BingPcSearch(override=randint(35, 40)):
             driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
 
         progressBar(i, override, name="PC")
-        sleep(uniform(5, 20))
+        CustomSleep(uniform(5, 20))
 
         try:
             driver.find_element(By.ID, "sb_form_q").clear()
@@ -791,7 +800,7 @@ def BingMobileSearch(override=randint(22, 25)):
                     MobileDriver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
                     progressBar(i, override, name="Mobile")
                     printf(MobileDriver.current_url, Mobdriver=MobileDriver)
-                    sleep(uniform(5, 20))
+                    CustomSleep(uniform(5, 20))
 
                     Alerte()  # verifie si il y a des alertes (demande de positions ....)
 
@@ -1130,7 +1139,7 @@ else:
             DailyRoutine()
             driver.quit()
             attente = uniform(1200, 3600)
-            print(f"finis. attente de {round(attente/60)}min")
+            printf(f"finis. attente de {round(attente/60)}min")
             CustomSleep(attente)
 
         except KeyboardInterrupt:
