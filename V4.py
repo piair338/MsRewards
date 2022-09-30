@@ -1051,11 +1051,12 @@ def CustomStart(Credentials):
                 except Exception as e:
                     printf(e)
                     break
-
-            try:
-                LogPoint(_mail)
-            except Exception as e:
-                print("CustomStart " + str(e))
+                
+            if not "tout" in action
+                try:
+                    LogPoint(_mail)
+                except Exception as e:
+                    print("CustomStart " + str(e))
         driver.close()
 
 
