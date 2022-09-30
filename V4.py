@@ -1052,7 +1052,7 @@ def CustomStart(Credentials):
                     printf(e)
                     break
 
-            if not "tout" in action:
+            if not "tout" in Actions:
                 try:
                     LogPoint(_mail)
                 except Exception as e:
