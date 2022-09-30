@@ -32,7 +32,7 @@ def get_row(compte, points, mycursor, same_points = True): #return if there is a
     return(len(myresult) == 1)
 
 
-def add_to_database(compte, points):
+def add_to_database(compte, points, sql_host,sql_usr,sql_pwd,sql_database ):
     mydb = mysql.connector.connect(
         host=sql_host,
         user=sql_usr,

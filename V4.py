@@ -886,7 +886,7 @@ def LogPoint(account="unknown"):  # log des points sur discord
             webhookSuccess.send(f"{account} actuellement à {str(points)} points")
 
     if sql_enabled :
-        add_to_database(account, points)
+        add_to_database(account, points, sql_host, sql_usr, sql_pwd, sql_database)
 
 
 def Fidelite():
