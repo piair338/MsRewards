@@ -6,21 +6,21 @@ def add_row(compte, points, mycursor, mydb):
     val = (compte, points)
     mycursor.execute(sql, val)
     mydb.commit()
-    printf(mycursor.rowcount, "record created.")
+    #printf(mycursor.rowcount, "record created.")
 
 
 def update_row(compte, points, mycursor, mydb):
     sql = f"UPDATE daily SET points = {points} WHERE compte = '{compte}' AND date = current_date() ;"
     mycursor.execute(sql)
     mydb.commit()
-    printf(mycursor.rowcount, "record(s) updated")
+    #printf(mycursor.rowcount, "record(s) updated")
 
 
 def update_last(compte, points, mycursor, mydb):
     sql = f"UPDATE comptes SET last_pts = {points} WHERE compte = '{compte}';"
     mycursor.execute(sql)
     mydb.commit()
-    printf(mycursor.rowcount, "record(s) updated")
+    #printf(mycursor.rowcount, "record(s) updated")
 
 
 def get_row(compte, points, mycursor, same_points = True): #return if there is a line with the same ammount of point or with the same name as well as the same day
