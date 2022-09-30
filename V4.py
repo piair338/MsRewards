@@ -89,8 +89,8 @@ SuccessLink = config["DISCORD"]["successlink"]
 ErrorLink = config["DISCORD"]["errorlink"]
 discord_enabled = config["DISCORD"]["enabled"]
 
-webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
 if discord_enabled:
+    webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
     webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
 
 #base settings
@@ -278,7 +278,7 @@ def LogError(message, log=FULL_LOG, Mobdriver=None):
     else:
         gdriver = driver
 
-    if LINUX_HOST:
+    if LINUX_HOST and discord_enabled:
         with open("page.html", "w") as f:
             f.write(gdriver.page_source)
 
