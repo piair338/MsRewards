@@ -43,14 +43,14 @@ def add_to_database(compte, points, sql_host,sql_usr,sql_pwd,sql_database ):
 
     if get_row(compte, points,mycursor, True): #check if the row exist with the same ammount of points and do nothind if it does
         #printf("les points sont deja bon")
-        return(0)
+        #return(0)
     elif get_row(compte, points,mycursor, False) : #check if the row exist, but without the same ammount of points and update the point account then
         update_row(compte, points,mycursor,mydb)
         #printf("row updated")
-        return(1)
+        #return(1)
     else : # if the row don't exist, create it with the good ammount of points
         add_row(compte, points,mycursor,mydb)
-        return(2) #printf("row added")
+        #return(2) #printf("row added")
     if int(points) > 10 :
         update_last(compte, points, mycursor, mydb)
 
