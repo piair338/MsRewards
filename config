@@ -28,3 +28,7 @@ host = Null
 database = MsRewards
 usr = root
 pwd = password
+
+[OTHER]
+
+ipv6 = False
