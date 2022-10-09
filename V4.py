@@ -61,11 +61,9 @@ if CUSTOM_START :
 #logfile = open(logpath, "w")
 
 
-"""
-gloabal variables used later in the code
-"""
 
-LINUX_HOST = platform == "linux" #if the computer running this programm is linux, it allow more things 
+# gloabal variables used later in the code
+LINUX_HOST = platform == "linux" # if the computer running this programm is linux, it allow more things 
 START_TIME = time()
 
 global driver
@@ -82,7 +80,7 @@ config_path = f"{path.abspath( path.dirname( __file__ ) )}/config"
 config = configparser.ConfigParser()
 config.read(config_path)
 
-# path comfigurations
+# path configurations
 MotPath = config["PATH"]["motpath"]
 CREDENTIALS_PATH = config["PATH"]["logpath"]
 
