@@ -7,12 +7,12 @@ from random import choice, randint, shuffle, uniform
 from re import findall, search
 from sys import platform
 from time import sleep, time
+from tkinter import EXCEPTION
 from requests import get
 from datetime import timedelta
 import discord
 from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
     Colour,
-    Embed,
     RequestsWebhookAdapter,
     Webhook,
 )
@@ -65,7 +65,7 @@ if CUSTOM_START :
 gloabal variables used later in the code
 """
 
-LINUX_HOST = platform == "linux"
+LINUX_HOST = platform == "linux" #if the computer running this programm is linux, it allow more things 
 START_TIME = time()
 
 global driver
@@ -75,41 +75,48 @@ driver = None
 if LINUX_HOST:
     import enquiries
 else:
-    system("")  # enable colors in cmd
+    system("")  # enable colors in windows cmd
 
+#reading configuration
 config_path = f"{path.abspath( path.dirname( __file__ ) )}/config"
 config = configparser.ConfigParser()
 config.read(config_path)
-#path comfigurations
+
+# path comfigurations
 MotPath = config["PATH"]["motpath"]
 CREDENTIALS_PATH = config["PATH"]["logpath"]
 
-"""
-discord configuration
-"""
 
-SuccessLink = config["DISCORD"]["successlink"]
-ErrorLink = config["DISCORD"]["errorlink"]
-discord_enabled = config["DISCORD"]["enabled"]
+# discord configuration
+DISCORD_SUCCESS_LINK = config["DISCORD"]["successlink"]
+DISCORD_ERROR_LINK = config["DISCORD"]["errorlink"]
+DISCORD_ENABLED = config["DISCORD"]["enabled"]
 
-if discord_enabled:
-    webhookFailure = Webhook.from_url(ErrorLink, adapter=RequestsWebhookAdapter())
-    webhookSuccess = Webhook.from_url(SuccessLink, adapter=RequestsWebhookAdapter())
+if DISCORD_ENABLED:
+    webhookFailure = Webhook.from_url(DISCORD_ERROR_LINK, adapter=RequestsWebhookAdapter())
+    webhookSuccess = Webhook.from_url(DISCORD_SUCCESS_LINK, adapter=RequestsWebhookAdapter())
 
-#base settings
+# base settings
 FidelityLink = config["SETTINGS"]["FidelityLink"]
 embeds = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
 Headless = config["SETTINGS"]["headless"] == "True"
-#proxy settings
+
+# proxy settings
 proxy_enabled = config["PROXY"]["enabled"] == "True"
 proxy_address = config["PROXY"]["url"]
 proxy_port = config["PROXY"]["port"]
-#MySQL settings
+
+# MySQL settings
 sql_enabled = config["SQL"]["enabled"] == "True"
 sql_usr = config["SQL"]["usr"]
 sql_pwd = config["SQL"]["pwd"]
 sql_host = config["SQL"]["host"]
 sql_database = config["SQL"]["database"]
+
+# Other seetings 
+IPV6_CHECKED = config["OTHER"]["ipv6"]
+CLAIM_AMAZON = config["OTHER"]["claim_amazon"]
+
 
 g = open(MotPath, "r", encoding="utf-8")
 lines = g.readlines()
@@ -134,6 +141,38 @@ def check_ipv4():
     return False
 
 
+def claim_amazon(): #only work in french for now
+    try : 
+        driver.get("https://rewards.microsoft.com/redeem/000803000031")
+        driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
+        sleep(5)
+        driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
+        sleep(5)
+
+        if ("/rewards/redeem/orderhistory" in driver.page_source) :
+            driver.get("https://rewards.microsoft.com/redeem/orderhistory")
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'Détails de la commande')]").click()
+            sleep(5)
+            code = driver.find_element(By.CLASS_NAME, "tango-credential-value").get_attribute('innerHTML')
+            lien = driver.find_elements(By.CLASS_NAME, "tango-credential-key")[1].get_attribute('innerHTML')
+            lien = search('\"([^\"]+)\"',lien)[1]
+            driver.get(lien)
+            sleep(10)
+            box = driver.find_element(By.ID, "input-45")
+            box.click()
+            box.send_keys(code)
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'Déverrouillez votre récompense')]").click()
+            sleep(5)
+            fcode = driver.find_element(By.XPATH, "//div[@data-test-id='rewardCredentialValue-cardNumber']").get_attribute("innerHTML")
+            amazon = search("> ([^ ]+) <", fcode)[1]
+            webhookSuccess.send(amazon)
+        else :
+            LogError("la recuperation ne peux pas être automatique")
+    except Exception as e :
+        LogError('problème dans la recuperation')
+
+
+
 def setup_proxy(ip, port) :
     PROXY = f"{ip}:{port}"
     webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
@@ -141,7 +180,6 @@ def setup_proxy(ip, port) :
         "sslProxy": PROXY,
         "proxyType": "MANUAL",
     }
-
 
 
 def FirefoxDriver(mobile=False, Headless=Headless):
@@ -187,16 +225,7 @@ def CustomSleep(temps):
             sleep(temps/10)
             return()
         if LOG or not LINUX_HOST: #only print sleep when user see it
-            points = [
-                " .   ",
-                "  .  ",
-                "   . ",
-                "    .",
-                "    .",
-                "   . ",
-                "  .  ",
-                " .   ",
-            ]
+            points = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
             passe = 0
             for i in range(int(temps)):
                 for i in range(8):
@@ -230,7 +259,7 @@ def LogError(message, log=FULL_LOG, Mobdriver=None):
     else:
         gdriver = driver
 
-    if LINUX_HOST and discord_enabled:
+    if LINUX_HOST and DISCORD_ENABLED:
         with open("page.html", "w") as f:
             f.write(gdriver.page_source)
 
@@ -521,6 +550,7 @@ def send_keys_wait(element, keys):
             pass
         else :
             sleep(uniform(0.1, 0.3))
+
 
 """
 login() tries to login to your micrososft account.
@@ -874,7 +904,7 @@ def LogPoint(account="unknown"):  # log des points sur discord
 
     account = account.split("@")[0]
 
-    if discord_enabled:
+    if DISCORD_ENABLED:
 
         if embeds:
             embed = discord.Embed(
@@ -887,6 +917,9 @@ def LogPoint(account="unknown"):  # log des points sur discord
 
     if sql_enabled :
         add_to_database(account, points, sql_host, sql_usr, sql_pwd, sql_database)
+
+    if CLAIM_AMAZON:
+        claim_amazon()
 
 
 def Fidelite():
@@ -1069,11 +1102,8 @@ shuffle(Credentials)
 if CUSTOM_START:
     CustomStart(Credentials)
 else:
-    for i in Credentials:
+    for _mail, _password in Credentials:
         system("pkill -9 firefox")
-        _mail = i[0]
-        _password = i[1]
-
         print("\n\n")
         print(_mail)
         CustomSleep(1)

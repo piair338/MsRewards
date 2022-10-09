@@ -32,3 +32,4 @@ pwd = password
 [OTHER]
 
 ipv6 = False
+claim_amazon = False
