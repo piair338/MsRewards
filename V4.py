@@ -7,7 +7,6 @@ from random import choice, randint, shuffle, uniform
 from re import findall, search
 from sys import platform
 from time import sleep, time
-from tkinter import EXCEPTION
 from requests import get
 from datetime import timedelta
 import discord
