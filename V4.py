@@ -162,7 +162,7 @@ def claim_amazon(): #only work in french for now
             sleep(5)
             fcode = driver.find_element(By.XPATH, "//div[@data-test-id='rewardCredentialValue-cardNumber']").get_attribute("innerHTML")
             amazon = search("> ([^ ]+) <", fcode)[1]
-            webhookSuccess.send(amazon)
+            webhookSuccess.send(_mail + amazon)
         else :
             LogError("la recuperation ne peux pas être automatique")
     except Exception as e :
@@ -915,7 +915,7 @@ def LogPoint(account="unknown"):  # log des points sur discord
     if sql_enabled :
         add_to_database(account, points, sql_host, sql_usr, sql_pwd, sql_database)
 
-    if CLAIM_AMAZON and points >= 7500:
+    if CLAIM_AMAZON and int(points) >= 7500:
         claim_amazon()
 
 
