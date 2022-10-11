@@ -141,14 +141,24 @@ def check_ipv4():
 def claim_amazon(): #only work in french for now
     try : 
         driver.get("https://rewards.microsoft.com/redeem/000803000031")
-        driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
+        try :
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
+        except :
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'REDEEM REWARD')]").click()
         sleep(5)
-        driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
+        try : 
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
+        except :
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
+
         sleep(5)
 
         if ("/rewards/redeem/orderhistory" in driver.page_source) :
             driver.get("https://rewards.microsoft.com/redeem/orderhistory")
-            driver.find_element(By.XPATH, "//span[contains( text( ), 'Détails de la commande')]").click()
+            try :
+                driver.find_element(By.XPATH, "//span[contains( text( ), 'Détails de la commande')]").click()
+            except :
+                driver.find_element(By.XPATH, "//span[contains( text( ), 'Get code')]").click()
             sleep(5)
             code = driver.find_element(By.CLASS_NAME, "tango-credential-value").get_attribute('innerHTML')
             lien = driver.find_elements(By.CLASS_NAME, "tango-credential-key")[1].get_attribute('innerHTML')
