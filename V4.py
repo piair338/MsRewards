@@ -172,7 +172,7 @@ def claim_amazon():
             sleep(5)
             fcode = driver.find_element(By.XPATH, "//div[@data-test-id='rewardCredentialValue-cardNumber']").get_attribute("innerHTML")
             amazon = search("> ([^ ]+) <", fcode)[1]
-            webhookSuccess.send(_mail + amazon)
+            webhookSuccess.send(_mail +" - "+ amazon)
         else :
             LogError("la recuperation ne peux pas être automatique")
     except Exception as e :
