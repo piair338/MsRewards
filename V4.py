@@ -55,7 +55,7 @@ FAST = args.fast
 if CUSTOM_START :
     LOG = True
 
-#SOON (maybe)
+#SOON (maybe) (no)
 #logpath = ("/".join(__file__.split("/")[:-1])+"/LogFile.out")
 #logfile = open(logpath, "w")
 
@@ -87,24 +87,26 @@ CREDENTIALS_PATH = config["PATH"]["logpath"]
 # discord configuration
 DISCORD_SUCCESS_LINK = config["DISCORD"]["successlink"]
 DISCORD_ERROR_LINK = config["DISCORD"]["errorlink"]
-DISCORD_ENABLED = config["DISCORD"]["enabled"]
+DISCORD_ENABLED_ERROR = config["DISCORD"]["DiscordErrorEnabled"]
+DISCORD_ENABLED_SUCCESS = config["DISCORD"]["DiscordSuccessEnabled"]
 
-if DISCORD_ENABLED:
+if ErrorEnabled:
     webhookFailure = Webhook.from_url(DISCORD_ERROR_LINK, adapter=RequestsWebhookAdapter())
+if SuccessEnabled:
     webhookSuccess = Webhook.from_url(DISCORD_SUCCESS_LINK, adapter=RequestsWebhookAdapter())
 
 # base settings
 FidelityLink = config["SETTINGS"]["FidelityLink"]
-embeds = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
+DISCORD_EMBED = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
 Headless = config["SETTINGS"]["headless"] == "True"
 
 # proxy settings
-proxy_enabled = config["PROXY"]["enabled"] == "True"
+proxy_enabled = config["PROXY"]["proxy_enabled"] == "True"
 proxy_address = config["PROXY"]["url"]
 proxy_port = config["PROXY"]["port"]
 
 # MySQL settings
-sql_enabled = config["SQL"]["enabled"] == "True"
+sql_enabled = config["SQL"]["sql_enabled"] == "True"
 sql_usr = config["SQL"]["usr"]
 sql_pwd = config["SQL"]["pwd"]
 sql_host = config["SQL"]["host"]
@@ -266,7 +268,7 @@ def LogError(message, log=FULL_LOG, Mobdriver=None):
     else:
         gdriver = driver
 
-    if LINUX_HOST and DISCORD_ENABLED:
+    if LINUX_HOST and DISCORD_ENABLED_ERROR:
         with open("page.html", "w") as f:
             f.write(gdriver.page_source)
 
@@ -911,9 +913,9 @@ def LogPoint(account="unknown"):  # log des points sur discord
 
     account = account.split("@")[0]
 
-    if DISCORD_ENABLED:
+    if DISCORD_ENABLED_SUCCESS:
 
-        if embeds:
+        if DISCORD_EMBED:
             embed = discord.Embed(
                 title=f"{account} actuellement à {str(points)} points", colour=Colour.green()
             )

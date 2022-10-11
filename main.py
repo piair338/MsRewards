@@ -32,7 +32,7 @@ text = {"fr" : {
     "ajout" : "comptes ajouté",
     "fidelity" : "avez vous un lien sur lequel le lien vers la page fidelité du mois est le seul contenu de la page ?",
     "lien" : "entrez le lien",
-    "discorde" : "voulez vous envoyer les points sur discord ?",
+    "discorde" : "voulez vous envoyer les erreurs sur discord ?",
     "w1" : "entrez le lien du WebHook pour envoyer les points (https://support.discord.com/hc/fr/articles/228383668-Utiliser-les-Webhooks)",
     "w2" : "entrez le lien du WebHook pour envoyer les erreurs",
     "msqle" : "voulez vous untiliser une base de donnée",
@@ -76,18 +76,6 @@ def setup_comptes():
     edit_config_txt("logpath",f'{os.getcwd()}/login.csv')
 
 
-def edit_config_ligne(ligne, contenu):
-    f = open(config_path, "r")
-    txt = f.readlines()
-    txt[ligne] = f'{txt[ligne].split("=")[0]}= {contenu}\n'
-    f.close()
-
-    f = open(config_path, "w")
-    for i in txt :
-        f.write(i)
-    f.close()
-
-
 def edit_config_txt(ligne, contenu):
     f = open(config_path, "r")
     txt = f.readlines()
@@ -121,7 +109,9 @@ def general():
 def discord():
     enabled = confirm(t["discorde"], default = True)
     if enabled : 
-        edit_config_ligne(13, True)
+        edit_config_txt("DiscordErrorEnabled", True)
+        
+        edit_config_txt('DiscordSuccessEnabled', confirm("send success ?", default = True))
         w1 = input(t["w1"])
         edit_config_txt("successlink",w1)
         w2 = input(t["w2"])
@@ -130,7 +120,7 @@ def discord():
 def sql() :
     enabled = confirm(t["msqle"], default = False)
     if enabled : 
-        edit_config_ligne(25, True)
+        edit_config_txt("sql_enabled", True)
         lien = input(t["msqll"])
         edit_config_txt("host",lien)
         table = input(t["msqlt"])
@@ -143,7 +133,7 @@ def sql() :
 def proxy() :
     enabled = confirm(t["proxye"], default = False)
     if enabled : 
-        edit_config_ligne(19, True)
+        edit_config_txt("proxy_enabled", True)
         lien = input(t["proxyl"])
         edit_config_txt("url",lien)
         port = input(t["proxyp"])
