@@ -138,7 +138,7 @@ def check_ipv4():
     return False
 
 
-def claim_amazon(): #only work in french for now
+def claim_amazon(): 
     try : 
         driver.get("https://rewards.microsoft.com/redeem/000803000031")
         try :
@@ -149,7 +149,7 @@ def claim_amazon(): #only work in french for now
         try : 
             driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
         except :
-            driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRM REWARD')]").click()
 
         sleep(5)
 
