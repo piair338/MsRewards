@@ -90,9 +90,9 @@ DISCORD_ERROR_LINK = config["DISCORD"]["errorlink"]
 DISCORD_ENABLED_ERROR = config["DISCORD"]["DiscordErrorEnabled"]
 DISCORD_ENABLED_SUCCESS = config["DISCORD"]["DiscordSuccessEnabled"]
 
-if ErrorEnabled:
+if DISCORD_ENABLED_ERROR:
     webhookFailure = Webhook.from_url(DISCORD_ERROR_LINK, adapter=RequestsWebhookAdapter())
-if SuccessEnabled:
+if DISCORD_ENABLED_SUCCESS:
     webhookSuccess = Webhook.from_url(DISCORD_SUCCESS_LINK, adapter=RequestsWebhookAdapter())
 
 # base settings
@@ -178,7 +178,7 @@ def claim_amazon():
         else :
             LogError("la recuperation ne peux pas être automatique")
     except Exception as e :
-        LogError('problème dans la recuperation')
+        LogError('problème dans la recuperation' + e)
 
 
 
