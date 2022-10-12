@@ -87,8 +87,8 @@ CREDENTIALS_PATH = config["PATH"]["logpath"]
 # discord configuration
 DISCORD_SUCCESS_LINK = config["DISCORD"]["successlink"]
 DISCORD_ERROR_LINK = config["DISCORD"]["errorlink"]
-DISCORD_ENABLED_ERROR = config["DISCORD"]["DiscordErrorEnabled"]
-DISCORD_ENABLED_SUCCESS = config["DISCORD"]["DiscordSuccessEnabled"]
+DISCORD_ENABLED_ERROR = config["DISCORD"]["DiscordErrorEnabled"] == "True"
+DISCORD_ENABLED_SUCCESS = config["DISCORD"]["DiscordSuccessEnabled"]== "True"
 
 if DISCORD_ENABLED_ERROR:
     webhookFailure = Webhook.from_url(DISCORD_ERROR_LINK, adapter=RequestsWebhookAdapter())
