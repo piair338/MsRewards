@@ -230,7 +230,7 @@ def printf(txt, end="", Mobdriver=driver):
 
 def CustomSleep(temps):
     try : 
-        if FAST :
+        if FAST and temps > 50:
             sleep(temps/10)
             return()
         if LOG or not LINUX_HOST: #only print sleep when user see it
@@ -896,7 +896,7 @@ def LogPoint(account="unknown"):  # log des points sur discord
             elem.click()
             CustomSleep(5)
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-            CustomSleep(uniform(10, 20))
+            CustomSleep(uniform(5,7))
             
             point = search('availablePoints":([\d]+)', driver.page_source)[1]
         return(point)
