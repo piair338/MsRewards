@@ -86,7 +86,7 @@ def edit_config_txt(ligne, contenu):
     for i in range(len(txt)) :
         name = txt[i].split(" = ")[0]
         if name == ligne:
-            txt[i] = name + " = " + contenu
+            txt[i] = name + " = " + str(contenu)
 
     f = open(config_path, "w")
     for i in txt :
