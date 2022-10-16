@@ -3,7 +3,7 @@
 import configparser
 import os 
 print
-config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/config.cfg"
+config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.cfg"
 config = configparser.ConfigParser()
 config.read(config_path)
 
@@ -66,14 +66,14 @@ def setup_comptes():
         else:
             print(t["finc"])
             break
-    f = open('./login.csv', "w")
+    f = open('./user_data/login.csv', "w")
     for i in lc :
         f.write(i)
     f.close()
     print(t["ajout"])
 
     #modifie le fichier de configuration
-    edit_config_txt("logpath",f'{os.getcwd()}/login.csv')
+    edit_config_txt("logpath",f'{os.getcwd()}/user_data/login.csv')
 
 
 def edit_config_txt(ligne, contenu):

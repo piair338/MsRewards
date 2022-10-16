@@ -47,6 +47,10 @@ parser.add_argument(
     "-r", "--risky", help="make the program faster, probably better risk of ban", dest="fast", action="store_true"
 )
 
+parser.add_argument(
+    "-c", "--config", help="Choose a specific config file", dest="fast", action="store_true"
+)
+
 args = parser.parse_args()
 CUSTOM_START = args.override
 LOG = args.log
@@ -75,7 +79,7 @@ else:
     system("")  # enable colors in windows cmd
 
 #reading configuration
-config_path = f"{path.abspath( path.dirname( __file__ ) )}/config.cfg"
+config_path = f"{path.abspath( path.dirname( __file__ ) )}/user_data/config.cfg"
 config = configparser.ConfigParser()
 config.read(config_path)
 
