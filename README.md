@@ -29,11 +29,17 @@ You can add a link to a website where content is only the link of the monthly fi
 You should limit to 6 account per IP, and DON'T USE outlook account, they are banned.
 ![image](https://user-images.githubusercontent.com/74496300/155960737-061229ca-db8c-4e66-9aef-542d9e709bb2.png)
 
-## if you're **not** using docker 
-You have to **fill the config file**.  
+## If you're **not** using docker 
 
-you have to put your credentials in the same folder as the script, in a  `.csv` file. You have to put login and password this way : 
+installation recommandation :
 ```
-email1,password1
-email2,password2
+curl -sSLO https://download-installer.cdn.mozilla.net/pub/firefox/releases/91.9.1esr/linux-x86_64/en-US/firefox-91.9.1esr.tar.bz2
+tar -xjf firefox-91.9.1esr.tar.bz2
+sudo mv firefox /opt/
+sudo ln -s /opt/firefox/firefox /usr/bin/firefox
+
+
+curl -sSLO https://github.com/mozilla/geckodriver/releases/download/v0.31.0/geckodriver-v0.31.0-linux64.tar.gz
+tar zxf geckodriver-v0.31.0-linux64.tar.gz
+mv geckodriver /usr/bin/
 ```
