@@ -2,8 +2,12 @@
 
 import configparser
 import os 
-print
-config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.cfg"
+import shutil
+
+default_config = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.default"
+new = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.cfg"
+shutil.copyfile(default_config, config_path)
+
 config = configparser.ConfigParser()
 config.read(config_path)
 
