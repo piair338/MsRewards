@@ -81,10 +81,8 @@ else:
 #reading configuration
 
 config_path = f"{path.abspath( path.dirname( __file__ ) )}/user_data/config.cfg"
-if args.file :
-    config_path = os.path.abspath(args.file.name)
-
-
+if args.config :
+    config_path = path.abspath(args.config.name)
 
 
 
