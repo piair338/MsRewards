@@ -3,7 +3,7 @@
 import configparser
 import os 
 print
-config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/config"
+config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/config.cfg"
 config = configparser.ConfigParser()
 config.read(config_path)
 

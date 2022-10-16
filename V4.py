@@ -75,7 +75,7 @@ else:
     system("")  # enable colors in windows cmd
 
 #reading configuration
-config_path = f"{path.abspath( path.dirname( __file__ ) )}/config"
+config_path = f"{path.abspath( path.dirname( __file__ ) )}/config.cfg"
 config = configparser.ConfigParser()
 config.read(config_path)
 
