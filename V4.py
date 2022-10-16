@@ -48,7 +48,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "-c", "--config", help="Choose a specific config file", dest="fast", action="store_true"
+    "-c", "--config", help="Choose a specific config file", type=argparse.FileType('r')
 )
 
 args = parser.parse_args()
@@ -79,7 +79,15 @@ else:
     system("")  # enable colors in windows cmd
 
 #reading configuration
+
 config_path = f"{path.abspath( path.dirname( __file__ ) )}/user_data/config.cfg"
+if args.file :
+    config_path = os.path.abspath(args.file.name)
+
+
+
+
+
 config = configparser.ConfigParser()
 config.read(config_path)
 
