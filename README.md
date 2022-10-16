@@ -8,7 +8,7 @@ Using Selenium and geckodriver.
 ## If you're using docker (way easier)  
 to use docker, run 
 ```
-docker build Dockerfile
+sudo docker build .
 #copy the build id
 docker run -ti --name MsRewards [build id]
 ```
