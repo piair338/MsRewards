@@ -1,1 +1,36 @@
+[PATH]
 
+motpath = /usr/share/dict/french
+logpath = /your/path/to/loginandpass.csv
+
+[SETTINGS]
+
+FidelityLink = Null
+embeds = False
+Headless = True
+
+[DISCORD]
+
+DiscordErrorEnabled = True
+DiscordSuccessEnabled = True
+successlink = https://discord.com/api/webhooks/[put your webhook here]
+errorlink =https://discord.com/api/webhooks/[put your webhook here]
+
+[PROXY]
+
+proxy_enabled = False
+url = Null
+port = 0
+
+[SQL]
+
+sql_enabled = False
+host = Null
+database = MsRewards
+usr = root
+pwd = password
+
+[OTHER]
+
+ipv6 = False
+claim_amazon = False
