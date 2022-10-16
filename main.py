@@ -4,12 +4,19 @@ import configparser
 import os 
 import shutil
 
-default_config = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.default"
-new = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.cfg"
-shutil.copyfile(default_config, config_path)
-
 config = configparser.ConfigParser()
 config.read(config_path)
+
+try : 
+    config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.cfg"
+    config.read(config_path)
+except :
+    default_config = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.default"
+    shutil.copyfile(default_config, config_path)
+    config.read(config_path)
+
+
+
 
 def confirm(texte, default = False):
     if default : 
