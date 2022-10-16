@@ -27,22 +27,22 @@ lang = "fr"
 text = {"fr" : {
     "compte" : "entrer l'adresse mail du compte ", 
     "mdp" : "entrez le mot de passe du compte ",
-    "next" : "voulez vous ajouter un compte ?",
-    "finc" : "comptes en cours d'ajout",
-    "ajout" : "comptes ajouté",
-    "fidelity" : "avez vous un lien sur lequel le lien vers la page fidelité du mois est le seul contenu de la page ?",
-    "lien" : "entrez le lien",
-    "discorde" : "voulez vous envoyer les erreurs sur discord ?",
-    "w1" : "entrez le lien du WebHook pour envoyer les points (https://support.discord.com/hc/fr/articles/228383668-Utiliser-les-Webhooks)",
-    "w2" : "entrez le lien du WebHook pour envoyer les erreurs",
-    "msqle" : "voulez vous untiliser une base de donnée",
-    "msqll" : "entrez le lien de la base de donnée",
-    "msqlu" : "entrez l'utilisateur de la base de donnée",
-    "msqlp" : "entrez le mot de passe de la base de donnée",
-    "msqlt" : "entrez le nom de la table de la base de donnée",
-    "proxye" : "voulez vous utiliser un proxy",
-    "proxyl" : "entrez le lien du proxy",
-    "proxyp" : "entrez le port du proxy"
+    "next" : "voulez vous ajouter un compte ? ",
+    "finc" : "comptes en cours d'ajout ",
+    "ajout" : "comptes ajouté ",
+    "fidelity" : "avez vous un lien sur lequel le lien vers la page fidelité du mois est le seul contenu de la page ? ",
+    "lien" : "entrez le lien ",
+    "discorde" : "voulez vous envoyer les erreurs sur discord ? ",
+    "w1" : "entrez le lien du WebHook pour envoyer les points ",
+    "w2" : "entrez le lien du WebHook pour envoyer les erreurs ",
+    "msqle" : "voulez vous untiliser une base de donnée ",
+    "msqll" : "entrez le lien de la base de donnée ",
+    "msqlu" : "entrez l'utilisateur de la base de donnée ",
+    "msqlp" : "entrez le mot de passe de la base de donnée ",
+    "msqlt" : "entrez le nom de la table de la base de donnée ",
+    "proxye" : "voulez vous utiliser un proxy ",
+    "proxyl" : "entrez le lien du proxy ",
+    "proxyp" : "entrez le port du proxy "
     }
     }
 
@@ -86,7 +86,7 @@ def edit_config_txt(ligne, contenu):
     for i in range(len(txt)) :
         name = txt[i].split(" = ")[0]
         if name == ligne:
-            txt[i] = name + " = " + str(contenu)
+            txt[i] = name + " = " + str(contenu) + "\n"
 
     f = open(config_path, "w")
     for i in txt :
