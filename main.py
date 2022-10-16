@@ -5,7 +5,6 @@ import os
 import shutil
 
 config = configparser.ConfigParser()
-config.read(config_path)
 
 try : 
     config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.cfg"
