@@ -922,6 +922,8 @@ def LogPoint(account="unknown"):  # log des points sur discord
             break
         except Exception as e:
             CustomSleep(300)
+            printf(f"LogPoints : {e}")
+            points = None
             
     if not points : 
         LogError(f"impossible d'avoir les points : {e}")
