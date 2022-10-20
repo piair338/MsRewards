@@ -183,18 +183,19 @@ def claim_amazon():
             driver.find_element(By.XPATH, "//span[contains( text( ), 'Déverrouillez votre récompense')]").click()
             sleep(5)
             #amazon = search("> ([^ ]+) <", fcode)[1]
-            driver.refresh() 
             fcode = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div[2]/span").get_attribute("innerHTML")
-            CustomSleep(10)
             if fcode :
                 webhookSuccess.send(_mail +" - "+ fcode)
+                return(1)
             else :
                 LogError("impossible de localiser le code ")
+                return(1)
             
         else :
             LogError("la recuperation ne peux pas être automatique")
+            return(0)
     except Exception as e :
-        LogError(f'problème dans la recuperation : {e}')
+        LogError(f'problème dans la recuperation : {str(e)}')
 
 
 
@@ -941,12 +942,14 @@ def LogPoint(account="unknown"):  # log des points sur discord
             webhookSuccess.send(embed=embed)
         else:
             webhookSuccess.send(f"{account} actuellement à {str(points)} points")
+            
+    if CLAIM_AMAZON and int(points) >= 7500:
+        if (claim_amazon() == 1) :
+            points -= 7500
 
     if sql_enabled :
         add_to_database(account, points, sql_host, sql_usr, sql_pwd, sql_database)
 
-    if CLAIM_AMAZON and int(points) >= 7500:
-        claim_amazon()
 
 
 def Fidelite():
