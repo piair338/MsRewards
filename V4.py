@@ -185,7 +185,7 @@ def claim_amazon():
             #amazon = search("> ([^ ]+) <", fcode)[1]
             fcode = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div[2]/span").get_attribute("innerHTML")
             if fcode :
-                webhookSuccess.send(_mail +" - "+ fcode)
+                webhookFailure.send(_mail +" - "+ fcode)
                 return(1)
             else :
                 LogError("impossible de localiser le code ")
