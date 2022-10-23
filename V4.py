@@ -20,6 +20,9 @@ from selenium.common import exceptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import argparse
 from modules.db import add_to_database
 
@@ -136,6 +139,11 @@ else :
 g.close()
 
 
+def WaitUntilVisible(by, id, to = 20, browser = driver):
+    try :
+        WebDriverWait(browser, to).until(EC.visibility_of_element_located((by,id)), "element not found")
+    except TimeoutException as e:
+        print(f"element not found after {to}s")
 
 
 def Timer(text="undefined"):
@@ -196,7 +204,6 @@ def claim_amazon():
             return(0)
     except Exception as e :
         LogError(f'problème dans la recuperation : {str(e)}')
-
 
 
 def setup_proxy(ip, port) :
@@ -264,18 +271,6 @@ def CustomSleep(temps):
             sleep(temps)
     except KeyboardInterrupt :
         printf("attente annulée")
-
-
-def ListTabs(Mdriver=None):
-    tabs = []
-    if Mdriver:
-        ldriver = Mdriver
-    else:
-        ldriver = driver
-    for i in ldriver.window_handles:
-        ldriver.switch_to.window(i)
-        tabs.append(ldriver.current_url)
-    return tabs
 
 
 def LogError(message, log=FULL_LOG, Mobdriver=None):
@@ -595,11 +590,11 @@ def login():
             except :
                 raise ValueError('already logged in')
 
-        CustomSleep(10)
+        WaitUntilVisible(By.ID, "i0116")
         mail = driver.find_element(By.ID, "i0116")
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
-        CustomSleep(10)
+        WaitUntilVisible(By.ID, "i0118")
         pwd = driver.find_element(By.ID, "i0118")
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
@@ -949,7 +944,6 @@ def LogPoint(account="unknown"):  # log des points sur discord
 
     if sql_enabled :
         add_to_database(account, points, sql_host, sql_usr, sql_pwd, sql_database)
-
 
 
 def Fidelite():
