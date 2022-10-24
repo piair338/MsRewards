@@ -57,7 +57,7 @@ def Timer(text="undefined"):
 
 # replace the function print, with more options
 # [txt] : string, [driver] : selenium wbdriver
-def printf(txt, LOG = False):
+def printf(txt, LOG = LOG):
     if LOG:
         print(Timer(txt))
 
