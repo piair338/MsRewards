@@ -590,11 +590,11 @@ def login():
             except :
                 raise ValueError('already logged in')
 
-        WaitUntilVisible(By.ID, "i0116")
+        WaitUntilVisible(By.ID, "i0116", browser = driver)
         mail = driver.find_element(By.ID, "i0116")
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
-        WaitUntilVisible(By.ID, "i0118")
+        WaitUntilVisible(By.ID, "i0118", browser = driver)
         pwd = driver.find_element(By.ID, "i0118")
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
