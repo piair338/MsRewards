@@ -686,7 +686,7 @@ def Mlogin(echec):
     try:
         MobileDriver.get("https://www.bing.com/search?q=test+speed")
         MRGPD()
-        printf("début du login", Mobdriver=MobileDriver)
+        printf("début du login")
         MobileDriver.find_element(By.ID, "mHamburger").click()
         CustomSleep(uniform(1, 2))
         MobileDriver.find_element(By.ID, "hb_s").click()
@@ -752,6 +752,7 @@ def Alerte():
 
 
 def BingMobileSearch(override=randint(22, 25)):
+    global MobileDriver
     MobileDriver = "unable to start"
     try:
         try:
