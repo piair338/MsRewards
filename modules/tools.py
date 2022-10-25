@@ -9,8 +9,6 @@ from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAd
 
 from modules.config import *
 
-mail = "undefined"
-_mail = mail
 """
 send_keys_wait([selenium element:element, str:keys]) send the different keys to the field element, with a random time between each press to simulate human action.
 keys can be an string, but alos selenium keys
@@ -54,8 +52,8 @@ def LogError(message, driver, mail, log=FULL_LOG):
 
 # add the time arround the text given in [text]
 # [text] : string
-def Timer(text="undefined", mail=_mail):
-    return(f"[{_mail} - {timedelta(seconds = round(float(time() - START_TIME)))}] " + str(text))
+def Timer(text, mail):
+    return(f"[{mail} - {timedelta(seconds = round(float(time() - START_TIME)))}] " + str(text))
 
 
 # replace the function print, with more options
