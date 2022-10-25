@@ -23,12 +23,15 @@ from modules.tools import *
 global driver
 
 
+def printf(x):
+    printf2(x, _mail)
+
+
 def WaitUntilVisible(by, id, to = 20, browser = driver):
     try :
         WebDriverWait(browser, to).until(EC.visibility_of_element_located((by,id)), "element not found")
     except TimeoutException as e:
         print(f"element not found after {to}s")
-
 
 
 def claim_amazon(): 
@@ -115,35 +118,6 @@ def FirefoxDriver(mobile=False, Headless=Headless):
     return driver
 
 
-def CustomSleep(temps):
-    try : 
-        if FAST and temps > 50:
-            sleep(temps/10)
-            return()
-        if not LOG or not LINUX_HOST: #only print sleep when user see it
-            points = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
-            passe = 0
-            for i in range(int(temps)):
-                for i in range(8):
-                    sleep(0.125)
-                    passe += 0.125
-                    print(f"{points[i]}  -  {round(float(temps) - passe, 3)}", end="\r")
-            print("                        ", end="\r")
-
-        else:
-            sleep(temps)
-    except KeyboardInterrupt :
-        printf("attente annulée", _mail)
-
-
-
-def progressBar(current, total=30, barLength=20, name="Progress"):
-    percent = float(current + 1) * 100 / total
-    arrow = "-" * int(percent / 100 * barLength - 1) + ">"
-    spaces = " " * (barLength - len(arrow))
-    print(name + ": [%s%s] %d %%" % (arrow, spaces, percent), end="\r")
-
-
 def Close(fenetre, SwitchTo=0):
     driver.switch_to.window(fenetre)
     driver.close()
@@ -171,7 +145,7 @@ PlayQuiz[N]([int : override]) make the quizz with N choice each time. They usual
 override is the number of question, by default, it's the number of question in this specific quizz. Can be usefull in some case, where the programm crashes before finishing the quizz
 """
 def PlayQuiz2(override=10):
-    printf("début de PlayQuiz2", _mail)
+    printf("début de PlayQuiz2")
     for j in range(override):
         try:
             RGPD()
@@ -202,11 +176,11 @@ def PlayQuiz2(override=10):
         except Exception as e:
             LogError("PlayQuiz2" + str(e), driver, _mail)
             break
-    printf("PlayQuiz2 finis", _mail)
+    printf("PlayQuiz2 finis")
 
 
 def PlayQuiz8(override=3):
-    printf(f"PlayQuiz8 : start, override : {override}", _mail)
+    printf(f"PlayQuiz8 : start, override : {override}")
     try:
         c = 0
         for i in range(override):
@@ -244,22 +218,22 @@ def PlayQuiz8(override=3):
                         LogError(f"playquizz8 - 5 -  {e}", driver, _mail)
                 except Exception as e:
                     if CUSTOM_START:
-                        printf(f"playquiz8 - 3 -  {e}", _mail) # may append during 
+                        printf(f"playquiz8 - 3 -  {e}") # may append during 
                     else:
                         LogError(f"playquizz8 - 3 -  {e}", driver, _mail)
 
     except Exception as e:
         LogError(f"PlayQuiz8 - 4 - {e} \n ListOfGood : {str(ListeOfGood)}", driver, _mail)
         
-    printf("PlayQuiz8 : fin ", _mail)
+    printf("PlayQuiz8 : fin ")
 
 
 def PlayQuiz4(override=None):
-    printf("PlayQuiz4 : start", _mail)
+    printf("PlayQuiz4 : start")
     if not override:
         try:  # permet de gerer les truc de fidélité, qui sont plus long
             override = int(findall('rqQuestionState([\d]{1,2})"', driver.page_source)[-1])
-            printf(f"Override : {override}", _mail)
+            printf(f"Override : {override}")
         except:
             override = 3
 
@@ -270,8 +244,8 @@ def PlayQuiz4(override=None):
             RGPD()
             reponse = search('correctAnswer":"([^"]+)', txt)[1]  # je suis pas sur qu'il y ait un espace
             reponse = reponse.replace("\\u0027", "'")  # il faut cancel l'unicode avec un double \ (on replacer les caracteres en unicode en caracteres utf-8)
-            printf(f"validation de la reponse                                     ", _mail)
-            printf(f"validation de la reponse {i+1}/{override} {reponse}", _mail)
+            printf(f"validation de la reponse                                     ")
+            printf(f"validation de la reponse {i+1}/{override} {reponse}")
             try:
                 elem = driver.find_element(
                     By.CSS_SELECTOR, f'[data-option="{reponse}"]'
@@ -283,14 +257,14 @@ def PlayQuiz4(override=None):
     except Exception as e:
         LogError(f"PlayQuiz4 {str(e)}", driver, _mail)
         raise ValueError(e)
-    printf("PlayQuiz4 : end", _mail)
+    printf("PlayQuiz4 : end")
 
 
 """
 PlayPoll() reply a random thing to poll, on of daily activities
 """
 def PlayPoll():
-    printf("PlayPoll : start", _mail)
+    printf("PlayPoll : start")
     try:
         try:
             elem = driver.find_element(By.ID, f"btoption{choice([0,1])}")
@@ -301,7 +275,7 @@ def PlayPoll():
     except Exception as e:
         LogError("PlayPoll" + str(e), driver, _mail)
         raise ValueError(e)
-    printf("PlayPoll : end", _mail)
+    printf("PlayPoll : end")
 
 
 def AllCard():  # fonction qui clique sur les cartes
@@ -314,7 +288,7 @@ def AllCard():  # fonction qui clique sur les cartes
                 ).click()
         else:
             driver.switch_to.window(driver.window_handles[1])
-            printf(f"fermeture : {driver.current_url}", _mail)
+            printf(f"fermeture : {driver.current_url}")
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
             reset(Partie2)
@@ -324,7 +298,7 @@ def AllCard():  # fonction qui clique sur les cartes
             for i in range(3):
                 CustomSleep(uniform(3, 5))
                 try:
-                    printf("dailycards - show pannels", _mail)
+                    printf("dailycards - show pannels")
                     titre = "erreur"
                     driver.find_element(
                         By.XPATH,f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]",
@@ -334,16 +308,16 @@ def AllCard():  # fonction qui clique sur les cartes
                     TryPlay(titre)
                     sleep(1)
                     reset()
-                    printf(f"DailyCard {titre} ok ", _mail)
+                    printf(f"DailyCard {titre} ok ")
                 except Exception as e:
-                    printf(f"Allcard card {titre} error ({e})", _mail)
+                    printf(f"Allcard card {titre} error ({e})")
         except Exception as e:
             LogError(f"Dailycards {e}", driver, _mail)
 
     try:
         dailyCards()
     except Exception as e:
-        printf(f"erreur dans les quetes de la semaine {e}", _mail)
+        printf(f"erreur dans les quetes de la semaine {e}")
 
     def weekly_cards():
         try:
@@ -360,12 +334,12 @@ def AllCard():  # fonction qui clique sur les cartes
                 pass
 
         for i in range(20):
-            printf("début de l'une des cartes", _mail)
+            printf("début de l'une des cartes")
             driver.find_element(
                 By.XPATH,
                 "/html/body/div/div/div[3]/div[2]/div[2]/div[3]/div/div[1]/a/div/div[2]",
             ).click()
-            printf("carte cliquée", _mail)
+            printf("carte cliquée")
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
             sleep(1)
             titre = driver.title
@@ -400,7 +374,7 @@ it uses global variable _mail and _password to login
 def login():
     global driver
     def sub_login():
-        printf("sublogin : start", _mail)
+        printf("sublogin : start")
         driver.get("https://www.bing.com/rewardsapp/flyout")
         try:
             driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click()  # depend of the language of the page
@@ -429,7 +403,7 @@ def login():
             elm.send_keys(Keys.ENTER)
         except :
             pass
-        printf("login completed", _mail)
+        printf("login completed")
         RGPD()
         CustomSleep(uniform(3,5))
         driver.get("https://www.bing.com/rewardsapp/flyout")
@@ -467,7 +441,7 @@ def BingPcSearch(override=randint(35, 40)):
             send_keys_wait(driver.find_element(By.ID, "sb_form_q"), mot)
             driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
         except Exception as e :
-            printf(e, _mail)
+            printf(e)
             sleep(10)
             driver.get('https://www.bing.com/search?q=pls')
             sleep(3)
@@ -480,7 +454,7 @@ def BingPcSearch(override=randint(35, 40)):
         try:
             driver.find_element(By.ID, "sb_form_q").clear()
         except Exception as e:
-            printf(e, _mail)
+            printf(e)
             try:
                 driver.get('https://www.bing.com/search?q=pls')
                 driver.find_element(By.ID, "sb_form_q").clear()
@@ -494,32 +468,32 @@ def BingPcSearch(override=randint(35, 40)):
 
 def TryPlay(nom="inconnu"):
     RGPD()
-    printf("TryPlay en cours", _mail)
+    printf("TryPlay en cours")
 
     def play(number, override=None):
         if number == 8 or number == 9:
             try:
-                printf(f"\033[96m Quiz 8 détecté sur la page {nom} \033[0m", _mail)
+                printf(f"\033[96m Quiz 8 détecté sur la page {nom} \033[0m")
                 PlayQuiz8()
-                printf(f"\033[92m Quiz 8 reussit sur {nom} \033[0m", _mail)
+                printf(f"\033[92m Quiz 8 reussit sur {nom} \033[0m")
             except Exception as e:
-                printf(f"echec de PlayQuiz 8. Aborted {e} \033[0m", _mail)
+                printf(f"echec de PlayQuiz 8. Aborted {e} \033[0m")
 
         elif number == 5 or number == 4:
             try:
-                printf(f"\033[96m Quiz 4 détecté sur la page {nom} \033[0m", _mail)
+                printf(f"\033[96m Quiz 4 détecté sur la page {nom} \033[0m")
                 PlayQuiz4()
-                printf(f"\033[92m Quiz 4 reussit sur {nom} \033[0m", _mail)
+                printf(f"\033[92m Quiz 4 reussit sur {nom} \033[0m")
             except Exception as e:
-                printf(f"echec de PlayQuiz 4. Aborted {e} \033[0m", _mail)
+                printf(f"echec de PlayQuiz 4. Aborted {e} \033[0m")
 
         elif number == 3 or number == 2:
             try:
-                printf(f"\033[96m Quiz 2 détecté sur la page {nom}\033[0m", _mail)
+                printf(f"\033[96m Quiz 2 détecté sur la page {nom}\033[0m")
                 PlayQuiz2()
-                printf(f"\033[92m Quiz 2 reussit sur la page {nom}\033[0m", _mail)
+                printf(f"\033[92m Quiz 2 reussit sur la page {nom}\033[0m")
             except Exception as e:
-                printf(f"echec de PlayQuiz 2. Aborted {e}", _mail)
+                printf(f"echec de PlayQuiz 2. Aborted {e}")
         else:
             LogError("probleme dans la carte : il y a un bouton play et aucun quiz detecté", driver, _mail)
 
@@ -529,15 +503,15 @@ def TryPlay(nom="inconnu"):
         play(number)
 
     except Exception as e:
-        # printf(e, _mail) normal error here
+        # printf(e) normal error here
         if "bt_PollRadio" in driver.page_source:
             try:
-                printf("Poll détected", _mail)
+                printf("Poll détected")
                 RGPD()
                 PlayPoll()
-                printf("Poll reussit  ", _mail)
+                printf("Poll reussit  ")
             except Exception as e:
-                printf(f"TryPlay - 1 - Poll aborted {e}", _mail)
+                printf(f"TryPlay - 1 - Poll aborted {e}")
 
         elif "rqQuestionState" in driver.page_source:
             try:
@@ -549,10 +523,10 @@ def TryPlay(nom="inconnu"):
                         '"rqQuestionState.?." class="filledCircle"', driver.page_source
                     )
                 )
-                printf(f"recovery détecté. quiz : {number}, restant : {restant +1}", _mail)
+                printf(f"recovery détecté. quiz : {number}, restant : {restant +1}")
                 play(number-1, override=restant + 1)
             except Exception as e:
-                printf("TryPlay - 2 - " + e, _mail)
+                printf("TryPlay - 2 - " + e)
 
         elif search("([0-9]) de ([0-9]) finalisée", driver.page_source):
             print("fidélité")
@@ -560,7 +534,7 @@ def TryPlay(nom="inconnu"):
             Fidelite()
 
         else:
-            printf(f"rien à faire sur la page {nom}", _mail)
+            printf(f"rien à faire sur la page {nom}")
             RGPD()
             CustomSleep(uniform(3, 5))
 
@@ -592,7 +566,7 @@ def LogPoint(account="unknown"):  # log des points sur discord
             break
         except Exception as e:
             CustomSleep(300)
-            printf(f"LogPoints : {e}", _mail)
+            printf(f"LogPoints : {e}")
             points = None
             
     if not points : 
@@ -630,12 +604,12 @@ def Fidelite():
         try : 
             result = get(FidelityLink) #get the url of fidelity page
         except Exception as e :
-            printf(e, _mail)
+            printf(e)
             result = False
 
         if result : 
             lien = result.content.decode("UTF-8")
-            printf(lien, _mail)
+            printf(lien)
 
             if (lien.split(":")[0] == "https") or (lien.split(":")[0] == "http") : 
                 
@@ -673,10 +647,10 @@ def Fidelite():
                     try:
                         Close(driver.window_handles[1])
                     except Exception as e:
-                        printf(e, _mail)
-                printf("fidelité - done", _mail)
+                        printf(e)
+                printf("fidelité - done")
             else :
-                printf("lien invalide", _mail)
+                printf("lien invalide")
     except Exception as e:
         LogError("Fidélité" + str(e), driver, _mail)
 
@@ -685,7 +659,7 @@ def Mlogin(echec):
     try:
         MobileDriver.get("https://www.bing.com/search?q=test+speed")
         MRGPD()
-        printf("début du login", _mail)
+        printf("début du login")
         MobileDriver.find_element(By.ID, "mHamburger").click()
         CustomSleep(uniform(1, 2))
         MobileDriver.find_element(By.ID, "hb_s").click()
@@ -710,12 +684,12 @@ def Mlogin(echec):
             MobileDriver.find_element(By.ID, "idSIButton9").click()
         except Exception as e:
             pass
-        printf("fin du Mlogin", _mail)
+        printf("fin du Mlogin")
 
     except Exception as e:
         echec += 1
         if echec <= 3:
-            printf(f"echec du login sur la version mobile. on reesaye ({echec}/3), {e}", _mail)
+            printf(f"echec du login sur la version mobile. on reesaye ({echec}/3), {e}")
             CustomSleep(uniform(5, 10))
             Mlogin(echec)
         else:
@@ -768,7 +742,7 @@ def BingMobileSearch(override=randint(22, 25)):
                     send_keys_wait(MobileDriver.find_element(By.ID, "sb_form_q"), mot)
                     MobileDriver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
                     progressBar(i, override, name="Mobile")
-                    printf(MobileDriver.current_url, _mail)
+                    printf(MobileDriver.current_url)
                     CustomSleep(uniform(5, 20))
 
                     Alerte()  # verifie si il y a des alertes (demande de positions ....)
@@ -884,7 +858,7 @@ def CustomStart(Credentials):
                 try:
                     dev()
                 except Exception as e:
-                    printf(e, _mail)
+                    printf(e)
                     break
 
             if not "tout" in Actions:
@@ -909,16 +883,16 @@ else:
         print("\n\n")
         print(_mail)
         CustomSleep(1)
-        printf("début du driver", _mail)
+        printf("début du driver")
         driver = FirefoxDriver()
-        printf("driver demarré", _mail)
+        printf("driver demarré")
         driver.implicitly_wait(7)
 
         try:
             DailyRoutine()
             driver.quit()
             attente = uniform(1200, 3600)
-            printf(f"finis. attente de {round(attente/60)}min", _mail)
+            printf(f"finis. attente de {round(attente/60)}min")
             CustomSleep(attente)
 
         except KeyboardInterrupt:

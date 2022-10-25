@@ -60,9 +60,9 @@ def Timer(text="undefined", mail=_mail):
 
 # replace the function print, with more options
 # [txt] : string, [driver] : selenium wbdriver
-def printf(txt, mail = _mail, LOG = LOG):
+def printf2(txt, mail, LOG = LOG):
     if LOG:
-        print(Timer(txt, _mail))
+        print(Timer(txt, mail))
 
 
 
@@ -77,3 +77,33 @@ def check_ipv4(driver):
     return False
 
 
+
+def CustomSleep(temps):
+    try : 
+        if FAST and temps > 50:
+            sleep(temps/10)
+            return()
+        if not LOG or not LINUX_HOST: #only print sleep when user see it
+            points = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
+            passe = 0
+            for i in range(int(temps)):
+                for i in range(8):
+                    sleep(0.125)
+                    passe += 0.125
+                    print(f"{points[i]}  -  {round(float(temps) - passe, 3)}", end="\r")
+            print("                        ", end="\r")
+
+        else:
+            sleep(temps)
+    except KeyboardInterrupt :
+        printf("attente annulée", _mail)
+
+
+
+
+
+def progressBar(current, total=30, barLength=20, name="Progress"):
+    percent = float(current + 1) * 100 / total
+    arrow = "-" * int(percent / 100 * barLength - 1) + ">"
+    spaces = " " * (barLength - len(arrow))
+    print(name + ": [%s%s] %d %%" % (arrow, spaces, percent), end="\r")
