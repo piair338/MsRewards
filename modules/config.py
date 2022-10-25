@@ -59,7 +59,7 @@ else:
 
 #reading configuration
 
-config_path = f"{path.abspath( path.dirname( __file__ ) )}/user_data/config.cfg"
+config_path = f"{path.abspath(path.dirname(path.dirname( __file__ )))}/user_data/config.cfg"
 if args.config :
     config_path = path.abspath(args.config.name)
 

@@ -7,7 +7,6 @@ from re import findall, search
 from sys import platform
 from time import sleep
 from requests import get
-from datetime import timedelta
 from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.common.by import By
