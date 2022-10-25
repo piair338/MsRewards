@@ -9,8 +9,8 @@ from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAd
 
 from modules.config import *
 
-_mail = "undefined"
-
+mail = "undefined"
+_mail = mail
 """
 send_keys_wait([selenium element:element, str:keys]) send the different keys to the field element, with a random time between each press to simulate human action.
 keys can be an string, but alos selenium keys
@@ -24,13 +24,13 @@ def send_keys_wait(element, keys):
             sleep(uniform(0.1, 0.3))
 
 
-def LogError(message, driver, _mail, log=FULL_LOG):
+def LogError(message, driver, mail, log=FULL_LOG):
     print(f"\n\n\033[93m Erreur : {str(message)}  \033[0m\n\n")
     if DISCORD_ENABLED_ERROR:
         with open("page.html", "w") as f:
-            f.write(gdriver.page_source)
+            f.write(driver.page_source)
 
-        gdriver.save_screenshot("screenshot.png")
+        driver.save_screenshot("screenshot.png")
         if not log:
             embed = discord.Embed(
                 title="An Error has occured",
