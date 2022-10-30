@@ -44,7 +44,7 @@ def LogError(message, driver, mail, log=FULL_LOG):
 
         file = discord.File("screenshot.png")
         embed.set_image(url="attachment://screenshot.png")
-        embed.set_footer(text=_mail)
+        embed.set_footer(text=mail)
         webhookFailure.send(embed=embed, file=file)
         webhookFailure.send(file=discord.File("page.html"))
 
