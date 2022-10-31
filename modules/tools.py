@@ -90,7 +90,6 @@ def CustomSleep(temps):
                     passe += 0.125
                     print(f"{points[i]}  -  {round(float(temps) - passe, 3)}", end="\r")
             print("                        ", end="\r")
-
         else:
             sleep(temps)
     except KeyboardInterrupt :

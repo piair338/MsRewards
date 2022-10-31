@@ -19,6 +19,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from modules.db import add_to_database
 from modules.config import *
 from modules.tools import *
+from modules.error import *
 
 global driver
 
@@ -126,18 +127,11 @@ def Close(fenetre, SwitchTo=0):
 
 #Deal with RGPD popup as well as some random popup like 'are you satisfied' one
 def RGPD():
-    try:
-        driver.find_element(By.ID, "bnp_btn_accept").click()
-    except:
-        pass
-    try:
-        driver.find_element(By.ID, "bnp_hfly_cta2").click()
-    except:
-        pass
-    try : 
-        driver.find_element(By.id, "bnp_hfly_close").click() #are you satisfied popup
-    except :
-        pass
+    for i in ["bnp_btn_accept", "bnp_hfly_cta2", "bnp_hfly_close"] :
+        try:
+            driver.find_element(By.ID, ).click()
+        except:
+            pass
 
 
 """
@@ -373,16 +367,16 @@ it uses global variable _mail and _password to login
 """
 def login():
     global driver
-    def sub_login():
+    def sub_login():    
         printf("sublogin : start")
         driver.get("https://www.bing.com/rewardsapp/flyout")
-        try:
-            driver.find_element(By.CSS_SELECTOR, f'[title="Rejoindre"]').click()  # depend of the language of the page
-        except:
-            try :
-                driver.find_element(By.CSS_SELECTOR, f'[title="Join now"]').click()  # depend of the language of the page
-            except :
-                raise ValueError('already logged in')
+        for i in [f'[title="Rejoindre"]', f'[title="Join now"]', f'[title="Rejoindre maintenant"]'] :
+            try:
+                driver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
+                break
+            except:
+                pass
+
 
         WaitUntilVisible(By.ID, "i0116", browser = driver)
         mail = driver.find_element(By.ID, "i0116")
@@ -393,6 +387,12 @@ def login():
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
         CustomSleep(5)
+
+        if ('Abuse' in driver.current_url) : 
+            LogError("account suspended", driver, _mail)
+            raise Banned()
+
+
         for i in ["KmsiCheckboxField","iLooksGood", "idSIButton9", "iCancel"]:
             try:
                 driver.find_element(By.ID, i).click()
@@ -413,6 +413,8 @@ def login():
         try : 
             sub_login()
             return (driver.current_window_handle)
+        except Banned:
+            raise Banned()
         except Exception as e:
             LogError("login - 3 - " + str(e), driver, _mail)
             driver.close()
@@ -464,7 +466,29 @@ def BingPcSearch(override=randint(35, 40)):
     print("\n\n")
 
 
-
+def unban():
+    driver.find_element(By.ID, "StartAction").click()
+    txt = driver.page_source
+    uuid1 = findall('wlspispHIPPhoneInput([a-z0-9]+)', txt)[0]
+    uuid2 = findall('wlspispHipSendCode([a-z0-9]+)', txt)[0]
+    uuid3 = findall('wlspispSolutionElement([a-z0-9]+)', txt)[0]
+    phone = input("entrez le numero de téléphone : +33")
+    WaitUntilVisible(By.ID, "wlspispHIPPhoneInput" + uuid1)
+    phone_box = driver.find_element(By.ID, "wlspispHIPPhoneInput" + uuid1)
+    phone_box.send_keys(phone)
+    WaitUntilVisible(By.ID, "wlspispHipSendCode" + uuid2)
+    send_link = driver.find_element(By.ID, "wlspispHipSendCode" + uuid2)
+    send_link.click()
+    WaitUntilVisible(By.ID, "wlspispSolutionElement" + uuid3)
+    answer_box = driver.find_element(By.ID, "wlspispSolutionElement" + uuid3)
+    answer = input("entrez le contenu du msg : ")
+    answer_box.send_keys(answer)
+    send_box = driver.find_element(By.ID, "ProofAction")
+    send_box.click()
+    WaitUntilVisible(By.ID, "FinishAction")
+    continue_box = driver.find_element(By.ID, "FinishAction")
+    continue_box.click()
+ 
 
 def TryPlay(nom="inconnu"):
     RGPD()
@@ -699,6 +723,7 @@ def Mlogin(echec):
             MobileDriver.quit()
             return True
 
+
 def MRGPD():
     try:
         MobileDriver.find_element(By.ID, "bnp_btn_accept").click()
@@ -708,6 +733,7 @@ def MRGPD():
         MobileDriver.find_element(By.ID, "bnp_hfly_cta2").click()
     except Exception as e:
         pass
+
 
 def Alerte():
     try:
@@ -760,40 +786,37 @@ def BingMobileSearch(override=randint(22, 25)):
 
 
 def DailyRoutine(custom = False):
-    if not custom :
-        MainWindows = login()
-    else :
-        MainWindows = ""
+    try : 
+        login()
+    except Banned :
+        LogError("THIS ACCOUND IS BANNED. FIX THIS ISSUE WITH -U", driver, mail)
+        return()
+
+    try:
+        AllCard()
+    except Exception as e:
+        LogError(f"DailyRoutine - AllCard - \n{e}", driver, _mail)
+
+    try:
+        BingPcSearch()
+    except Exception as e:
+        LogError(f"DailyRoutine - BingPcSearch - \n{e}", driver, _mail)
+
+    try:
+        Fidelite()
+    except Exception as e:
+        LogError(f"DailyRoutine - Fidelité - \n{e}", driver, _mail)
         
-    if MainWindows != "STOP" :
-        try:
-            AllCard()
-        except Exception as e:
-            LogError(f"DailyRoutine - AllCard - \n{e}", driver, _mail)
+    try:
+        BingMobileSearch()
+    except Exception as e:
+        LogError(f"DailyRoutine - BingMobileSearch - \n{e}", driver, _mail)
 
-        try:
-            BingPcSearch()
-        except Exception as e:
-            LogError(f"DailyRoutine - BingPcSearch - \n{e}", driver, _mail)
-        CustomSleep(uniform(3, 20))
+    try:
+        LogPoint(_mail)
+    except Exception as e:
+        LogError(f"DailyRoutine - LogPoint - \n{e}", driver, _mail)
 
-        try:
-            Fidelite()
-        except Exception as e:
-            LogError(f"DailyRoutine - Fidelité - \n{e}", driver, _mail)
-         
-        try:
-            BingMobileSearch()
-        except Exception as e:
-            LogError(f"DailyRoutine - BingMobileSearch - \n{e}", driver, _mail)
-        CustomSleep(uniform(3, 20))
-
-        try:
-            LogPoint(_mail)
-        except Exception as e:
-            LogError(f"DailyRoutine - LogPoint - \n{e}", driver, _mail)
-    else : 
-        LogError(f"probleme de login sur le comte {_mail}", driver, _mail)
 
 
 def close():
@@ -809,20 +832,14 @@ def CustomStart(Credentials):
     if not LINUX_HOST :
         raise NameError('You need to be on linux to do that, due to the utilisation of a module named enquieries, sorry.') 
     global driver
-    global _mail
-    global _password
-
-    ids = [x[0] for x in Credentials]  # list of all email adresses
-    actions = ["tout", "daily", "pc", "mobile", "LogPoint","Fidelite", "dev"]
+    global _mail, _password
 
     system("clear")  # clear from previous command to allow a clean choice
-    Comptes = enquiries.choose("quels comptes ?", ids, multi=True)
+    actions = ["tout", "daily", "pc", "mobile", "LogPoint","Fidelite", "dev"]
     Actions = enquiries.choose("quels Actions ?", actions, multi=True)
 
-    for i in Comptes:
+    for _mail, _password in SelectAccount():
 
-        _mail = Credentials[ids.index(i)][0]
-        _password = Credentials[ids.index(i)][1]
         driver = FirefoxDriver()
         driver.implicitly_wait(10)
 
@@ -869,14 +886,24 @@ def CustomStart(Credentials):
         driver.close()
 
 
-with open(CREDENTIALS_PATH) as f:
-    reader = reader(f)
-    Credentials = list(reader)
+def SelectAccount(multiple = True):
+    system("clear")  # clear from previous command to allow a clean choice
+    emails = [x[0] for x in Credentials]  # list of all email adresses
+    emailsSelected = enquiries.choose("quels comptes ?", emails, multi=multiple)
+    return([x for x in Credentials if x[0] in emailsSelected])
 
-shuffle(Credentials)
 
 if CUSTOM_START:
     CustomStart(Credentials)
+elif UNBAN:
+    _mail, _password  = SelectAccount(False)[0]
+    try :
+        login()
+        raise NotBanned
+    except Banned :
+        unban()
+    except NotBanned :
+        LogError("you are not cureently banned on this account")
 else:
     for _mail, _password in Credentials:
         system("pkill -9 firefox")

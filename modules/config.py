@@ -18,11 +18,30 @@ Setup for option, like --override or --fulllog
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
-    "-o", "--override", help="override", dest="override", action="store_true"
+    "-o", 
+    "--override", 
+    help="override", 
+    dest="override", 
+    action="store_true"
 )
+
 parser.add_argument(
-    "-l", "--log", dest="log", help="enable logging in terminal", action="store_true"
+    "-u", 
+    "--unban", 
+    help="unban an account", 
+    dest="unban", 
+    action="store_true"
 )
+
+
+parser.add_argument(
+    "-l",
+    "--log", 
+    dest="log", 
+    help="enable logging in terminal", 
+    action="store_true"
+)
+
 parser.add_argument(
     "-fl",
     "--fulllog",
@@ -31,15 +50,23 @@ parser.add_argument(
     action="store_true",
 )
 parser.add_argument(
-    "-r", "--risky", help="make the program faster, probably better risk of ban", dest="fast", action="store_true"
+    "-r", 
+    "--risky", 
+    help="make the program faster, probably better risk of ban", 
+    dest="fast", 
+    action="store_true"
 )
 
 parser.add_argument(
-    "-c", "--config", help="Choose a specific config file", type=argparse.FileType('r')
+    "-c", 
+    "--config", 
+    help="Choose a specific config file", 
+    type=argparse.FileType('r')
 )
 
 args = parser.parse_args()
 CUSTOM_START = args.override
+UNBAN = args.unban
 LOG = args.log
 FULL_LOG = args.fulllog
 FAST = args.fast
@@ -115,3 +142,7 @@ else :
 g.close()
 
 
+with open(CREDENTIALS_PATH) as f:
+    reader = reader(f)
+    Credentials = list(reader)
+shuffle(Credentials)
