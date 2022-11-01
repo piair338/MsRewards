@@ -9,7 +9,7 @@ from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAd
     Webhook,
 )
 from time import time
-
+from random import shuffle
 
 """
 Setup for option, like --override or --fulllog
