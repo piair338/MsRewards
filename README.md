@@ -41,5 +41,5 @@ sudo ln -s /opt/firefox/firefox /usr/bin/firefox
 
 curl -sSLO https://github.com/mozilla/geckodriver/releases/download/v0.31.0/geckodriver-v0.31.0-linux64.tar.gz
 tar zxf geckodriver-v0.31.0-linux64.tar.gz
-mv geckodriver /usr/bin/
+sudo mv geckodriver /usr/bin/
 ```
