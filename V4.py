@@ -14,7 +14,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 from modules.db import add_to_database
 from modules.config import *
@@ -129,7 +128,7 @@ def Close(fenetre, SwitchTo=0):
 def RGPD():
     for i in ["bnp_btn_accept", "bnp_hfly_cta2", "bnp_hfly_close"] :
         try:
-            driver.find_element(By.ID, ).click()
+            driver.find_element(By.ID, i).click()
         except:
             pass
 
@@ -173,51 +172,41 @@ def PlayQuiz2(override=10):
     printf("PlayQuiz2 finis")
 
 
-def PlayQuiz8(override=3):
+def PlayQuiz8():
+    override = len(findall("<span id=\"rqQuestionState.\" class=\"emptyCircle\"></span>", driver.page_source))+1
     printf(f"PlayQuiz8 : start, override : {override}")
     try:
         c = 0
         for i in range(override):
             RGPD()
             CustomSleep(uniform(3, 5))
-            ListeOfGood = []
-            for i in range(1, 9):
-                try:
-                    Card = driver.find_element(By.ID, f"rqAnswerOption{i-1}")
-                    if 'iscorrectoption="True" ' in Card.get_attribute("outerHTML"):
-                        ListeOfGood.append(f"rqAnswerOption{i-1}")  # premier div = 3 ?
-                except Exception as e:
-                    LogError(f"playquiz8 - 1 - {e}", driver, _mail)
-            shuffle(ListeOfGood)
+            AnswerOptions = [ (driver.find_element(By.ID, f"rqAnswerOption{i-1}"),f'rqAnswerOption{i-1}')  for i in range(1,9)]
+            isCorrect = [x[1] for x in AnswerOptions if 'iscorrectoption="True" ' in x[0].get_attribute("outerHTML") ]
+            shuffle(isCorrect)
 
-            for i in ListeOfGood:
-                CustomSleep(uniform(3, 5))
+            for i in isCorrect:
+                try :
+                    WaitUntilVisible(By.ID, i, to = 20, browser=driver)
+                except Exception as e:
+                    print(e)
+                    print("wait")
                 c += 1
                 progressBar(c, 16, name="Quiz 8 ")
                 try:
                     elem = driver.find_element(By.ID, i)
                     elem.click()
-                except exceptions.ElementNotInteractableException as e:
-                    try:
-                        driver.execute_script("arguments[0].click();", elem)
-                    except Exception as e:
-                        LogError(f"playquizz8 - 2 - {e}", driver, _mail)
-                except exceptions.NoSuchElementException as e :
-                    try : 
-                        driver.refresh()
-                        CustomSleep(10)
-                        elem = driver.find_element(By.ID, i)
-                        elem.click()
-                    except Exception as e :
-                        LogError(f"playquizz8 - 5 -  {e}", driver, _mail)
-                except Exception as e:
-                    if CUSTOM_START:
-                        printf(f"playquiz8 - 3 -  {e}") # may append during 
-                    else:
-                        LogError(f"playquizz8 - 3 -  {e}", driver, _mail)
+                except exceptions.NoSuchElementException :
+                    driver.refresh()
+                    CustomSleep(10)
+                    elem = driver.find_element(By.ID, i)
+                    elem.click()
+                except ElementClickInterceptedException :
+                    RGPD()
+                    isCorrect.append(i)
+
 
     except Exception as e:
-        LogError(f"PlayQuiz8 - 4 - {e} \n ListOfGood : {str(ListeOfGood)}", driver, _mail)
+        LogError(f"PlayQuiz8 - 4 - {e} \n ListOfGood : {str(isCorrect)}", driver, _mail)
         
     printf("PlayQuiz8 : fin ")
 
@@ -906,7 +895,7 @@ elif UNBAN:
         LogError("you are not cureently banned on this account")
 else:
     for _mail, _password in Credentials:
-        system("pkill -9 firefox")
+        #system("pkill -9 firefox")
         print("\n\n")
         print(_mail)
         CustomSleep(1)
