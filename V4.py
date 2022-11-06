@@ -185,11 +185,7 @@ def PlayQuiz8():
             shuffle(isCorrect)
 
             for i in isCorrect:
-                try :
-                    WaitUntilVisible(By.ID, i, to = 20, browser=driver)
-                except Exception as e:
-                    print(e)
-                    print("wait")
+                WaitUntilVisible(By.ID, i, to = 20, browser=driver)
                 c += 1
                 progressBar(c, 16, name="Quiz 8 ")
                 try:
@@ -349,7 +345,6 @@ def AllCard():  # fonction qui clique sur les cartes
                 driver.refresh()
 
 
-
 """
 login() tries to login to your micrososft account.
 it uses global variable _mail and _password to login
@@ -483,7 +478,7 @@ def TryPlay(nom="inconnu"):
     RGPD()
     printf("TryPlay en cours")
 
-    def play(number, override=None):
+    def play(number):
         if number == 8 or number == 9:
             try:
                 printf(f"\033[96m Quiz 8 détecté sur la page {nom} \033[0m")
@@ -529,14 +524,7 @@ def TryPlay(nom="inconnu"):
         elif "rqQuestionState" in driver.page_source:
             try:
                 number = driver.page_source.count("rqAnswerOption")
-                restant = len(
-                    findall('"rqQuestionState.?." class=', driver.page_source)
-                ) - len(
-                    findall(
-                        '"rqQuestionState.?." class="filledCircle"', driver.page_source
-                    )
-                )
-                printf(f"recovery détecté. quiz : {number}, restant : {restant +1}")
+                printf(f"recovery détecté. quiz : {number}")
                 play(number-1, override=restant + 1)
             except Exception as e:
                 printf("TryPlay - 2 - " + e)
@@ -627,13 +615,10 @@ def Fidelite():
             if (lien.split(":")[0] == "https") or (lien.split(":")[0] == "http") : 
                 
                 driver.get(lien)
-                CustomSleep(5)
-                try :
-                    choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
-                except :
-                    CustomSleep(300)
-                    choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
-                    
+                
+                WaitUntilVisible(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]', browser=driver)
+                choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
+
                 nb = search("([0-9]) of ([0-9]) completed", driver.page_source)
                 if not nb:
                     nb = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
@@ -672,7 +657,7 @@ def Mlogin(echec):
     try:
         MobileDriver.get("https://www.bing.com/search?q=test+speed")
         MRGPD()
-        printf("début du login")
+        printf("start of Mobile login")
         MobileDriver.find_element(By.ID, "mHamburger").click()
         WaitUntilVisible(By.ID, "hb_s", browser=MobileDriver)
         MobileDriver.find_element(By.ID, "hb_s").click()
@@ -691,7 +676,7 @@ def Mlogin(echec):
             except Exception as e:
                 pass
 
-        printf("fin du Mlogin")
+        printf("end of Mobile login")
 
     except Exception as e:
         echec += 1
