@@ -10,7 +10,7 @@ to use docker, run
 ```
 sudo docker build .
 #copy the build id
-docker run -ti --name MsRewards [build id]
+sudo docker run -ti --name MsRewards [build id]
 ```
 Then, fill the config and start the programm everydays with 
 ```
