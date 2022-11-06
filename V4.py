@@ -755,7 +755,8 @@ def BingMobileSearch(override=randint(22, 25)):
 
 def DailyRoutine(custom = False):
     try : 
-        login()
+        if not custom: # custom already login 
+            login()
     except Banned :
         LogError("THIS ACCOUND IS BANNED. FIX THIS ISSUE WITH -U", driver, mail)
         return()

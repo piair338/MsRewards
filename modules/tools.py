@@ -93,7 +93,7 @@ def CustomSleep(temps):
         else:
             sleep(temps)
     except KeyboardInterrupt :
-        printf("attente annulée")
+        print("attente annulée")
 
 
 
