@@ -11,19 +11,12 @@ RUN set -x \
    && apt install -y \
        wfrench \
        git \
-   && pip install  \
-       requests \
-       selenium \
-       argparse \
-       discord \
-       configparser \
-       asyncio \
-       enquiries \
-       mysql-connector \
-   && git clone https://github.com/piair338/MsReward
 
-# Add latest FireFox
-RUN set -x \
+   && git clone https://github.com/piair338/MsRewards \
+   && pip install -r MsRewards/requirements.txt \
+   
+# Add working FireFox
+
    && apt install -y \
        libx11-xcb1 \
        libdbus-glib-1-2 \
@@ -31,10 +24,10 @@ RUN set -x \
    && tar -jxf firefox-* \
    && mv firefox /opt/ \
    && chmod 755 /opt/firefox \
-   && chmod 755 /opt/firefox/firefox
+   && chmod 755 /opt/firefox/firefox \
   
 # Add geckodriver
-RUN set -x \
+
    && curl -sSLO https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VER}/geckodriver-${GECKODRIVER_VER}-linux64.tar.gz \
    && tar zxf geckodriver-*.tar.gz \
    && mv geckodriver /usr/bin/
