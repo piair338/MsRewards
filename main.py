@@ -8,8 +8,9 @@ config = configparser.ConfigParser()
 
 try : 
     config_path = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.cfg"
-    config.read(config_path)
-except :
+    if config.read(config_path)==[] :
+        raise NameError("le fichier n'existe pas")
+except : #doesn't work
     default_config = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.default"
     shutil.copyfile(default_config, config_path)
     config.read(config_path)
