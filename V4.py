@@ -674,29 +674,23 @@ def Mlogin(echec):
         MRGPD()
         printf("début du login")
         MobileDriver.find_element(By.ID, "mHamburger").click()
-        CustomSleep(uniform(1, 2))
+        WaitUntilVisible(By.ID, "hb_s", browser=MobileDriver)
         MobileDriver.find_element(By.ID, "hb_s").click()
-        CustomSleep(uniform(1, 2))
+        WaitUntilVisible(By.ID, "i0116", browser=MobileDriver)
         mail = MobileDriver.find_element(By.ID, "i0116")
         send_keys_wait(mail, _mail)
         mail.send_keys(Keys.ENTER)
-        CustomSleep(uniform(7, 9))
+        WaitUntilVisible(By.ID, "i0118", browser=MobileDriver)
         pwd = MobileDriver.find_element(By.ID, "i0118")
         send_keys_wait(pwd, _password)
         pwd.send_keys(Keys.ENTER)
         CustomSleep(uniform(1, 2))
-        try:
-            MobileDriver.find_element(By.ID, "KmsiCheckboxField").click()
-        except Exception as e:
-            pass
-        try:
-            MobileDriver.find_element(By.ID, "iLooksGood").click()
-        except Exception as e:
-            pass
-        try:
-            MobileDriver.find_element(By.ID, "idSIButton9").click()
-        except Exception as e:
-            pass
+        for i in ["KmsiCheckboxField", "iLooksGood", "idSIButton9"]:
+            try:
+                MobileDriver.find_element(By.ID,i ).click()
+            except Exception as e:
+                pass
+
         printf("fin du Mlogin")
 
     except Exception as e:
