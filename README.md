@@ -14,7 +14,7 @@ sudo docker run -ti --name MsRewards [build id]
 ```
 Then, fill the config and start the programm everydays with 
 ```
-docker start MsRewards
+sudo docker start MsRewards
 ```
 
 ## Other configuration
