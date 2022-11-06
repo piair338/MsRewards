@@ -9,7 +9,6 @@ RUN set -x \
    && apt update \
    && apt upgrade -y \
    && apt install -y \
-       firefox-esr \
        wfrench \
        git \
    && pip install  \
