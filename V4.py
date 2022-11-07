@@ -14,6 +14,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 
 from modules.db import add_to_database
 from modules.config import *
@@ -452,24 +453,30 @@ def BingPcSearch(override=randint(35, 40)):
 
 def unban():
     driver.find_element(By.ID, "StartAction").click()
+    CustomSleep(10)
     txt = driver.page_source
+    uuid0 = findall('wlspispHIPCountrySelect([a-z0-9]+)', txt)[0]
     uuid1 = findall('wlspispHIPPhoneInput([a-z0-9]+)', txt)[0]
     uuid2 = findall('wlspispHipSendCode([a-z0-9]+)', txt)[0]
     uuid3 = findall('wlspispSolutionElement([a-z0-9]+)', txt)[0]
+    sel = Select(driver.find_element(By.ID, "wlspispHIPCountrySelect" + uuid0))
+    CC = input("enter Contry code (FR, ...) ")
+    sel.select_by_value(CC)
+    WaitUntilVisible(By.ID, "wlspispHIPPhoneInput" + uuid1, browser=driver)
     phone = input("entrez le numero de téléphone : +33")
-    WaitUntilVisible(By.ID, "wlspispHIPPhoneInput" + uuid1)
     phone_box = driver.find_element(By.ID, "wlspispHIPPhoneInput" + uuid1)
     phone_box.send_keys(phone)
-    WaitUntilVisible(By.ID, "wlspispHipSendCode" + uuid2)
+    WaitUntilVisible(By.ID, "wlspispHipSendCode" + uuid2, browser=driver)
     send_link = driver.find_element(By.ID, "wlspispHipSendCode" + uuid2)
     send_link.click()
-    WaitUntilVisible(By.ID, "wlspispSolutionElement" + uuid3)
+    #LogError("test", driver,"debug")
+    WaitUntilVisible(By.ID, "wlspispSolutionElement" + uuid3, browser=driver)
     answer_box = driver.find_element(By.ID, "wlspispSolutionElement" + uuid3)
     answer = input("entrez le contenu du msg : ")
     answer_box.send_keys(answer)
     send_box = driver.find_element(By.ID, "ProofAction")
     send_box.click()
-    WaitUntilVisible(By.ID, "FinishAction")
+    WaitUntilVisible(By.ID, "FinishAction", browser=driver)
     continue_box = driver.find_element(By.ID, "FinishAction")
     continue_box.click()
  
@@ -867,12 +874,14 @@ if CUSTOM_START:
 elif UNBAN:
     _mail, _password  = SelectAccount(False)[0]
     try :
+        driver = FirefoxDriver()
         login()
         raise NotBanned
     except Banned :
         unban()
     except NotBanned :
-        LogError("you are not cureently banned on this account")
+        printf("you are not cureently banned on this account")
+
 else:
     for _mail, _password in Credentials:
         #system("pkill -9 firefox")
