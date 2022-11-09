@@ -178,8 +178,8 @@ def PlayQuiz8():
     printf(f"PlayQuiz8 : start, override : {override}")
     try:
         c = 0
-        for i in range(override):
-            RGPD()
+        RGPD()
+        for i in range(override):  
             CustomSleep(uniform(3, 5))
             AnswerOptions = [ (driver.find_element(By.ID, f"rqAnswerOption{i-1}"),f'rqAnswerOption{i-1}')  for i in range(1,9)]
             isCorrect = [x[1] for x in AnswerOptions if 'iscorrectoption="True" ' in x[0].get_attribute("outerHTML") ]
@@ -777,16 +777,16 @@ def DailyRoutine(custom = False):
         BingPcSearch()
     except Exception as e:
         LogError(f"DailyRoutine - BingPcSearch - \n{e}", driver, _mail)
-
-    try:
-        Fidelite()
-    except Exception as e:
-        LogError(f"DailyRoutine - Fidelité - \n{e}", driver, _mail)
         
     try:
         BingMobileSearch()
     except Exception as e:
         LogError(f"DailyRoutine - BingMobileSearch - \n{e}", driver, _mail)
+
+    try:
+        Fidelite()
+    except Exception as e:
+        LogError(f"DailyRoutine - Fidelité - \n{e}", driver, _mail)
 
     try:
         LogPoint(_mail)
