@@ -108,6 +108,8 @@ def FirefoxDriver(mobile=False, Headless=Headless):
     
     options = Options()
     options.set_preference("browser.link.open_newwindow", 3)
+    if FAST :
+        options.set_preference("permissions.default.image", 2) #disable image loading. May add this without the fast option soon
     if Headless:
         options.add_argument("-headless")
     if mobile :
