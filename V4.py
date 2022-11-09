@@ -598,7 +598,7 @@ def LogPoint(account="unknown"):  # log des points sur discord
             
     if CLAIM_AMAZON and int(points) >= 7500:
         if (claim_amazon() == 1) :
-            points -= 7500
+            points = str( int(points) - 7500)
 
     if sql_enabled :
         add_to_database(account, points, sql_host, sql_usr, sql_pwd, sql_database)
