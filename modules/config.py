@@ -130,7 +130,7 @@ sql_database = config["SQL"]["database"]
 
 # Other seetings 
 IPV6_CHECKED = config["OTHER"]["ipv6"]
-CLAIM_AMAZON = config["OTHER"]["claim_amazon"]
+CLAIM_AMAZON = config["OTHER"]["claim_amazon"] == "True"
 
 
 g = open(MotPath, "r", encoding="utf-8")
