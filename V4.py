@@ -911,19 +911,22 @@ def ChangeColor(task, newcolor):
     new = "]".join(old)
     progress.update(task,description=new)
 
-with Progress(
+
+if CUSTOM_START:
+        CustomStart(Credentials)
+elif UNBAN:
+    unban2()
+else:
+
+    with Progress(
     TextColumn("[progress.description]{task.description}"),
     BarColumn(),
     TaskProgressColumn(),
     TimeRemainingColumn(),
     TimeElapsedColumn(),
-) as p:
-    task = modules.progress.dico(p)
-    if CUSTOM_START:
-        CustomStart(Credentials)
-    elif UNBAN:
-        unban2()
-    else:
+    ) as p:
+        task = modules.progress.dico(p)
+    
         for _mail, _password in Credentials:
             #system("pkill -9 firefox")
             print("\n\n")
