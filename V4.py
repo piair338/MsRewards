@@ -446,7 +446,7 @@ def BingPcSearch(override=randint(35, 40)):
             send_keys_wait(driver.find_element(By.ID, "sb_form_q"), mot)
             driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
 
-        AdvanceTask(task["PC"], 1/override)
+        AdvanceTask(task["PC"], 1/override * 100 )
         CustomSleep(uniform(5, 20))
 
         try:
@@ -781,7 +781,7 @@ def DailyRoutine(custom = False):
         if not custom: # custom already login 
             login()
     except Banned :
-        LogError("THIS ACCOUND IS BANNED. FIX THIS ISSUE WITH -U", driver, mail)
+        LogError("THIS ACCOUND IS BANNED. FIX THIS ISSUE WITH -U", driver, _mail)
         return()
 
     try:
