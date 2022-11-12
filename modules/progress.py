@@ -7,13 +7,13 @@ def tabs(x):
 def dico(progress):
     dico_task = {
         "daily" : {
-            "all" : progress.add_task("[yellow]ligne 1", total=100, start=False),
+            "all" : progress.add_task("[yellow]daily", total=100, start=False, visible=False),
             "carte1" : progress.add_task(f"[yellow]{tabs(1)}carte 1", total=100, start=False, visible = False),
             "carte2" : progress.add_task(f"[yellow]{tabs(1)}carte 2", total=100, start=False, visible = False),
             "carte3" : progress.add_task(f"[yellow]{tabs(1)}carte 3", total=100, start=False, visible = False)
         },
         "weekly" : {
-            "all" : progress.add_task("[yellow]ligne 1", total=100, start=False),
+            "all" : progress.add_task("[yellow]weekly", total=100, start=False, visible=False),
             "carte1" : progress.add_task(f"[yellow]{tabs(1)}carte 1", total=100, start=False, visible = False),
             "carte2" : progress.add_task(f"[yellow]{tabs(1)}carte 2", total=100, start=False, visible = False),
             "carte3" : progress.add_task(f"[yellow]{tabs(1)}carte 3", total=100, start=False, visible = False),
