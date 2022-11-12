@@ -15,12 +15,13 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from rich.progress import BarColumn, Progress, TextColumn, Progress, TimeElapsedColumn, TaskProgressColumn, TimeRemainingColumn
 
 from modules.db import add_to_database
 from modules.config import *
 from modules.tools import *
 from modules.error import *
-
+import modules.progress
 global driver
 
 
@@ -417,6 +418,7 @@ def login():
 
 
 def BingPcSearch(override=randint(35, 40)):
+    ChangeColor(task["PC"], "blue")
     driver.get(f"https://www.bing.com/search?q=test")  # {choice(Liste_de_mot)}')
     CustomSleep(uniform(1, 2))
     RGPD()
@@ -443,7 +445,7 @@ def BingPcSearch(override=randint(35, 40)):
             send_keys_wait(driver.find_element(By.ID, "sb_form_q"), mot)
             driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
 
-        progressBar(i, override, name="PC")
+        AdvanceTask(task["PC"], 1/override)
         CustomSleep(uniform(5, 20))
 
         try:
@@ -456,7 +458,7 @@ def BingPcSearch(override=randint(35, 40)):
             except Exception as e:
                 LogError(f"BingPcSearch - clear la barre de recherche - {e}", driver, _mail)
 
-    print("\n\n")
+    ChangeColor(task["PC"], "green")
 
 
 def unban():
@@ -729,6 +731,7 @@ def Alerte():
 
 
 def BingMobileSearch(override=randint(22, 25)):
+    ChangeColor(task["Mobile"], "blue")
     global MobileDriver
     MobileDriver = "unable to start"
     try:
@@ -737,6 +740,7 @@ def BingMobileSearch(override=randint(22, 25)):
             MobileDriver.implicitly_wait(15)
         except Exception as e:
             LogError("BingMobileSearch - 1 - echec de la creation du driver mobile", MobileDriver, _mail)
+            ChangeColor(task["Mobile"], "red")
         echec = 0
 
         if not Mlogin(echec):
@@ -750,18 +754,17 @@ def BingMobileSearch(override=randint(22, 25)):
                     mot = choice(Liste_de_mot)
                     send_keys_wait(MobileDriver.find_element(By.ID, "sb_form_q"), mot)
                     MobileDriver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
-                    progressBar(i, override, name="Mobile")
+                    AdvanceTask(task["Mobile"], 1/override * 100)
                     #printf(MobileDriver.current_url)
                     CustomSleep(uniform(5, 20))
-
                     Alerte()  # verifie si il y a des alertes (demande de positions ....)
-
                     MobileDriver.find_element(By.ID, "sb_form_q").clear()
                 except :
                     driver.refresh()
                     CustomSleep(30)
                     i -= 1
             MobileDriver.quit()
+            ChangeColor(task["Mobile"], "green")
 
     except Exception as e:
         LogError("BingMobileSearch - 4 - " + str(e), MobileDriver, _mail)
@@ -769,6 +772,9 @@ def BingMobileSearch(override=randint(22, 25)):
 
 
 def DailyRoutine(custom = False):
+    for i in ["PC", "Mobile"]:
+        ShowTask(task[i])
+    
     try : 
         if not custom: # custom already login 
             login()
@@ -876,9 +882,8 @@ def SelectAccount(multiple = True):
     return([x for x in Credentials if x[0] in emailsSelected])
 
 
-if CUSTOM_START:
-    CustomStart(Credentials)
-elif UNBAN:
+def unban2():
+    global _mail, _password
     _mail, _password  = SelectAccount(False)[0]
     try :
         driver = FirefoxDriver()
@@ -888,24 +893,54 @@ elif UNBAN:
         unban()
     except NotBanned :
         printf("you are not cureently banned on this account")
-else:
-    for _mail, _password in Credentials:
-        #system("pkill -9 firefox")
-        print("\n\n")
-        print(_mail)
-        CustomSleep(1)
-        printf("début du driver")
-        driver = FirefoxDriver()
-        printf("driver demarré")
-        driver.implicitly_wait(7)
 
-        try:
-            DailyRoutine()
-            driver.quit()
-            attente = uniform(1200, 3600)
-            printf(f"finis. attente de {round(attente/60)}min")
-            CustomSleep(attente)
 
-        except KeyboardInterrupt:
-            print("canceled")
-            close()
+def EnableTask(task):
+    p.start_task(task)
+
+def ShowTask(task):
+    p.update(task, visible=True)
+
+def AdvanceTask(task, pourcentage):
+    progress.update(task, advance=pourcentage)
+
+def ChangeColor(task, newcolor):
+    old = progress.tasks[task].description
+    old = old.split(']')
+    old[0] = f"[{newcolor}"
+    new = "]".join(old)
+    progress.update(task,description=new)
+
+with Progress(
+    TextColumn("[progress.description]{task.description}"),
+    BarColumn(),
+    TaskProgressColumn(),
+    TimeRemainingColumn(),
+    TimeElapsedColumn(),
+) as p:
+    task = modules.progress.dico(p)
+    if CUSTOM_START:
+        CustomStart(Credentials)
+    elif UNBAN:
+        unban2()
+    else:
+        for _mail, _password in Credentials:
+            #system("pkill -9 firefox")
+            print("\n\n")
+            print(_mail)
+            CustomSleep(1)
+            printf("début du driver")
+            driver = FirefoxDriver()
+            printf("driver demarré")
+            driver.implicitly_wait(7)
+
+            try:
+                DailyRoutine()
+                driver.quit()
+                attente = uniform(1200, 3600)
+                printf(f"finis. attente de {round(attente/60)}min")
+                CustomSleep(attente)
+
+            except KeyboardInterrupt:
+                print("canceled")
+                close()
