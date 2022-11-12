@@ -83,13 +83,19 @@ def claim_amazon():
         LogError(f'problème dans la recuperation : {str(e)}', driver, _mail)
 
 
-def setup_proxy(ip, port) :
+def setup_proxy(ip, port, socks=False) :
     PROXY = f"{ip}:{port}"
-    webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
-        "httpProxy": PROXY,
-        "sslProxy": PROXY,
-        "proxyType": "MANUAL",
-    }
+    if socks :
+        options.set_preference('network.proxy.type', 1)
+        options.set_preference('network.proxy.socks', ip)
+        options.set_preference('network.proxy.socks_port', int(port))
+        options.set_preference("browser.link.open_newwindow", 3)
+    else :
+        webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
+            "httpProxy": PROXY,
+            "sslProxy": PROXY,
+            "proxyType": "MANUAL",
+        }
 
 
 def FirefoxDriver(mobile=False, Headless=Headless):
@@ -471,8 +477,8 @@ def unban():
     WaitUntilVisible(By.ID, "wlspispHipSendCode" + uuid2, browser=driver)
     send_link = driver.find_element(By.ID, "wlspispHipSendCode" + uuid2)
     send_link.click()
-    #LogError("test", driver,"debug")
     WaitUntilVisible(By.ID, "wlspispSolutionElement" + uuid3, browser=driver)
+    LogError("test", driver,"phone test")
     answer_box = driver.find_element(By.ID, "wlspispSolutionElement" + uuid3)
     answer = input("entrez le contenu du msg : ")
     answer_box.send_keys(answer)
@@ -745,7 +751,7 @@ def BingMobileSearch(override=randint(22, 25)):
                     send_keys_wait(MobileDriver.find_element(By.ID, "sb_form_q"), mot)
                     MobileDriver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
                     progressBar(i, override, name="Mobile")
-                    printf(MobileDriver.current_url)
+                    #printf(MobileDriver.current_url)
                     CustomSleep(uniform(5, 20))
 
                     Alerte()  # verifie si il y a des alertes (demande de positions ....)
