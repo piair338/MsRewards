@@ -418,6 +418,7 @@ def login():
 
 
 def BingPcSearch(override=randint(35, 40)):
+    StartTask(task["PC"])
     ChangeColor(task["PC"], "blue")
     driver.get(f"https://www.bing.com/search?q=test")  # {choice(Liste_de_mot)}')
     CustomSleep(uniform(1, 2))
@@ -732,6 +733,7 @@ def Alerte():
 
 def BingMobileSearch(override=randint(22, 25)):
     ChangeColor(task["Mobile"], "blue")
+    StartTask(task["Mobile"])
     global MobileDriver
     MobileDriver = "unable to start"
     try:
@@ -820,59 +822,68 @@ def dev():
 def CustomStart(Credentials):
     if not LINUX_HOST :
         raise NameError('You need to be on linux to do that, due to the utilisation of a module named enquieries, sorry.') 
-    global driver
-    global _mail, _password
+    global driver, _mail, _password, p, task
 
     system("clear")  # clear from previous command to allow a clean choice
     actions = ["tout", "daily", "pc", "mobile", "LogPoint","Fidelite", "dev"]
     Actions = enquiries.choose("quels Actions ?", actions, multi=True)
+    liste = SelectAccount()
+    with Progress(
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TimeRemainingColumn(),
+        TimeElapsedColumn(),
+    ) as p:
+        task = modules.progress.dico(p)
+        for _mail, _password in liste:
 
-    for _mail, _password in SelectAccount():
+            driver = FirefoxDriver()
+            driver.implicitly_wait(10)
 
-        driver = FirefoxDriver()
-        driver.implicitly_wait(10)
+            if login() != "STOP":
+                if "tout" in Actions:
+                    DailyRoutine(True)
 
-        if login() != "STOP":
-            if "tout" in Actions:
-                DailyRoutine(True)
+                if "daily" in Actions:
+                    try:
+                        AllCard()
+                    except Exception as e:
+                        LogError(f"AllCards - {e} -- override", driver, _mail)
 
-            if "daily" in Actions:
-                try:
-                    AllCard()
-                except Exception as e:
-                    LogError(f"AllCards - {e} -- override", driver, _mail)
+                if "pc" in Actions:
+                    try:
+                        ShowTask(task["PC"])
+                        BingPcSearch()
+                    except Exception as e:
+                        LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override", driver, _mail)
 
-            if "pc" in Actions:
-                try:
-                    BingPcSearch()
-                except Exception as e:
-                    LogError(f"il y a eu une erreur dans BingPcSearch, {e} -- override", driver, _mail)
+                if "mobile" in Actions:
+                    try:
+                        ShowTask(task["Mobile"])
+                        BingMobileSearch()
+                    except Exception as e:
+                        LogError(f"BingMobileSearch - {e} -- override", driver, _mail)
 
-            if "mobile" in Actions:
-                try:
-                    BingMobileSearch()
-                except Exception as e:
-                    LogError(f"BingMobileSearch - {e} -- override", driver, _mail)
+                if "Fidelite" in Actions:
+                    try :
+                        Fidelite()
+                    except Exception as e :
+                        LogError(f"Fidelite - {e} -- override", driver, _mail)
 
-            if "Fidelite" in Actions:
-                try :
-                    Fidelite()
-                except Exception as e :
-                    LogError(f"Fidelite - {e} -- override", driver, _mail)
+                if "dev" in Actions:
+                    try:
+                        dev()
+                    except Exception as e:
+                        printf(e)
+                        break
 
-            if "dev" in Actions:
-                try:
-                    dev()
-                except Exception as e:
-                    printf(e)
-                    break
-
-            if not "tout" in Actions:
-                try:
-                    LogPoint(_mail)
-                except Exception as e:
-                    print("CustomStart " + str(e))
-        driver.close()
+                if not "tout" in Actions:
+                    try:
+                        LogPoint(_mail)
+                    except Exception as e:
+                        print("CustomStart " + str(e))
+            driver.close()
 
 
 def SelectAccount(multiple = True):
@@ -895,21 +906,21 @@ def unban2():
         printf("you are not cureently banned on this account")
 
 
-def EnableTask(task):
+def StartTask(task):
     p.start_task(task)
 
 def ShowTask(task):
     p.update(task, visible=True)
 
 def AdvanceTask(task, pourcentage):
-    progress.update(task, advance=pourcentage)
+    p.update(task, advance=pourcentage)
 
 def ChangeColor(task, newcolor):
-    old = progress.tasks[task].description
+    old = p.tasks[task].description
     old = old.split(']')
     old[0] = f"[{newcolor}"
     new = "]".join(old)
-    progress.update(task,description=new)
+    p.update(task,description=new)
 
 
 if CUSTOM_START:
@@ -919,11 +930,11 @@ elif UNBAN:
 else:
 
     with Progress(
-    TextColumn("[progress.description]{task.description}"),
-    BarColumn(),
-    TaskProgressColumn(),
-    TimeRemainingColumn(),
-    TimeElapsedColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TimeRemainingColumn(),
+        TimeElapsedColumn(),
     ) as p:
         task = modules.progress.dico(p)
     
