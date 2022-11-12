@@ -733,7 +733,6 @@ def Alerte():
 
 def BingMobileSearch(override=randint(22, 25)):
     ChangeColor(task["Mobile"], "blue")
-    StartTask(task["Mobile"])
     global MobileDriver
     MobileDriver = "unable to start"
     try:
@@ -746,7 +745,7 @@ def BingMobileSearch(override=randint(22, 25)):
         echec = 0
 
         if not Mlogin(echec):
-
+            StartTask(task["Mobile"])
             CustomSleep(uniform(1, 2))
             MRGPD()
             CustomSleep(uniform(1, 1.5))
