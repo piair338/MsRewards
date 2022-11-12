@@ -802,7 +802,6 @@ def DailyRoutine(custom = False):
         LogError(f"DailyRoutine - LogPoint - \n{e}", driver, _mail)
 
 
-
 def close():
     driver.quit()
     quit()
@@ -889,7 +888,6 @@ elif UNBAN:
         unban()
     except NotBanned :
         printf("you are not cureently banned on this account")
-
 else:
     for _mail, _password in Credentials:
         #system("pkill -9 firefox")
