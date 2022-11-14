@@ -828,6 +828,7 @@ def CustomStart(Credentials):
     actions = ["tout", "daily", "pc", "mobile", "LogPoint","Fidelite", "dev"]
     Actions = enquiries.choose("quels Actions ?", actions, multi=True)
     liste = SelectAccount()
+    START_TIME = time() # Reset timer to the start of the actions
     with Progress(
         TextColumn("[progress.description]{task.description}"),
         BarColumn(),
@@ -908,6 +909,7 @@ def unban2():
 
 def StartTask(task):
     p.start_task(task)
+    p.update(task, advance=0) # Reset the Task if it was already filled to 100%
 
 def ShowTask(task):
     p.update(task, visible=True)
