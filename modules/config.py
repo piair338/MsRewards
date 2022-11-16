@@ -64,6 +64,14 @@ parser.add_argument(
     type=argparse.FileType('r')
 )
 
+parser.add_argument(
+    "-a", 
+    "--add-points", 
+    help="Add points to the database from a file and exit",
+    dest="points_file",
+    default=""
+)
+
 args = parser.parse_args()
 CUSTOM_START = args.override
 UNBAN = args.unban
@@ -73,7 +81,9 @@ FAST = args.fast
 if CUSTOM_START :
     LOG = True
 
-# gloabal variables used later in the code
+POINTS_FILE = args.points_file
+
+# global variables used later in the code
 LINUX_HOST = platform == "linux" # if the computer running this programm is linux, it allow more things 
 START_TIME = time()
 driver = None
