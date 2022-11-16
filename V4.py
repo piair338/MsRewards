@@ -1,6 +1,6 @@
 #!/usr/bin/python3.10
 import asyncio
-from csv import reader
+import csv
 from os import sys, system, path
 from random import choice, randint, shuffle, uniform
 from re import findall, search
@@ -907,7 +907,19 @@ def unban2():
     except Banned :
         unban()
     except NotBanned :
-        printf("you are not cureently banned on this account")
+        printf("you are not currently banned on this account")
+
+def SavePointsFromFile(file):
+    with open(file) as f:
+        reader = csv.reader(f)
+        points_list = list(reader)
+
+    for item in points_list:
+        compte, points = item[0], item[1]
+        add_to_database(compte, points, sql_host,sql_usr,sql_pwd,sql_database, save_if_fail=False)
+    
+    with open(file, "w") as f:
+        f.write("")
 
 
 def StartTask(task):
@@ -939,6 +951,8 @@ if CUSTOM_START:
         CustomStart(Credentials)
 elif UNBAN:
     unban2()
+elif POINTS_FILE != "":
+    SavePointsFromFile(POINTS_FILE)
 else:
 
     with Progress(
