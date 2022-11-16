@@ -183,7 +183,7 @@ def PlayQuiz2(override=10):
     printf("PlayQuiz2 finis")
 
 
-def PlayQuiz8():
+def PlayQuiz8(task = None):
     override = len(findall("<span id=\"rqQuestionState.\" class=\"emptyCircle\"></span>", driver.page_source))+1
     printf(f"PlayQuiz8 : start, override : {override}")
     try:
@@ -202,6 +202,8 @@ def PlayQuiz8():
                 try:
                     elem = driver.find_element(By.ID, i)
                     elem.click()
+                    if not task is None:
+                        AdvanceTask(task, 1/override / len(isCorrect) * 100)
                 except exceptions.NoSuchElementException :
                     driver.refresh()
                     CustomSleep(10)
@@ -285,17 +287,20 @@ def AllCard():  # fonction qui clique sur les cartes
 
     def dailyCards():
         try:
+            StartTask(task["daily"][f"all"])
             for i in range(3):
+                StartTask(task["daily"][f"carte{i}"])
                 CustomSleep(uniform(3, 5))
                 try:
-                    printf("dailycards - show pannels")
                     titre = "erreur"
                     driver.find_element(
                         By.XPATH,f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]",
                     ).click()
                     sleep(1)
                     titre = driver.title
-                    TryPlay(titre)
+                    TryPlay(titre, task=task["daily"][f"carte{i}"])
+                    AdvanceTask(task["daily"][f"carte{i}"], 100)
+                    ChangeColor(task["daily"][f"carte{i}"], "green")
                     sleep(1)
                     reset()
                     printf(f"DailyCard {titre} ok ")
@@ -420,7 +425,6 @@ def login():
 
 def BingPcSearch(override=randint(35, 40)):
     StartTask(task["PC"])
-    ChangeColor(task["PC"], "blue")
     driver.get(f"https://www.bing.com/search?q=test")  # {choice(Liste_de_mot)}')
     CustomSleep(uniform(1, 2))
     RGPD()
@@ -493,7 +497,7 @@ def unban():
     continue_box.click()
  
 
-def TryPlay(nom="inconnu"):
+def TryPlay(nom="inconnu", task = None):
     RGPD()
     printf("TryPlay en cours")
 
@@ -501,7 +505,7 @@ def TryPlay(nom="inconnu"):
         if number == 8 or number == 9:
             try:
                 printf(f"\033[96m Quiz 8 détecté sur la page {nom} \033[0m")
-                PlayQuiz8()
+                PlayQuiz8(task=task)
                 printf(f"\033[92m Quiz 8 reussit sur {nom} \033[0m")
             except Exception as e:
                 printf(f"echec de PlayQuiz 8. Aborted {e} \033[0m")
@@ -733,7 +737,6 @@ def Alerte():
 
 
 def BingMobileSearch(override=randint(22, 25)):
-    ChangeColor(task["Mobile"], "blue")
     global MobileDriver
     MobileDriver = "unable to start"
     try:
@@ -774,9 +777,8 @@ def BingMobileSearch(override=randint(22, 25)):
 
 
 def DailyRoutine(custom = False):
-    for i in ["PC", "Mobile"]:
-        ShowTask(task[i])
     
+    ShowDefaultTask()
     try : 
         if not custom: # custom already login 
             login()
@@ -820,6 +822,7 @@ def dev():
 
 
 def CustomStart(Credentials):
+    global START_TIME
     if not LINUX_HOST :
         raise NameError('You need to be on linux to do that, due to the utilisation of a module named enquieries, sorry.') 
     global driver, _mail, _password, p, task
@@ -908,6 +911,7 @@ def unban2():
 
 
 def StartTask(task):
+    ChangeColor(task, "blue")
     p.start_task(task)
     p.update(task, advance=0) # Reset the Task if it was already filled to 100%
 
@@ -924,6 +928,12 @@ def ChangeColor(task, newcolor):
     new = "]".join(old)
     p.update(task,description=new)
 
+def ShowDefaultTask():
+    for i in ["all", "carte1", "carte2", "carte0"]:
+        ShowTask(task["daily"][i])
+    
+    for i in ["PC", "Mobile"]:
+        ShowTask(task[i])
 
 if CUSTOM_START:
         CustomStart(Credentials)
