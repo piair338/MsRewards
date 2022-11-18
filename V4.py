@@ -178,7 +178,7 @@ def PlayQuiz2(override=10):
             driver.execute_script("arguments[0].click();", elem)
 
         except Exception as e:
-            LogError("PlayQuiz2" + str(e), driver, _mail)
+            LogError(f"PlayQuiz2 {e}", driver, _mail)
             break
     printf("PlayQuiz2 finis")
 
@@ -265,7 +265,7 @@ def PlayPoll():
             driver.execute_script("arguments[0].click();", elem)
         CustomSleep(uniform(2, 2.5))
     except Exception as e:
-        LogError("PlayPoll" + str(e), driver, _mail)
+        LogError(f"PlayPoll {e}" , driver, _mail)
         raise ValueError(e)
     printf("PlayPoll : end")
 
@@ -416,7 +416,7 @@ def login():
         except Banned:
             raise Banned()
         except Exception as e:
-            LogError("login - 3 - " + str(e), driver, _mail)
+            LogError(f"login - 3 - {e}", driver, _mail)
             driver.close()
             CustomSleep(1200)
             driver = FirefoxDriver()
@@ -550,7 +550,7 @@ def TryPlay(nom="inconnu", task = None):
                 printf(f"recovery détecté. quiz : {number}")
                 play(number-1, override=restant + 1)
             except Exception as e:
-                printf("TryPlay - 2 - " + e)
+                printf(f"TryPlay - 2 - {e}")
 
         elif search("([0-9]) de ([0-9]) finalisée", driver.page_source):
             print("fidélité")
@@ -673,7 +673,7 @@ def Fidelite():
             else :
                 printf("lien invalide")
     except Exception as e:
-        LogError("Fidélité" + str(e), driver, _mail)
+        LogError(f"Fidélité {e}", driver, _mail)
 
 
 def Mlogin(echec):
@@ -772,7 +772,7 @@ def BingMobileSearch(override=randint(22, 25)):
             ChangeColor(task["Mobile"], "green")
 
     except Exception as e:
-        LogError("BingMobileSearch - 4 - " + str(e), MobileDriver, _mail)
+        LogError(f"BingMobileSearch - 4 - {e}", MobileDriver, _mail)
         MobileDriver.quit()
 
 
@@ -886,7 +886,7 @@ def CustomStart(Credentials):
                     try:
                         LogPoint(_mail)
                     except Exception as e:
-                        print("CustomStart " + str(e))
+                        print(f"CustomStart {e}")
             driver.close()
 
 
