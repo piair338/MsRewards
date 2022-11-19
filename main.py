@@ -118,6 +118,7 @@ def general():
         lien = input(t["lien"])
         edit_config_txt('FidelityLink',lien)
     
+
 def discord():
     enabled = confirm(t["discorde"], default = True)
     if enabled : 
@@ -128,6 +129,7 @@ def discord():
         edit_config_txt("successlink",w1)
         w2 = input(t["w2"])
         edit_config_txt("errorlink",w2)
+        
         
 def sql() :
     enabled = confirm(t["msqle"], default = False)
