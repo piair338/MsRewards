@@ -73,13 +73,14 @@ def setup_comptes():
         if confirm(t["next"], default = True):
             compte = input(t["compte"])
             mdp = input(t["mdp"])
-            lc.append(f"{compte},{mdp}\n")
+            lc.append(f"{compte},{mdp}")
         else:
             print(t["finc"])
             break
     f = open('./user_data/login.csv', "w")
     for i in lc :
         f.write(i)
+        f.write("\n")
     f.close()
     print(t["ajout"])
 
