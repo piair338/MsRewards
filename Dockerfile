@@ -26,6 +26,6 @@ RUN set -x \
    && mv geckodriver /usr/bin/
 
 
-WORKDIR /app/MsReward
+WORKDIR /app/MsRewards
 CMD python main.py
 
