@@ -548,7 +548,7 @@ def TryPlay(nom="inconnu", task = None):
             try:
                 number = driver.page_source.count("rqAnswerOption")
                 printf(f"recovery détecté. quiz : {number}")
-                play(number-1, override=restant + 1)
+                play(number-1)
             except Exception as e:
                 printf(f"TryPlay - 2 - {e}")
 
