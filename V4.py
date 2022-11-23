@@ -898,7 +898,7 @@ def SelectAccount(multiple = True):
 
 
 def unban2():
-    global _mail, _password
+    global _mail, _password, driver
     _mail, _password  = SelectAccount(False)[0]
     try :
         driver = FirefoxDriver()
