@@ -633,7 +633,6 @@ def Fidelite():
 
         if result : 
             lien = result.content.decode("UTF-8")
-            printf(lien)
 
             if (lien.split(":")[0] == "https") or (lien.split(":")[0] == "http") : 
                 
@@ -655,7 +654,7 @@ def Fidelite():
                         bouton.click()
                     except Exception as e1 :
                         try : 
-                            t = driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/main/div[2]/div[2]/div[7]/div[3]/div[1]')
+                            t = driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/main/div[2]/div[2]/div[7]/div[3]/div[1]/a')
                             t.click()
                         except Exception as e2 :
                             LogError(f"fidélité - double erreur - e1 : {e1} - e2 {e2}", driver, _mail)
