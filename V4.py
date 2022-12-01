@@ -38,7 +38,7 @@ def WaitUntilVisible(by, id, to = 20, browser = driver):
 
 def claim_amazon(): 
     try : 
-        driver.get("https://rewards.microsoft.com/redeem/000803000031")
+        driver.get("https://rewards.bing.com/redeem/000803000031")
         try :
             driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
         except :
@@ -52,7 +52,7 @@ def claim_amazon():
         sleep(5)
 
         if ("/rewards/redeem/orderhistory" in driver.page_source) :
-            driver.get("https://rewards.microsoft.com/redeem/orderhistory")
+            driver.get("https://rewards.bing.com/redeem/orderhistory")
             try :
                 driver.find_element(By.XPATH, "//span[contains( text( ), 'Détails de la commande')]").click()
             except :
@@ -644,6 +644,8 @@ def Fidelite():
                 nb = search("([0-9]) of ([0-9]) completed", driver.page_source)
                 if not nb:
                     nb = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
+                if not nb :
+                    search("([0-9]) licence(s) sur ([0-9]) disponible(s)", driver.page_source)
                 for i in range(int(nb[2]) - int(nb[1])):
                     driver.refresh()
                     CustomSleep(2)
