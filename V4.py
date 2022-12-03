@@ -642,10 +642,12 @@ def Fidelite():
                 choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
 
                 nb = search("([0-9]) of ([0-9]) completed", driver.page_source)
-                if not nb:
+                if nb is None:
                     nb = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
-                if not nb :
-                    search("([0-9]) licence(s) sur ([0-9]) disponible(s)", driver.page_source)
+                if nb is None :
+                    nb = search("([0-9]) licence\(s\) sur ([0-9]) disponible\(s\)", driver.page_source)
+                if nb is None :
+                    nb = [0,0,0]
                 for i in range(int(nb[2]) - int(nb[1])):
                     driver.refresh()
                     CustomSleep(2)
