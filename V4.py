@@ -376,7 +376,10 @@ def login():
                 break
             except:
                 pass
-
+        try:
+            driver.find_element(By.XPATH, "/html/body/div/div/div/div/div[2]/a").click()  # may need to be clicked if the language is english
+        except:
+            pass
 
         WaitUntilVisible(By.ID, "i0116", browser = driver)
         mail = driver.find_element(By.ID, "i0116")
