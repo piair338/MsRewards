@@ -85,7 +85,7 @@ def claim_amazon():
         LogError(f'problème dans la recuperation : {str(e)}', driver, _mail)
 
 
-def setup_proxy(ip, port, socks=False) :
+def setup_proxy(ip, port, options, socks=False) :
     PROXY = f"{ip}:{port}"
     if socks :
         options.set_preference('network.proxy.type', 1)
@@ -101,8 +101,6 @@ def setup_proxy(ip, port, socks=False) :
 
 
 def FirefoxDriver(mobile=False, Headless=Headless):
-    if proxy_enabled :
-        setup_proxy(proxy_address,proxy_port)
     PC_USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         "AppleWebKit/537.36 (KHTML, like Gecko)"
@@ -115,6 +113,8 @@ def FirefoxDriver(mobile=False, Headless=Headless):
     )
     
     options = Options()
+    if proxy_enabled :
+        setup_proxy(proxy_address,proxy_port, options)
     options.set_preference("browser.link.open_newwindow", 3)
     if FAST :
         options.set_preference("permissions.default.image", 2) #disable image loading. May add this without the fast option soon
