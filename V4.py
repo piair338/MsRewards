@@ -597,7 +597,7 @@ def LogPoint(account="unknown"):  # log des points sur discord
             points = None
             
     if not points : 
-        LogError(f"impossible d'avoir les points : {e}", driver, _mail)
+        LogError(f"impossible d'avoir les points :", driver, _mail)
     CustomSleep(uniform(3, 20))
 
     account = account.split("@")[0]
