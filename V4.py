@@ -467,13 +467,13 @@ def BingPcSearch(override=randint(35, 40)):
                 driver.find_element(By.ID, "sb_form_q").clear()
             except Exception as e:
                 LogError(f"BingPcSearch - clear la barre de recherche - {e}", driver, _mail)
-
+    AdvanceTask(task["PC"], 100 )
     ChangeColor(task["PC"], "green")
 
 
 def unban():
     driver.find_element(By.ID, "StartAction").click()
-    CustomSleep(10)
+    CustomSleep(2)
     txt = driver.page_source
     uuid0 = findall('wlspispHIPCountrySelect([a-z0-9]+)', txt)[0]
     uuid1 = findall('wlspispHIPPhoneInput([a-z0-9]+)', txt)[0]
