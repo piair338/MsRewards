@@ -103,8 +103,8 @@ def setup_proxy(ip, port, options, socks=False) :
 def FirefoxDriver(mobile=False, Headless=Headless):
     PC_USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-        "AppleWebKit/537.36 (KHTML, like Gecko)"
-        "Chrome/104.0.5112.102 Safari/537.36 Edg/104.0.1293.70"
+        f"AppleWebKit/{hash(_mail)%500}.{hash(_mail)%50}(KHTML, like Gecko)"
+        f"Chrome/{100 + (hash(_mail)%8)}.{hash(_mail)%10}.{hash(_mail)%5000}.102 Safari/537.36 Edg/104.0.1293.70"
     )
     MOBILE_USER_AGENT = (
         "Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X)"
@@ -113,6 +113,7 @@ def FirefoxDriver(mobile=False, Headless=Headless):
     )
     
     options = Options()
+    options.set_preference('intl.accept_languages', 'fr-FR, fr')
     if proxy_enabled :
         setup_proxy(proxy_address,proxy_port, options)
     options.set_preference("browser.link.open_newwindow", 3)
