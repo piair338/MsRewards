@@ -71,8 +71,8 @@ def claim_amazon():
             #amazon = search("> ([^ ]+) <", fcode)[1]
             fcode = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div[2]/span").get_attribute("innerHTML")
             if fcode :
-                webhookFailure.send(_mail)
-                webhookFailure.send(fcode)
+                webhookSuccess.send(_mail)
+                webhookSuccess.send(fcode)
                 return(1)
             else :
                 LogError("impossible de localiser le code ", driver, _mail)
@@ -349,17 +349,13 @@ def AllCard():  # fonction qui clique sur les cartes
                 ]  # verifie si on a toujours des cartes
             except:
                 break
-    for i in range(2): # don't seem useful for fixing error
-        try :
-            weekly_cards()
-            break
-        except Exception as e:
-            LogError(f"weekly_cards, try n°{i+1} \n {e}", driver, _mail)
-            if i == 0 :
-                driver.refresh()
-            else :
-                CustomSleep(1800) 
-                driver.refresh()
+
+
+    try :
+        weekly_cards()
+    except Exception as e:
+        LogError(f"weekly_cards {e}", driver, _mail)
+
 
 
 """
@@ -915,6 +911,7 @@ def unban2():
         unban()
     except NotBanned :
         printf("you are not currently banned on this account")
+
 
 def SavePointsFromFile(file):
     with open(file) as f:
