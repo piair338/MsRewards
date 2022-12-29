@@ -20,7 +20,7 @@ RUN set -x \
    && mv firefox /opt/ \
    && chmod 755 /opt/firefox \
    && chmod 755 /opt/firefox/firefox \
-   && sudo ln -s /opt/firefox/firefox /usr/bin/firefox \
+   && ln -s /opt/firefox/firefox /usr/bin/firefox \
    && curl -sSLO https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VER}/geckodriver-${GECKODRIVER_VER}-linux64.tar.gz \
    && tar zxf geckodriver-*.tar.gz \
    && mv geckodriver /usr/bin/
