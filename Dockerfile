@@ -11,17 +11,16 @@ RUN set -x \
    && apt install -y \
        wfrench \
        git \
-   && git clone https://github.com/piair338/MsRewards \
-   && pip install -r MsRewards/requirements.txt \
-   && apt install -y \ 
        libx11-xcb1 \
        libdbus-glib-1-2 \
+   && git clone https://github.com/piair338/MsRewards \
+   && pip install -r MsRewards/requirements.txt \
    && curl -sSLO https://download-installer.cdn.mozilla.net/pub/firefox/releases/91.9.1esr/linux-x86_64/en-US/firefox-91.9.1esr.tar.bz2 \
    && tar -jxf firefox-* \
    && mv firefox /opt/ \
    && chmod 755 /opt/firefox \
    && chmod 755 /opt/firefox/firefox \
-   && ln -fs /opt/firefox/firefox /usr/bin/firefox \
+   && sudo ln -s /opt/firefox/firefox /usr/bin/firefox
    && curl -sSLO https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VER}/geckodriver-${GECKODRIVER_VER}-linux64.tar.gz \
    && tar zxf geckodriver-*.tar.gz \
    && mv geckodriver /usr/bin/
