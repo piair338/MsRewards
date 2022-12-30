@@ -1,4 +1,4 @@
-#/usr/bin/python3
+#/usr/bin/python3.10
 
 import configparser
 import os 
@@ -162,4 +162,4 @@ LogPath = config["PATH"]["logpath"]
 if LogPath == "/your/path/to/loginandpass.csv" :
     setup()
 else :
-    os.system("python3.10 V4.py")
+    os.system("python3 V4.py")
