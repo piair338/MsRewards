@@ -38,9 +38,6 @@ def WaitUntilVisible(by, id, to = 20, browser = driver):
 
 def claim_amazon(auto = True): 
     def middle():
-        driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
-        sleep(5)
-        driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
         countrycode = driver.find_element(By.ID, 'redeem-checkout-challenge-countrycode')
         phone = driver.find_element(By.ID, "redeem-checkout-challenge-fullnumber")
         sel = Select(countrycode)
@@ -49,9 +46,14 @@ def claim_amazon(auto = True):
         ph = input("entrez le numero de telephone : +33")
         send_keys_wait(phone, ph)
         driver.find_element(By.ID, "redeem-checkout-challenge-validate").click()
+        sleep(5)
+        code = input("entrez le code recu : ")
+        send_keys_wait(driver.find_element(By.ID, "redeem-checkout-challenge-code"), code)
+        driver.find_element(By.ID, "redeem-checkout-challenge-confirm").click()
     
     def start():
         driver.get("https://rewards.bing.com/redeem/000803000031")
+        sleep(5)
         try :
             driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
         except :
@@ -105,6 +107,11 @@ def claim_amazon(auto = True):
                 while ("Il existe un problème avec votre compte ou votre commande" in driver.page_source) :
                     print("le numero de telephone est ban")
                     driver.get("https://rewards.bing.com/redeem/000803000031")
+                    sleep(5)
+                    driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
+                    sleep(5)
+                    driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
+
                     middle()
                 end()
                 
@@ -983,7 +990,12 @@ if CUSTOM_START:
 elif UNBAN:
     unban2()
 elif CLAIM:
+    global _mail, _password
+    _mail, _password  = SelectAccount(False)[0]
+    driver = FirefoxDriver()
+    login()
     claim_amazon(False)
+
 elif POINTS_FILE != "":
     SavePointsFromFile(POINTS_FILE)
 else:
