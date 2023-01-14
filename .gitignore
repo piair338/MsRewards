@@ -10,3 +10,4 @@ requirements.txt
 data
 **/__pycache__
 /user_data
+install.sh
