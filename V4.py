@@ -101,11 +101,20 @@ def claim(auto = True, reward = "amazon"):
         pass
 
     def rp():
-        pass
+        driver.get("https://rewards.bing.com/redeem/orderhistory")
+        try :
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'Détails de la commande')]").click()
+        except :
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'Get code')]").click()
+        sleep(1)
+        elm = driver.find_element(By.CLASS_NAME, "tango-credential-value")
+        code = elm.get_attribute('innerHTML')
+        print(code)
+
     try : 
         start()
         if ("/rewards/redeem/orderhistory" in driver.page_source) :
-            dic_fun[reward]
+            dic_fun[reward]()
         else :
             if auto:
                 LogError("la recuperation ne peux pas être automatique", driver, _mail)
@@ -115,9 +124,12 @@ def claim(auto = True, reward = "amazon"):
                 while ("Il existe un problème avec votre compte ou votre commande" in driver.page_source) :
                     print("le numero de telephone est ban")
                     driver.get(f"https://rewards.bing.com/redeem/{dic_id[reward]}")
+                    driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
+                    sleep(5)
+                    driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
                     number_verification()
                     
-                dic_fun[reward]
+                dic_fun[reward]()
                 
     except Exception as e :
         LogError(f'problème dans la recuperation : {str(e)}', driver, _mail)
