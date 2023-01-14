@@ -38,13 +38,10 @@ def WaitUntilVisible(by, id, to = 20, browser = driver):
 
 def claim(auto = True, reward = "amazon"): 
     dic_id = {"amazon" : "000803000031", "RP" : "000403000103", "fnac" : ""}
-    dic_fun = {"amazon" : amazon, "RP": rp, 'fnac': fnac}
+    
 
 
     def number_verification():
-        driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
-        sleep(5)
-        driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
         countrycode = driver.find_element(By.ID, 'redeem-checkout-challenge-countrycode')
         phone = driver.find_element(By.ID, "redeem-checkout-challenge-fullnumber")
         sel = Select(countrycode)
@@ -60,6 +57,7 @@ def claim(auto = True, reward = "amazon"):
     
     def start():
         driver.get(f"https://rewards.bing.com/redeem/{dic_id[reward]}")
+        sleep(5)
         try :
             driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
         except :
@@ -110,6 +108,8 @@ def claim(auto = True, reward = "amazon"):
         elm = driver.find_element(By.CLASS_NAME, "tango-credential-value")
         code = elm.get_attribute('innerHTML')
         print(code)
+
+    dic_fun = {"amazon" : amazon, "RP": rp, 'fnac': fnac}
 
     try : 
         start()
