@@ -33,6 +33,12 @@ parser.add_argument(
     action="store_true"
 )
 
+parser.add_argument(
+    "--claim", 
+    help="show claim", 
+    dest="claim", 
+    action="store_true"
+)
 
 parser.add_argument(
     "-l",
@@ -73,6 +79,7 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
+CLAIM = args.claim
 CUSTOM_START = args.override
 UNBAN = args.unban
 LOG = args.log

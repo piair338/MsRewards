@@ -69,7 +69,7 @@ def printf2(txt, mail, LOG = LOG):
 
 def check_ipv4(driver):
     driver.get("https://api64.ipify.org")
-    elm = driver.find_element(By.TAG_NAME, "body")
+    elm = driver.find_element(BY.TAG_NAME, "body")
     if len(elm.text.split('.')) == 4 :
         return True
     return False

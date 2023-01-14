@@ -36,8 +36,21 @@ def WaitUntilVisible(by, id, to = 20, browser = driver):
         print(f"element not found after {to}s")
 
 
-def claim_amazon(): 
-    try : 
+def claim_amazon(auto = True): 
+    def middle():
+        driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
+        sleep(5)
+        driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
+        countrycode = driver.find_element(By.ID, 'redeem-checkout-challenge-countrycode')
+        phone = driver.find_element(By.ID, "redeem-checkout-challenge-fullnumber")
+        sel = Select(countrycode)
+        CC = input("enter start of number (33, ...) ")
+        sel.select_by_value(CC)
+        ph = input("entrez le numero de telephone : +33")
+        send_keys_wait(phone, ph)
+        driver.find_element(By.ID, "redeem-checkout-challenge-validate").click()
+    
+    def start():
         driver.get("https://rewards.bing.com/redeem/000803000031")
         try :
             driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
@@ -48,39 +61,53 @@ def claim_amazon():
             driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
         except :
             driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRM REWARD')]").click()
-
         sleep(5)
 
+    def end():
+        driver.get("https://rewards.bing.com/redeem/orderhistory")
+        try :
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'Détails de la commande')]").click()
+        except :
+            driver.find_element(By.XPATH, "//span[contains( text( ), 'Get code')]").click()
+        sleep(5)
+        code = driver.find_element(By.CLASS_NAME, "tango-credential-value").get_attribute('innerHTML')
+        lien = driver.find_elements(By.CLASS_NAME, "tango-credential-key")[1].get_attribute('innerHTML')
+        lien = search('\"([^\"]+)\"',lien)[1]
+        driver.get(lien)
+        sleep(10)
+        box = driver.find_element(By.ID, "input-45")
+        box.click()
+        box.send_keys(code)
+        driver.find_element(By.XPATH, "//span[contains( text( ), 'Déverrouillez votre récompense')]").click()
+        sleep(5)
+        #amazon = search("> ([^ ]+) <", fcode)[1]
+        fcode = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div[2]/span").get_attribute("innerHTML")
+        if fcode :
+            webhookSuccess.send(_mail)
+            webhookSuccess.send(fcode)
+            return(1)
+        else :
+            LogError("impossible de localiser le code ", driver, _mail)
+            return(1)
+
+    try : 
+        start()
+
         if ("/rewards/redeem/orderhistory" in driver.page_source) :
-            driver.get("https://rewards.bing.com/redeem/orderhistory")
-            try :
-                driver.find_element(By.XPATH, "//span[contains( text( ), 'Détails de la commande')]").click()
-            except :
-                driver.find_element(By.XPATH, "//span[contains( text( ), 'Get code')]").click()
-            sleep(5)
-            code = driver.find_element(By.CLASS_NAME, "tango-credential-value").get_attribute('innerHTML')
-            lien = driver.find_elements(By.CLASS_NAME, "tango-credential-key")[1].get_attribute('innerHTML')
-            lien = search('\"([^\"]+)\"',lien)[1]
-            driver.get(lien)
-            sleep(10)
-            box = driver.find_element(By.ID, "input-45")
-            box.click()
-            box.send_keys(code)
-            driver.find_element(By.XPATH, "//span[contains( text( ), 'Déverrouillez votre récompense')]").click()
-            sleep(5)
-            #amazon = search("> ([^ ]+) <", fcode)[1]
-            fcode = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div[2]/span").get_attribute("innerHTML")
-            if fcode :
-                webhookSuccess.send(_mail)
-                webhookSuccess.send(fcode)
-                return(1)
-            else :
-                LogError("impossible de localiser le code ", driver, _mail)
-                return(1)
+            end()
             
         else :
-            LogError("la recuperation ne peux pas être automatique", driver, _mail)
-            return(0)
+            if auto:
+                LogError("la recuperation ne peux pas être automatique", driver, _mail)
+                return(0)
+            else :
+                middle()
+                while ("Il existe un problème avec votre compte ou votre commande" in driver.page_source) :
+                    print("le numero de telephone est ban")
+                    driver.get("https://rewards.bing.com/redeem/000803000031")
+                    middle()
+                end()
+                
     except Exception as e :
         LogError(f'problème dans la recuperation : {str(e)}', driver, _mail)
 
@@ -417,7 +444,7 @@ def login():
             raise Banned()
         except Exception as e:
             LogError(f"login - 3 - {e}", driver, _mail)
-            driver.close()
+            driver.quit()
             CustomSleep(1200)
             driver = FirefoxDriver()
     return("STOP")
@@ -955,6 +982,8 @@ if CUSTOM_START:
         CustomStart(Credentials)
 elif UNBAN:
     unban2()
+elif CLAIM:
+    claim_amazon(False)
 elif POINTS_FILE != "":
     SavePointsFromFile(POINTS_FILE)
 else:
