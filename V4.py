@@ -36,8 +36,15 @@ def WaitUntilVisible(by, id, to = 20, browser = driver):
         print(f"element not found after {to}s")
 
 
-def claim_amazon(auto = True): 
-    def middle():
+def claim(auto = True, reward = "amazon"): 
+    dic_id = {"amazon" : "000803000031", "RP" : "000403000103", "fnac" : ""}
+    dic_fun = {"amazon" : amazon, "RP": rp, 'fnac': fnac}
+
+
+    def number_verification():
+        driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
+        sleep(5)
+        driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
         countrycode = driver.find_element(By.ID, 'redeem-checkout-challenge-countrycode')
         phone = driver.find_element(By.ID, "redeem-checkout-challenge-fullnumber")
         sel = Select(countrycode)
@@ -52,8 +59,7 @@ def claim_amazon(auto = True):
         driver.find_element(By.ID, "redeem-checkout-challenge-confirm").click()
     
     def start():
-        driver.get("https://rewards.bing.com/redeem/000803000031")
-        sleep(5)
+        driver.get(f"https://rewards.bing.com/redeem/{dic_id[reward]}")
         try :
             driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
         except :
@@ -65,7 +71,7 @@ def claim_amazon(auto = True):
             driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRM REWARD')]").click()
         sleep(5)
 
-    def end():
+    def amazon():
         driver.get("https://rewards.bing.com/redeem/orderhistory")
         try :
             driver.find_element(By.XPATH, "//span[contains( text( ), 'Détails de la commande')]").click()
@@ -82,7 +88,6 @@ def claim_amazon(auto = True):
         box.send_keys(code)
         driver.find_element(By.XPATH, "//span[contains( text( ), 'Déverrouillez votre récompense')]").click()
         sleep(5)
-        #amazon = search("> ([^ ]+) <", fcode)[1]
         fcode = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div[2]/span").get_attribute("innerHTML")
         if fcode :
             webhookSuccess.send(_mail)
@@ -92,28 +97,27 @@ def claim_amazon(auto = True):
             LogError("impossible de localiser le code ", driver, _mail)
             return(1)
 
+    def fnac():
+        pass
+
+    def rp():
+        pass
     try : 
         start()
-
         if ("/rewards/redeem/orderhistory" in driver.page_source) :
-            end()
-            
+            dic_fun[reward]
         else :
             if auto:
                 LogError("la recuperation ne peux pas être automatique", driver, _mail)
                 return(0)
             else :
-                middle()
+                number_verification()
                 while ("Il existe un problème avec votre compte ou votre commande" in driver.page_source) :
                     print("le numero de telephone est ban")
-                    driver.get("https://rewards.bing.com/redeem/000803000031")
-                    sleep(5)
-                    driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
-                    sleep(5)
-                    driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
-
-                    middle()
-                end()
+                    driver.get(f"https://rewards.bing.com/redeem/{dic_id[reward]}")
+                    number_verification()
+                    
+                dic_fun[reward]
                 
     except Exception as e :
         LogError(f'problème dans la recuperation : {str(e)}', driver, _mail)
@@ -645,7 +649,7 @@ def LogPoint(account="unknown"):  # log des points sur discord
             webhookSuccess.send(f"{account} actuellement à {str(points)} points")
             
     if CLAIM_AMAZON and int(points) >= 7500:
-        if (claim_amazon() == 1) :
+        if (claim(reward="amazon") == 1) :
             points = str( int(points) - 7500)
 
     if sql_enabled :
@@ -930,7 +934,7 @@ def CustomStart(Credentials):
 def SelectAccount(multiple = True):
     system("clear")  # clear from previous command to allow a clean choice
     emails = [x[0] for x in Credentials]  # list of all email adresses
-    emailsSelected = enquiries.choose("quels comptes ?", emails, multi=multiple)
+    emailsSelected = enquiries.choose(f"quel{'s' if multiple else ''} compte{'s' if multiple else ''} ?", emails, multi=multiple)
     return([x for x in Credentials if x[0] in emailsSelected])
 
 
@@ -992,9 +996,12 @@ elif UNBAN:
 elif CLAIM:
     global _mail, _password
     _mail, _password  = SelectAccount(False)[0]
+    reward = enquiries.choose(f"quels recompense ?", ["amazon", "fnac", "RP"], multi=False)
+
     driver = FirefoxDriver()
     login()
-    claim_amazon(False)
+
+    claim(False, reward)
 
 elif POINTS_FILE != "":
     SavePointsFromFile(POINTS_FILE)
