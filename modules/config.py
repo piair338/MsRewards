@@ -93,7 +93,6 @@ POINTS_FILE = args.points_file
 # global variables used later in the code
 LINUX_HOST = platform == "linux" # if the computer running this programm is linux, it allow more things 
 START_TIME = time()
-driver = None
 
 
 if LINUX_HOST:
