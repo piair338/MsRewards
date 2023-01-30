@@ -22,8 +22,9 @@ from modules.config import *
 from modules.tools import *
 from modules.error import *
 import modules.progress
-global driver
 
+global driver
+driver = None
 
 def printf(x):
     printf2(x, _mail)
