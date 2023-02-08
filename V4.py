@@ -519,6 +519,18 @@ def BingPcSearch(override=randint(35, 40)):
 
 
 def unban():
+    driver.get("https://login.live.com")
+    CustomSleep(5)
+    LogError("test", driver, _mail)
+    mail = driver.find_element(By.ID, "i0116")
+    send_keys_wait(mail, _mail)
+    mail.send_keys(Keys.ENTER)
+    WaitUntilVisible(By.ID, "i0118", browser = driver)
+    pwd = driver.find_element(By.ID, "i0118")
+    send_keys_wait(pwd, _password)
+    pwd.send_keys(Keys.ENTER)
+    CustomSleep(5)
+
     driver.find_element(By.ID, "StartAction").click()
     CustomSleep(2)
     txt = driver.page_source

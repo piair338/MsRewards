@@ -32,8 +32,14 @@ driver = None
 global _mail, _password
 
 # TODO
-def printf():
-    pass
+def printf(e, f = ""):
+    print(e+f)
+
+# TODO
+# remove points from database when a reward is claimed
+# remove the auto-claim feature as it seams to create huge risk of ban
+# handle "panda"'s error: error while logging in preventing some task to be done
+ 
 custom_sleep = CustomSleep
 
 # Wait for the presence of the element identifier or [timeout]s
@@ -482,7 +488,7 @@ def login():
     global driver
     def sub_login():    
         printf("sub_login : start")
-        driver.get("https://www.bing.com/rewardsapp/flyout")
+        driver.get("https://login.live.com")
         for i in [f'[title="Rejoindre"]', f'[title="Join now"]', f'[title="Rejoindre maintenant"]'] :
             try:
                 driver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
@@ -580,6 +586,7 @@ def bing_pc_search(override=randint(35, 40)):
 
 # Unban account, called with -u parameter 
 def unban() -> None:
+    LogError("test", driver, _mail)
     driver.find_element(By.ID, "StartAction").click()
     custom_sleep(2)
     txt = driver.page_source
@@ -972,7 +979,7 @@ def ShowDefaultTask():
     for i in ["PC", "Mobile"]:
         ShowTask(task[i])
 
-display = SmartDisplay(size=(2000+hash(_mail), 1000+hash(_mail))) 
+display = SmartDisplay(size=(2000, 1000)) 
 display.start()
 
 
@@ -980,14 +987,12 @@ if CUSTOM_START:
         CustomStart(Credentials)
 elif UNBAN:
     _mail, _password  = select_accounts(False)[0]
-    try :
-        driver = uc_chrome_driver()
+    driver = uc_chrome_driver()
+    try : 
         login()
-        raise NotBanned
-    except Banned :
+    except Banned:
         unban()
-    except NotBanned :
-        printf("you are not currently banned on this account")
+
     driver.quit()
 
 elif CLAIM:
@@ -1030,9 +1035,12 @@ else:
                 custom_sleep(attente)
 
             except KeyboardInterrupt:
-                print("canceled")
+                print("canceled.")
                 driver.quit()
                 display.stop()
-
+            except Exception as e:
+                print(f"error not catched. exiting. {e}")
+                driver.quit()
+                display.stop()
 
 display.stop()
