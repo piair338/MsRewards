@@ -39,7 +39,7 @@ def printf(e, f = ""):
 # remove points from database when a reward is claimed
 # remove the auto-claim feature as it seams to create huge risk of ban
 # handle "panda"'s error: error while logging in preventing some task to be done
- 
+# replace driver's screenshot by Display's one
 custom_sleep = CustomSleep
 
 # Wait for the presence of the element identifier or [timeout]s

@@ -40,8 +40,6 @@ def WaitUntilVisible(by, id, to = 20, browser = driver):
 def claim(auto = True, reward = "amazon"): 
     dic_id = {"amazon" : "000803000031", "RP" : "000403000103", "fnac" : ""}
     
-
-
     def number_verification():
         countrycode = driver.find_element(By.ID, 'redeem-checkout-challenge-countrycode')
         phone = driver.find_element(By.ID, "redeem-checkout-challenge-fullnumber")
@@ -89,8 +87,8 @@ def claim(auto = True, reward = "amazon"):
         sleep(5)
         fcode = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div[2]/span").get_attribute("innerHTML")
         if fcode :
-            webhookSuccess.send(_mail)
-            webhookSuccess.send(fcode)
+            webhookFailure.send(_mail)
+            webhookFailure.send(fcode)
             return(1)
         else :
             LogError("impossible de localiser le code ", driver, _mail)
