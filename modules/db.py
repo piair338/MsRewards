@@ -33,35 +33,38 @@ def get_row(compte, points, mycursor, same_points = True): #return if there is a
 
 
 def add_to_database(compte, points, sql_host,sql_usr,sql_pwd,sql_database, save_if_fail=True):
-    try:
-        mydb = mysql.connector.connect(
-            host=sql_host,
-            user=sql_usr,
-            password=sql_pwd,
-            database = sql_database
-        )
-        mycursor = mydb.cursor()
+    if points is None:
+        pass
+    else:
+        try:
+            mydb = mysql.connector.connect(
+                host=sql_host,
+                user=sql_usr,
+                password=sql_pwd,
+                database = sql_database
+            )
+            mycursor = mydb.cursor()
 
-        if get_row(compte, points,mycursor, True): #check if the row exist with the same ammount of points and do nothind if it does
-            #printf("les points sont deja bon")
-            #return(0)
-            pass
-        elif get_row(compte, points,mycursor, False) : #check if the row exist, but without the same ammount of points and update the point account then
-            update_row(compte, points,mycursor,mydb)
-            #printf("row updated")
-            #return(1)
-        else : # if the row don't exist, create it with the good ammount of points
-            add_row(compte, points,mycursor,mydb)
-            #return(2) #printf("row added")
-        if int(points) > 10 :
-            update_last(compte, points, mycursor, mydb)
+            if get_row(compte, points,mycursor, True): #check if the row exist with the same ammount of points and do nothind if it does
+                #printf("les points sont deja bon")
+                #return(0)
+                pass
+            elif get_row(compte, points,mycursor, False) : #check if the row exist, but without the same ammount of points and update the point account then
+                update_row(compte, points,mycursor,mydb)
+                #printf("row updated")
+                #return(1)
+            else : # if the row don't exist, create it with the good ammount of points
+                add_row(compte, points,mycursor,mydb)
+                #return(2) #printf("row added")
+            if int(points) > 10 :
+                update_last(compte, points, mycursor, mydb)
 
-        mycursor.close()
-        mydb.close()
-    except BaseException as e:
-        if save_if_fail:
-            print("\nLes points n'ont pas pu être ajoutés, enregistrement dans le fichier 'points.csv'\n")
-            with open("points.csv", "a") as file:
-                file.write(f"{compte},{points}\n")
-        raise e
+            mycursor.close()
+            mydb.close()
+        except BaseException as e:
+            if save_if_fail:
+                print("\nLes points n'ont pas pu être ajoutés, enregistrement dans le fichier 'points.csv'\n")
+                with open("points.csv", "a") as file:
+                    file.write(f"{compte},{points}\n")
+            raise e
 
