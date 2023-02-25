@@ -16,8 +16,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 
+from pyvirtualdisplay import Display
 from pyvirtualdisplay.smartdisplay import SmartDisplay
-import undetected_chromedriver as uc
 
 from rich.progress import BarColumn, Progress, TextColumn, Progress, TimeElapsedColumn, TaskProgressColumn, TimeRemainingColumn
 
@@ -51,7 +51,7 @@ def wait_until_visible(search_by: str, identifier: str, timeout = 20, browser = 
 
 
 # automatically claim rewards wanted
-# currently support fnac, amazon and LOL RP
+# currently supported : fnac, amazon and LOL RP
 # return 1 for a success and 0 for a failure
 def claim(automatic_claim = True, reward_wanted = "amazon") -> int: 
     dic_id = {"amazon" : "000803000031", "RP" : "000403000103", "fnac" : ""}
@@ -158,33 +158,49 @@ def claim(automatic_claim = True, reward_wanted = "amazon") -> int:
     except Exception as e :
         LogError(f'Issue while claiming rewards. Check error. \n{str(e)}', driver, _mail)
 
+def setup_proxy(ip, port, options, socks=False) :
+    PROXY = f"{ip}:{port}"
+    if socks :
+        options.set_preference('network.proxy.type', 1)
+        options.set_preference('network.proxy.socks', ip)
+        options.set_preference('network.proxy.socks_port', int(port))
+        options.set_preference("browser.link.open_newwindow", 3)
+    else :
+        webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
+            "httpProxy": PROXY,
+            "sslProxy": PROXY,
+            "proxyType": "MANUAL",
+        }
 
-# create a webdriver resembling 
-def uc_chrome_driver(mobile=False):
+# create a webdriver 
+def firefox_driver(mobile=False, Headless=False):
     PC_USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-        f"AppleWebKit/{hash(_mail)%500}.{hash(_mail)%50}(KHTML, like Gecko)"
-        f"Chrome/{100 + (hash(_mail)%8)}.{hash(_mail)%10}.{hash(_mail)%5000}.102 Safari/537.36 Edg/104.0.1293.70"
-    )
+        "AppleWebKit/537.36 (KHTML, like Gecko)"
+        "Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.56")
     MOBILE_USER_AGENT = (
         "Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X)"
-        f"AppleWebKit/{hash(_mail)%500}.{hash(_mail)%50} (KHTML, like Gecko)"
-        f"CriOS/{100 + (hash(_mail)%8)}.{hash(_mail)%10}.{hash(_mail)%5000}.63 Mobile/15E148 Safari/604.1"
+        "AppleWebKit/605.1.15 (KHTML, like Gecko)"
+        "CriOS/103.0.5060.63 Mobile/15E148 Safari/604.1"
     )
-    chrome_options = uc.ChromeOptions()
-    chrome_options.add_experimental_option('prefs', {'intl.accept_languages': 'fr-FR, fr'})
-    #options.set_preference("browser.link.open_newwindow", 3) # open in new tab by default # missing on chrome
+    
+    options = Options()
+    options.set_preference('intl.accept_languages', 'fr-FR, fr')
     if proxy_enabled :
-        chrome_options.add_argument(f'--proxy-server={proxy_address}:{proxy_port}')
+        setup_proxy(proxy_address,proxy_port, options)
+    options.set_preference("browser.link.open_newwindow", 3)
     if FAST :
-        chrome_options.add_argument('--blink-settings=imagesEnabled=false')#disable image loading. May add this without the fast option soon
+        options.set_preference("permissions.default.image", 2) #disable image loading. May add this without the fast option soon
+    if Headless:
+        options.add_argument("-headless")
     if mobile :
-        chrome_options.add_argument(f'--user-agent={MOBILE_USER_AGENT}')
+        options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
     else :
-        chrome_options.add_argument(f'--user-agent={PC_USER_AGENT}')
-    driver =uc.Chrome(options=chrome_options)
-    driver.set_window_size(1800 + hash(_mail)%120 , 1000 + hash(_password + "salt")%80)
+        options.set_preference("general.useragent.override", PC_USER_AGENT)
+    driver = webdriver.Firefox(options=options)
+    driver.set_window_size(1900 + hash(_mail)%20 , 1070 + hash(_password + "salt")%10)
     return(driver)
+
 
 
 # close the tab currently on and go back to the one first, or the one specified
@@ -270,7 +286,6 @@ def play_quiz8(task = None):
 
     except Exception as e:
         LogError(f"play_quiz8 - 4 - {e} \n Good answers : {' '.join(answer_id)}", driver, _mail)
-        
     printf("play_quiz8 : fin ")
 
 
@@ -489,17 +504,6 @@ def login():
     def sub_login():    
         printf("sub_login : start")
         driver.get("https://login.live.com")
-        for i in [f'[title="Rejoindre"]', f'[title="Join now"]', f'[title="Rejoindre maintenant"]'] :
-            try:
-                driver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
-                break
-            except:
-                pass
-        try:
-            driver.find_element(By.XPATH, "/html/body/div/div/div/div/div[2]/a").click()  # may need to be clicked if the language is english
-        except:
-            pass
-
         wait_until_visible(By.ID, "i0116", browser = driver)
         mail_elem = driver.find_element(By.ID, "i0116")
         send_keys_wait(mail_elem, _mail)
@@ -517,8 +521,10 @@ def login():
         for id in ["KmsiCheckboxField","iLooksGood", "idSIButton9", "iCancel"]:
             try:
                 driver.find_element(By.ID, id).click()
+                restart = True
             except Exception as e:
                 pass
+
         try : 
             body_elem = driver.find_element(By.TAG_NAME, "body")
             body_elem.send_keys(Keys.ENTER)
@@ -529,6 +535,13 @@ def login():
         custom_sleep(uniform(3,5))
         driver.get("https://www.bing.com/rewardsapp/flyout")
         custom_sleep(uniform(3,5))
+        for i in [f'[title="Rejoindre maintenant"]', f'[title="Rejoindre"]', f'[title="Join now"]'] :
+            try:
+                driver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
+                break
+            except:
+                pass
+        driver.get("https://www.bing.com/rewardsapp/flyout")
 
     for _ in range(3) :
         try : 
@@ -540,14 +553,14 @@ def login():
             LogError(f"login - 3 - {e}", driver, _mail)
             driver.quit()
             custom_sleep(1200)
-            driver = uc_chrome_driver()
+            driver = firefox_driver()
     return("STOP")
 
 
 # Makes 30 search as PC Edge
 def bing_pc_search(override=randint(35, 40)):
     StartTask(task["PC"])
-    driver.get(f"https://www.bing.com/search?q=test")  # {choice(Liste_de_mot)}')
+    driver.get(f"https://www.bing.com/search?q=internet")  # {choice(Liste_de_mot)}')
     custom_sleep(uniform(1, 2))
     rgpd_popup()
     send_keys_wait(
@@ -576,7 +589,7 @@ def bing_pc_search(override=randint(35, 40)):
         except Exception as e:
             printf(e)
             try:
-                driver.get('https://www.bing.com/search?q=pls')
+                driver.get('https://www.bing.com/search?q=plans')
                 driver.find_element(By.ID, "sb_form_q").clear()
             except Exception as e:
                 LogError(f"bing_pc_search - clear la barre de recherche - {e}", driver, _mail)
@@ -614,13 +627,12 @@ def unban() -> None:
     wait_until_visible(By.ID, "FinishAction", browser=driver)
     end_elem = driver.find_element(By.ID, "FinishAction")
     end_elem.click()
- 
 
-# Sends points to database, discord and whatever
+
+# Sends points to database, discord and whatever service you want
 def log_points(account="unknown"): 
     def get_points():
         driver.get("https://www.bing.com/rewardsapp/flyout")
-
         regex1 = '<a href="https://rewards\.bing\.com/" title="((.{1,3}),(.{1,3})) points" target="_blank"'
         try:
             point = search(regex1, driver.page_source)[1].replace(",", "")
@@ -791,7 +803,7 @@ def bing_mobile_search(override=randint(22, 25)):
     mobile_driver = "unable to start"
     try:
         try:
-            mobile_driver = uc_chrome_driver(mobile=True)
+            mobile_driver = firefox_driver(mobile=True)
             mobile_driver.implicitly_wait(15)
         except Exception as e:
             LogError("bing_mobile_search - 1 - failure of mobile driver creation", mobile_driver, _mail)
@@ -886,7 +898,7 @@ def CustomStart(Credentials):
         task = modules.progress.dico(p)
         for _mail, _password in liste:
 
-            driver = uc_chrome_driver()
+            driver = firefox_driver()
             driver.implicitly_wait(10)
 
             if login() != "STOP":
@@ -979,7 +991,11 @@ def ShowDefaultTask():
     for i in ["PC", "Mobile"]:
         ShowTask(task[i])
 
-display = SmartDisplay(size=(2000, 1000)) 
+
+if VNC_ENABLED : 
+    display = Display(backend="xvnc", size=(2000, 1100), rfbport=VNC_PORT, color_depth=24) 
+else :
+    display = SmartDisplay(size=(2000, 1100)) 
 display.start()
 
 
@@ -987,7 +1003,7 @@ if CUSTOM_START:
         CustomStart(Credentials)
 elif UNBAN:
     _mail, _password  = select_accounts(False)[0]
-    driver = uc_chrome_driver()
+    driver = firefox_driver()
     try : 
         login()
     except Banned:
@@ -998,7 +1014,7 @@ elif UNBAN:
 elif CLAIM:
     _mail, _password  = select_accounts(False)[0]
     reward = enquiries.choose(f"quels recompense ?", ["amazon", "fnac", "RP"], multi=False)
-    driver = uc_chrome_driver()
+    driver = firefox_driver()
     login()
     claim(False, reward)
     log_points()
@@ -1007,7 +1023,6 @@ elif CLAIM:
 elif POINTS_FILE != "":
     SavePointsFromFile(POINTS_FILE)
 else:
-
     with Progress(
         TextColumn("[progress.description]{task.description}"),
         BarColumn(),
@@ -1023,7 +1038,7 @@ else:
             print(_mail)
             custom_sleep(1)
             printf("début du driver")
-            driver = uc_chrome_driver()
+            driver = firefox_driver()
             printf("driver demarré")
             driver.implicitly_wait(7)
 
@@ -1035,11 +1050,10 @@ else:
                 custom_sleep(attente)
 
             except KeyboardInterrupt:
-                print("canceled.")
-                driver.quit()
-                display.stop()
+                print("canceled. Closing driver and display.")
             except Exception as e:
                 print(f"error not catched. exiting. {e}")
+            finally :
                 driver.quit()
                 display.stop()
 

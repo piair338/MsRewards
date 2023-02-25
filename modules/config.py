@@ -78,6 +78,14 @@ parser.add_argument(
     default=""
 )
 
+parser.add_argument( 
+    "-v", 
+    "--vnc",
+    help="enable VNC",
+    dest="vnc",
+    default="None"
+)
+
 args = parser.parse_args()
 CLAIM = args.claim
 CUSTOM_START = args.override
@@ -87,7 +95,8 @@ FULL_LOG = args.fulllog
 FAST = args.fast
 if CUSTOM_START :
     LOG = True
-
+VNC_ENABLED = args.vnc != "None"
+VNC_PORT = args.vnc
 POINTS_FILE = args.points_file
 
 # global variables used later in the code
