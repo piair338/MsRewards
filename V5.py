@@ -1051,10 +1051,13 @@ else:
 
             except KeyboardInterrupt:
                 print("canceled. Closing driver and display.")
-            except Exception as e:
-                print(f"error not catched. exiting. {e}")
-            finally :
                 driver.quit()
                 display.stop()
+            except Exception as e:
+                print(f"error not catched. exiting. {e}")
+                driver.quit()
+                display.stop()
+
+                
 
 display.stop()
