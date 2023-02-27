@@ -31,7 +31,7 @@ global driver
 driver = None
 global _mail, _password
 
-# TODO
+# TODO : replace by a better print (with logging, cf https://realpython.com/python-logging/)
 def printf(e, f = ""):
     print(e+f)
 
@@ -560,7 +560,7 @@ def login():
 # Makes 30 search as PC Edge
 def bing_pc_search(override=randint(35, 40)):
     StartTask(task["PC"])
-    driver.get(f"https://www.bing.com/search?q=internet")  # {choice(Liste_de_mot)}')
+    driver.get(f"https://www.bing.com/search?q=bing")  # {choice(Liste_de_mot)}')
     custom_sleep(uniform(1, 2))
     rgpd_popup()
     send_keys_wait(
@@ -597,7 +597,7 @@ def bing_pc_search(override=randint(35, 40)):
     ChangeColor(task["PC"], "green")
 
 
-# Unban account, called with -u parameter 
+# Unban an account, called with -u parameter. You will need a phone number
 def unban() -> None:
     LogError("test", driver, _mail)
     driver.find_element(By.ID, "StartAction").click()
@@ -653,7 +653,7 @@ def log_points(account="unknown"):
             break
         except Exception as e:
             custom_sleep(300)
-            LogError(f"log_pointss : {e}")
+            LogError(f"log_points : {e}", driver, _mail)
             points = None
             
     if not points : 
@@ -838,7 +838,6 @@ def bing_mobile_search(override=randint(22, 25)):
 
 
 def DailyRoutine(custom = False):
-    
     ShowDefaultTask()
     try : 
         if not custom: # custom already login 
@@ -1054,10 +1053,8 @@ else:
                 driver.quit()
                 display.stop()
             except Exception as e:
-                print(f"error not catched. exiting. {e}")
+                print(f"error not catched. skipping this account. {e}")
                 driver.quit()
-                display.stop()
 
-                
 
 display.stop()
