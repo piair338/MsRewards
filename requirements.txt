@@ -6,3 +6,5 @@ enquiries
 rich
 requests
 pyvirtualdisplay
+pillow
+EasyProcess
