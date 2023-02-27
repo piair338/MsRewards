@@ -5,3 +5,4 @@ selenium
 enquiries
 rich
 requests
+pyvirtualdisplay
