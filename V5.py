@@ -267,12 +267,13 @@ def play_quiz8(task = None):
             shuffle(correct_answers)
 
             for answer_id in correct_answers:
-                wait_until_visible(By.ID, answer_id, to = 20, browser=driver)
+                wait_until_visible(By.ID, answer_id, timeout = 20, browser=driver)
                 counter += 1
                 progressBar(counter, 16, name="Quiz 8")
                 try:
                     answer_elem = driver.find_element(By.ID, answer_id)
                     answer_elem.click()
+                    custom_sleep(1)
                     if not task is None:
                         AdvanceTask(task, 1/override / len(correct_answers) * 100)
                 except exceptions.NoSuchElementException :
@@ -530,19 +531,20 @@ def login():
             body_elem.send_keys(Keys.ENTER)
         except :
             pass
-        printf("login completed")
-        rgpd_popup()
+        printf("login completed - going to MsRewards")
         custom_sleep(uniform(3,5))
         driver.get("https://www.bing.com/rewardsapp/flyout")
         custom_sleep(uniform(3,5))
         for i in [f'[title="Rejoindre maintenant"]', f'[title="Rejoindre"]', f'[title="Join now"]'] :
             try:
                 driver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
-                break
             except:
-                pass
+                print(f"element {i} not found")
+        rgpd_popup()
+        custom_sleep(uniform(3,5))
         driver.get("https://www.bing.com/rewardsapp/flyout")
-
+        print('on MsRewards')
+        
     for _ in range(3) :
         try : 
             sub_login()
@@ -898,7 +900,7 @@ def CustomStart(Credentials):
         for _mail, _password in liste:
 
             driver = firefox_driver()
-            driver.implicitly_wait(10)
+            driver.implicitly_wait(3)
 
             if login() != "STOP":
                 if "tout" in Actions:
@@ -908,7 +910,7 @@ def CustomStart(Credentials):
                     try:
                         all_cards()
                     except Exception as e:
-                        LogError(f"all_cardss - {e} -- override", driver, _mail)
+                        LogError(f"all_cards - {e} -- override", driver, _mail)
 
                 if "pc" in Actions:
                     try:
@@ -1039,7 +1041,7 @@ else:
             printf("début du driver")
             driver = firefox_driver()
             printf("driver demarré")
-            driver.implicitly_wait(7)
+            driver.implicitly_wait(3)
 
             try:
                 DailyRoutine()
