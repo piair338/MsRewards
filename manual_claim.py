@@ -63,9 +63,7 @@ def select_accounts(multiple = True):
 
 with Display(backend="xvnc", size=(100, 60), rfbport=5904) as disp:
     _mail, _password  = select_accounts(False)[0]
-    print(_mail)
-    print(_password)
     driver = firefox_driver()
+    print(f"connect via VNC to port 5904. \nID: {_mail}\npwd : {_password}")
     i = input('stop ? ')
     driver.close()
-    
