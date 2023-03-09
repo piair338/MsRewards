@@ -13,7 +13,10 @@ RUN set -x \
        git \
        libx11-xcb1 \
        libdbus-glib-1-2 \
-       libasound.so.2 \
+       libasound2 \
+       libgtk-3-0 \
+       xvfb \
+       nano \
    && git clone https://github.com/piair338/MsRewards \
    && pip install -r MsRewards/requirements.txt \
    && curl -sSLO https://download-installer.cdn.mozilla.net/pub/firefox/releases/91.9.1esr/linux-x86_64/en-US/firefox-91.9.1esr.tar.bz2 \
