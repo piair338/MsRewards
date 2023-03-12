@@ -34,13 +34,6 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--claim", 
-    help="show claim", 
-    dest="claim", 
-    action="store_true"
-)
-
-parser.add_argument(
     "-l",
     "--log", 
     dest="log", 
@@ -87,7 +80,7 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-CLAIM = args.claim
+
 CUSTOM_START = args.override
 UNBAN = args.unban
 LOG = args.log
@@ -155,7 +148,6 @@ sql_database = config["SQL"]["database"]
 
 # Other seetings 
 IPV6_CHECKED = config["OTHER"]["ipv6"]
-CLAIM_AMAZON = config["OTHER"]["claim_amazon"] == "True"
 
 
 g = open(MotPath, "r", encoding="utf-8")

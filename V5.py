@@ -50,114 +50,6 @@ def wait_until_visible(search_by: str, identifier: str, timeout = 20, browser = 
         print(f"element not found after {timeout}s")
 
 
-# automatically claim rewards wanted
-# currently supported : fnac, amazon and LOL RP
-# return 1 for a success and 0 for a failure
-def claim(automatic_claim = True, reward_wanted = "amazon") -> int: 
-    dic_id = {"amazon" : "000803000031", "RP" : "000403000103", "fnac" : ""}
-
-    def number_verification():
-        country_code_elem = driver.find_element(By.ID, 'redeem-checkout-challenge-countrycode')
-        phone_elem = driver.find_element(By.ID, "redeem-checkout-challenge-fullnumber")
-        country_code_select = Select(country_code_elem)
-        country_code_input = input("enter start of number (33, ...) ")
-        country_code_select.select_by_value(country_code_input)
-        phone_input = input(f"enter phone number : +{country_code_input}")
-        send_keys_wait(phone_elem, phone_input)
-        driver.find_element(By.ID, "redeem-checkout-challenge-validate").click()
-        sleep(5) # wait until the sms is sent 
-        code_input = input("enter received code")
-        send_keys_wait(driver.find_element(By.ID, "redeem-checkout-challenge-code"), code_input)
-        driver.find_element(By.ID, "redeem-checkout-challenge-confirm").click()
-    
-    def start():
-        driver.get(f"https://rewards.bing.com/redeem/{dic_id[reward_wanted]}")
-        sleep(5)
-        try :
-            driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
-        except :
-            driver.find_element(By.XPATH, "//span[contains( text( ), 'REDEEM REWARD')]").click()
-        sleep(5)
-        try : 
-            driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
-        except :
-            driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRM REWARD')]").click()
-        sleep(5)
-
-    def amazon():
-        driver.get("https://rewards.bing.com/redeem/orderhistory")
-        try :
-            driver.find_element(By.XPATH, "//span[contains( text( ), 'Détails de la commande')]").click()
-        except :
-            try :
-                driver.find_element(By.XPATH, "//span[contains( text( ), 'Get code')]").click()
-            except : 
-                LogError("Unable to find code, maybe you have to wait before it's MS sends it", driver, _mail)
-                return(0)
-        sleep(5)
-        code_value = driver.find_element(By.CLASS_NAME, "tango-credential-value").get_attribute('innerHTML')
-        reward_link = driver.find_elements(By.CLASS_NAME, "tango-credential-key")[1].get_attribute('innerHTML')
-        reward_link_parsed = search('\"([^\"]+)\"', reward_link)[1]
-        driver.get(reward_link_parsed)
-        sleep(10)
-        box_element = driver.find_element(By.ID, "input-45")
-        box_element.click()
-        box_element.send_keys(code_value)
-        driver.find_element(By.XPATH, "//span[contains( text( ), 'Déverrouillez votre récompense')]").click()
-        sleep(5)
-        amazon_code = driver.find_element(By.XPATH, "/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/div/div[1]/div[2]/div[2]/div/div/div/div/div/div[2]/span").get_attribute("innerHTML")
-        if amazon_code :
-            print(amazon_code)
-            webhookSuccess.send(_mail + "\n" + amazon_code)
-            return(1)
-        else :
-            LogError("unable to find code on the page. It's probably on the picture", driver, _mail)
-            return(0)
-
-    # not yet implemented, just auto claims the rewards 
-    def fnac():
-        pass
-
-    def rp():
-        driver.get("https://rewards.bing.com/redeem/orderhistory")
-        try :
-            driver.find_element(By.XPATH, "//span[contains( text( ), 'Détails de la commande')]").click()
-        except :
-            try : 
-                driver.find_element(By.XPATH, "//span[contains( text( ), 'Get code')]").click()
-            except : 
-                LogError("Unable to find code, maybe you have to wait before it's MS sends it", driver, _mail)
-                return(0)
-        sleep(1)
-        show_code_elem = driver.find_element(By.CLASS_NAME, "tango-credential-value")
-        code_value = show_code_elem.get_attribute('innerHTML')
-        print(code_value)
-        webhookSuccess.send(_mail + "\n" + code_value)
-
-    dic_fun = {"amazon" : amazon, "RP": rp, 'fnac': fnac}
-
-    try : 
-        start()
-        if ("/rewards/redeem/orderhistory" in driver.page_source) :
-            dic_fun[reward_wanted]()
-        else :
-            if automatic_claim:
-                LogError("claiming can't be automated", driver, _mail)
-                return(0)
-            else :
-                number_verification()
-                while ("Il existe un problème avec votre compte ou votre commande" in driver.page_source) :
-                    print("This phone number is more likely banned. Try another one.")
-                    driver.get(f"https://rewards.bing.com/redeem/{dic_id[reward_wanted]}")
-                    driver.find_element(By.XPATH, "//span[contains( text( ), 'ÉCHANGER UNE RÉCOMPENSE')]").click()
-                    sleep(5)
-                    driver.find_element(By.XPATH, "//span[contains( text( ), 'CONFIRMER LA RÉCOMPENSE')]").click()
-                    number_verification()
-                dic_fun[reward_wanted]()
-                
-    except Exception as e :
-        LogError(f'Issue while claiming rewards. Check error. \n{str(e)}', driver, _mail)
-
 def setup_proxy(ip, port, options, socks=False) :
     PROXY = f"{ip}:{port}"
     if socks :
@@ -673,10 +565,6 @@ def log_points(account="unknown"):
             webhookSuccess.send(embed=embed)
         else:
             webhookSuccess.send(f"{account_name} actuellement à {str(points)} points")
-            
-    if CLAIM_AMAZON and int(points) >= 7500:
-        if (claim(reward="amazon")) :
-            points = str( int(points) - 7500)
 
     if sql_enabled :
         add_to_database(account_name, points, sql_host, sql_usr, sql_pwd, sql_database)
@@ -1010,15 +898,6 @@ elif UNBAN:
     except Banned:
         unban()
 
-    driver.quit()
-
-elif CLAIM:
-    _mail, _password  = select_accounts(False)[0]
-    reward = enquiries.choose(f"quels recompense ?", ["amazon", "fnac", "RP"], multi=False)
-    driver = firefox_driver()
-    login()
-    claim(False, reward)
-    log_points()
     driver.quit()
 
 elif POINTS_FILE != "":
