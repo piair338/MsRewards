@@ -39,6 +39,8 @@ def printf(e, f = ""):
 # handle "panda"'s error: error while logging in preventing some task to be done
 # replace driver's screenshot by Display's one
 # test PlayQuiz8 fix
+# check that each card worked (lot of misses lately)
+
 custom_sleep = CustomSleep
 
 # Wait for the presence of the element identifier or [timeout]s
