@@ -1,5 +1,5 @@
 from time import sleep
-from datetime import timedelta
+from datetime import timedelta, datetime
 from random import uniform
 import discord
 from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
@@ -7,6 +7,7 @@ from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAd
     Webhook,
 )
 
+from selenium.webdriver.common.by import By
 from modules.config import *
 
 """
@@ -50,10 +51,9 @@ def LogError(message, driver, mail, log=FULL_LOG):
 
 
 
-# add the time arround the text given in [text]
-# [text] : string
-def Timer(text, mail):
-    return(f"[{mail} - {timedelta(seconds = round(float(time() - START_TIME)))}] " + str(text))
+# add the time arround the text given in [text]&
+def Timer(text: str, mail: str) -> str:
+    return(f"[{mail} - {datetime.today().strftime('%d-%m-%Y')} - {timedelta(seconds = round(float(time() - START_TIME)))}] " + str(text))
 
 
 # replace the function print, with more options
@@ -69,7 +69,7 @@ def printf2(txt, mail, LOG = LOG):
 
 def check_ipv4(driver):
     driver.get("https://api64.ipify.org")
-    elm = driver.find_element(BY.TAG_NAME, "body")
+    elm = driver.find_element(By.TAG_NAME, "body")
     if len(elm.text.split('.')) == 4 :
         return True
     return False

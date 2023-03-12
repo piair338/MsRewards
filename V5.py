@@ -36,10 +36,9 @@ def printf(e, f = ""):
     print(e+f)
 
 # TODO
-# remove points from database when a reward is claimed
-# remove the auto-claim feature as it seams to create huge risk of ban
 # handle "panda"'s error: error while logging in preventing some task to be done
 # replace driver's screenshot by Display's one
+# test PlayQuiz8 fix
 custom_sleep = CustomSleep
 
 # Wait for the presence of the element identifier or [timeout]s
@@ -75,7 +74,6 @@ def firefox_driver(mobile=False, Headless=False):
         "AppleWebKit/605.1.15 (KHTML, like Gecko)"
         "CriOS/103.0.5060.63 Mobile/15E148 Safari/604.1"
     )
-    
     options = Options()
     options.set_preference('intl.accept_languages', 'fr-FR, fr')
     if proxy_enabled :
@@ -154,10 +152,15 @@ def play_quiz8(task = None):
         rgpd_popup()
         for _ in range(override):  
             custom_sleep(uniform(3, 5))
-            answers_list = [ (driver.find_element(By.ID, f"rqAnswerOption{i-1}"),f'rqAnswerOption{i-1}')  for i in range(1,9)]
-            correct_answers = [x[1] for x in answers_list if 'iscorrectoption="True" ' in x[0].get_attribute("outerHTML") ]
+            correct_answers = []
+            for i in range(1,9):
+                try : 
+                    element = driver.find_element(By.ID, f"rqAnswerOption{i-1}")
+                    if 'iscorrectoption="True"' in element.get_attribute("outerHTML"):
+                        correct_answers.append(f'rqAnswerOption{i-1}')
+                except Exception as e :
+                    printf(f"can't find rqAnswerOption{i-1}. Probably already clicked" + str(e))
             shuffle(correct_answers)
-
             for answer_id in correct_answers:
                 wait_until_visible(By.ID, answer_id, timeout = 20, browser=driver)
                 counter += 1
@@ -178,7 +181,7 @@ def play_quiz8(task = None):
                     correct_answers.append(answer_id)
 
     except Exception as e:
-        LogError(f"play_quiz8 - 4 - {e} \n Good answers : {' '.join(answer_id)}", driver, _mail)
+        LogError(f"play_quiz8 - 4 - {e} \n Good answers : {' '.join(correct_answers)}", driver, _mail)
     printf("play_quiz8 : fin ")
 
 
@@ -934,7 +937,7 @@ else:
                 driver.quit()
                 display.stop()
             except Exception as e:
-                print(f"error not catched. skipping this account. {e}")
+                print(f"error not catch. skipping this account. {e}")
                 driver.quit()
 
 
