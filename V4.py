@@ -1016,15 +1016,6 @@ if CUSTOM_START:
         CustomStart(Credentials)
 elif UNBAN:
     unban2()
-elif CLAIM:
-    global _mail, _password
-    _mail, _password  = SelectAccount(False)[0]
-    reward = enquiries.choose(f"quels recompense ?", ["amazon", "fnac", "RP"], multi=False)
-
-    driver = FirefoxDriver()
-    login()
-
-    claim(False, reward)
 
 elif POINTS_FILE != "":
     SavePointsFromFile(POINTS_FILE)

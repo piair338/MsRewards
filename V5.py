@@ -40,6 +40,7 @@ def printf(e, f = ""):
 # replace driver's screenshot by Display's one
 # test PlayQuiz8 fix
 # check that each card worked (lot of misses lately)
+# add date and account before print
 
 custom_sleep = CustomSleep
 
