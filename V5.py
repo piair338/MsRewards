@@ -311,7 +311,8 @@ def all_cards():
             try : 
                 driver.find_element(By.ID, "/html/body/div/div/div[3]/div[1]/div/div[1]/div[2]").click()
                 close_tab(driver.window_handles[1])
-            except :
+            except Exception as e:
+                print(e)
                 break
     
     try :
@@ -341,6 +342,7 @@ def try_play(nom="inconnu", task = None):
                 printf(f"\033[96m Quiz 8 detected on {nom} \033[0m")
                 play_quiz8(task=task)
                 printf(f"\033[92m Quiz 8 succeeded on {nom} \033[0m")
+                custom_sleep(uniform(3, 5))
             except Exception as e:
                 printf(f"fail of PlayQuiz 8. Aborted {e} \033[0m")
 
@@ -349,6 +351,7 @@ def try_play(nom="inconnu", task = None):
                 printf(f"\033[96m Quiz 4 detected on {nom} \033[0m")
                 play_quiz4()
                 printf(f"\033[92m Quiz 4 succeeded on {nom} \033[0m")
+                custom_sleep(uniform(3, 5))
             except Exception as e:
                 printf(f"fail of PlayQuiz 4. Aborted {e} \033[0m")
 
