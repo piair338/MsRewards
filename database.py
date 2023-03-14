@@ -39,7 +39,7 @@ def update_pts(name: str, pts = 0):
 print("ajouter un compte : 1\nban un compte : 2")
 i = input()
 if i == "1":
-    name = input("quel est le nom ? ")
+    name = input("quel est le nom ? ").split("@")[0]
     endroit = input("ou est le bot ? ")
     proprio = input("qui est le proprio ? ")
     add_account(name, endroit, proprio)
