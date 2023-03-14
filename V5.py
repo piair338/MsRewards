@@ -142,7 +142,7 @@ def play_quiz2(override=10) -> None:
         except exceptions.ElementNotInteractableException as e:
             driver.execute_script("arguments[0].click();", answer_elem)
         except Exception as e:
-            LogError(f"play_quiz2 {e}", driver, _mail)
+            log_error(e, driver, _mail)
             break
     printf("play_quiz2 done")
 
@@ -184,7 +184,7 @@ def play_quiz8(task = None):
                     correct_answers.append(answer_id)
 
     except Exception as e:
-        LogError(f"play_quiz8 - 4 - {e} \n Good answers : {' '.join(correct_answers)}", driver, _mail)
+        log_error(f"{format_error(e)} \n Good answers : {' '.join(correct_answers)}", driver, _mail)
     printf("play_quiz8 : fin ")
 
 
@@ -211,7 +211,7 @@ def play_quiz4(override=None):
                 driver.execute_script("arguments[0].click();", answer_element)
 
     except Exception as e:
-        LogError(f"play_quiz4 {str(e)}", driver, _mail)
+        log_error(e, driver, _mail)
         raise ValueError(e)
     printf("play_quiz4 : end")
 
@@ -227,7 +227,7 @@ def do_poll():
             driver.execute_script("arguments[0].click();", answer_elem)
         custom_sleep(uniform(2, 2.5))
     except Exception as error:
-        LogError(f"do_poll {error}" , driver, _mail)
+        log_error(error , driver, _mail)
         raise ValueError(error)
     printf("do_poll : end")
 
@@ -270,7 +270,7 @@ def all_cards():
                 except Exception as e:
                     printf(f"all_cards card {titre} error ({e})")
         except Exception as e:
-            LogError(f"daily_cards {e}", driver, _mail)
+            log_error(e, driver, _mail)
 
 
     def weekly_cards():
@@ -318,17 +318,17 @@ def all_cards():
     try :
         top_cards()
     except Exception as e:
-        LogError(f"top_cards {e}", driver, _mail)
+        log_error(e, driver, _mail)
 
     try:
         daily_cards()
     except Exception as e:
-        printf(f"error in daily_cards {e}")
+        log_error(e, driver, _mail)
 
     try :
         weekly_cards()
     except Exception as e:
-        LogError(f"weekly_cards {e}", driver, _mail)
+        log_error(e, driver, _mail)
 
 
 # Find out which type of action to do
@@ -363,7 +363,7 @@ def try_play(nom="inconnu", task = None):
             except Exception as e:
                 printf(f"fail of PlayQuiz 2. Aborted {e}")
         else:
-            LogError("There is an error. rqAnswerOption present in page but no action to do. skipping.", driver, _mail)
+            log_error("There is an error. rqAnswerOption present in page but no action to do. skipping.", driver, _mail)
 
     try:
         driver.find_element(By.ID, "rqStartQuiz").click()  # start the quiz
@@ -417,7 +417,7 @@ def login():
         custom_sleep(5)
 
         if ('Abuse' in driver.current_url) : 
-            LogError("account suspended", driver, _mail)
+            log_error("account suspended", driver, _mail)
             raise Banned()
 
         for id in ["KmsiCheckboxField","iLooksGood", "idSIButton9", "iCancel"]:
@@ -453,7 +453,7 @@ def login():
         except Banned:
             raise Banned()
         except Exception as e:
-            LogError(f"login - 3 - {e}", driver, _mail)
+            log_error(e, driver, _mail)
             driver.quit()
             custom_sleep(1200)
             driver = firefox_driver()
@@ -495,14 +495,13 @@ def bing_pc_search(override=randint(35, 40)):
                 driver.get('https://www.bing.com/search?q=plans')
                 driver.find_element(By.ID, "sb_form_q").clear()
             except Exception as e:
-                LogError(f"bing_pc_search - clear la barre de recherche - {e}", driver, _mail)
+                log_error(f"clear la barre de recherche - {format_error(e)}", driver, _mail)
     AdvanceTask(task["PC"], 100 )
     ChangeColor(task["PC"], "green")
 
 
 # Unban an account, called with -u parameter. You will need a phone number
 def unban() -> None:
-    LogError("test", driver, _mail)
     driver.find_element(By.ID, "StartAction").click()
     custom_sleep(2)
     txt = driver.page_source
@@ -521,7 +520,6 @@ def unban() -> None:
     send_sms_elem = driver.find_element(By.ID, "wlspispHipSendCode" + uuid2)
     send_sms_elem.click()
     wait_until_visible(By.ID, "wlspispSolutionElement" + uuid3, browser=driver)
-    LogError("test", driver,"phone test")
     sms_code_elem = driver.find_element(By.ID, "wlspispSolutionElement" + uuid3)
     sms_code_input = input("entrez le contenu du msg : ")
     sms_code_elem.send_keys(sms_code_input)
@@ -556,11 +554,11 @@ def log_points(account="unknown"):
             break
         except Exception as e:
             custom_sleep(300)
-            LogError(f"log_points : {e}", driver, _mail)
+            log_error(e, driver, _mail)
             points = None
             
     if not points : 
-        LogError(f"impossible d'avoir les points :", driver, _mail)
+        log_error(f"impossible d'avoir les points", driver, _mail)
 
     custom_sleep(uniform(3, 20))
     account_name = account.split("@")[0]
@@ -622,7 +620,7 @@ def fidelity():
                             recover_elem = driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/main/div[2]/div[2]/div[7]/div[3]/div[1]/a')
                             recover_elem.click()
                         except Exception as e2 :
-                            LogError(f"fidélité - double erreur - e1 : {e1} - e2 {e2}", driver, _mail)
+                            log_error(f"fidélité - double erreur - e1 : {format_error(e1)} - e2 {format_error(e2)}", driver, _mail)
                             break
                     custom_sleep(uniform(3, 5))
                     driver.switch_to.window(driver.window_handles[1])
@@ -637,7 +635,7 @@ def fidelity():
             else :
                 printf("invalid fidelity link.")
     except Exception as e:
-        LogError(f"Fidélité {e}", driver, _mail)
+        log_error(e, driver, _mail)
 
 
 def mobile_login(error):
@@ -672,7 +670,7 @@ def mobile_login(error):
             custom_sleep(uniform(5, 10))
             mobile_login(error)
         else:
-            LogError(
+            log_error(
                 f"login impossible 3 fois de suite. {e}", mobile_driver, _mail
             )
             mobile_driver.quit()
@@ -694,21 +692,13 @@ def mobile_alert_popup():
     except exceptions.NoAlertPresentException as e:
         pass
     except Exception as e:
-        LogError(f"mobile_alert_popup : {e}", mobile_driver, _mail)
+        log_error(e, mobile_driver, _mail)
 
 
 def bing_mobile_search(override=randint(22, 25)):
     global mobile_driver
-    mobile_driver = "unable to start"
+    mobile_driver = firefox_driver(mobile=True)
     try:
-        try:
-            mobile_driver = firefox_driver(mobile=True)
-            mobile_driver.implicitly_wait(15)
-        except Exception as e:
-            LogError("bing_mobile_search - 1 - failure of mobile driver creation", mobile_driver, _mail)
-            ChangeColor(task["Mobile"], "red")
-        
-        error = 0
         if not mobile_login(error):
             StartTask(task["Mobile"])
             custom_sleep(uniform(1, 2))
@@ -732,43 +722,43 @@ def bing_mobile_search(override=randint(22, 25)):
             ChangeColor(task["Mobile"], "green")
 
     except Exception as e:
-        LogError(f"bing_mobile_search - 4 - {e}", mobile_driver, _mail)
+        log_error(e, mobile_driver, _mail)
         mobile_driver.quit()
 
 
-def DailyRoutine(custom = False):
+def daily_routine(custom = False):
     ShowDefaultTask()
     try : 
         if not custom: # custom already login 
             login()
     except Banned :
-        LogError("THIS ACCOUNT IS BANNED. FIX THIS ISSUE WITH -U", driver, _mail)
+        log_error("THIS ACCOUNT IS BANNED. FIX THIS ISSUE WITH -U", driver, _mail)
         return()
 
     try:
         all_cards()
     except Exception as e:
-        LogError(f"DailyRoutine - all_cards - \n{e}", driver, _mail)
+        log_error(e, driver, _mail)
 
     try:
         bing_pc_search()
     except Exception as e:
-        LogError(f"DailyRoutine - bing_pc_search - \n{e}", driver, _mail)
+        log_error(e, driver, _mail)
         
     try:
         bing_mobile_search()
     except Exception as e:
-        LogError(f"DailyRoutine - bing_mobile_search - \n{e}", driver, _mail)
+        log_error(e, driver, _mail)
 
     try:
         fidelity()
     except Exception as e:
-        LogError(f"DailyRoutine - fidelity - \n{e}", driver, _mail)
+        log_error(e, driver, _mail)
 
     try:
         log_points(_mail)
     except Exception as e:
-        LogError(f"DailyRoutine - log_points - \n{e}", driver, _mail)
+        log_error(e, driver, _mail)
 
 
 def dev():
@@ -801,33 +791,33 @@ def CustomStart(Credentials):
 
             if login() != "STOP":
                 if "tout" in Actions:
-                    DailyRoutine(True)
+                    daily_routine(True)
 
                 if "daily" in Actions:
                     try:
                         all_cards()
                     except Exception as e:
-                        LogError(f"all_cards - {e} -- override", driver, _mail)
+                        log_error(e, driver, _mail)
 
                 if "pc" in Actions:
                     try:
                         ShowTask(task["PC"])
                         bing_pc_search()
                     except Exception as e:
-                        LogError(f"il y a eu une erreur dans bing_pc_search, {e} -- override", driver, _mail)
+                        log_error(e, driver, _mail)
 
                 if "mobile" in Actions:
                     try:
                         ShowTask(task["Mobile"])
                         bing_mobile_search()
                     except Exception as e:
-                        LogError(f"bing_mobile_search - {e} -- override", driver, _mail)
+                        log_error(e, driver, _mail)
 
                 if "fidelity" in Actions:
                     try :
                         fidelity()
                     except Exception as e :
-                        LogError(f"fidelity - {e} -- override", driver, _mail)
+                        log_error(e, driver, _mail)
 
                 if "dev" in Actions:
                     try:
@@ -932,7 +922,7 @@ else:
             driver.implicitly_wait(3)
 
             try:
-                DailyRoutine()
+                daily_routine()
                 driver.quit()
                 attente = uniform(1200, 3600)
                 printf(f"finis. attente de {round(attente/60)}min")

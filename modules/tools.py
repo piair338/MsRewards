@@ -23,8 +23,10 @@ def send_keys_wait(element, keys):
             sleep(uniform(0.1, 0.3))
 
 
-def LogError(message, driver, mail, log=FULL_LOG):
-    print(f"\n\n\033[93m Erreur : {str(message)}  \033[0m\n\n")
+def log_error(error, driver, mail, log=FULL_LOG):
+    if type(error) != str :
+        error = format_error(error)
+    print(f"\n\n\033[93m Erreur : {str(error)}  \033[0m\n\n")
     if DISCORD_ENABLED_ERROR:
         with open("page.html", "w") as f:
             f.write(driver.page_source)
@@ -33,13 +35,13 @@ def LogError(message, driver, mail, log=FULL_LOG):
         if not log:
             embed = discord.Embed(
                 title="An Error has occured",
-                description=str(message),
+                description=str(error),
                 colour=Colour.red(),
             )
         else:
             embed = discord.Embed(
                 title="Full log is enabled",
-                description=str(message),
+                description=str(error),
                 colour=Colour.blue(),
             )
 
@@ -66,7 +68,7 @@ def printf2(txt, mail, LOG = LOG):
 
 # check if the user is using IPV4 using ipify.org
 # [driver] : selenium webdriver
-
+# never used here
 def check_ipv4(driver):
     driver.get("https://api64.ipify.org")
     elm = driver.find_element(By.TAG_NAME, "body")
@@ -96,7 +98,14 @@ def CustomSleep(temps):
         print("attente annulée")
 
 
-
+def format_error(e):
+    tb = e.__traceback__
+    txt = ""
+    while tb != None :
+        txt = txt + f" -> {tb.tb_frame.f_code.co_name} ({tb.tb_lineno})"
+        tb = tb.tb_next
+    #type(ex).__name__ # Type of the error. Useless here.
+    return(txt[4::] + "\n" + str(e))
 
 
 def progressBar(current, total=30, barLength=20, name="Progress"):
