@@ -699,7 +699,7 @@ def bing_mobile_search(override=randint(22, 25)):
     global mobile_driver
     mobile_driver = firefox_driver(mobile=True)
     try:
-        if not mobile_login(error):
+        if not mobile_login(0):
             StartTask(task["Mobile"])
             custom_sleep(uniform(1, 2))
             mobile_rgpd()
