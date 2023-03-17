@@ -83,15 +83,17 @@ def firefox_driver(mobile=False, Headless=False):
         setup_proxy(proxy_address,proxy_port, options)
     options.set_preference("browser.link.open_newwindow", 3)
     if FAST :
-        options.set_preference("permissions.default.image", 2) #disable image loading. May add this without the fast option soon
+        options.set_preference("permissions.default.image", 2) #disable image loading. You shouldn't use it except if really nessecary 
     if Headless:
         options.add_argument("-headless")
     if mobile :
         options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
+        driver.set_window_size(1070 + hash(_mail)%20 , 1900 + hash(_password + "salt")%10) # mobile resolution are crazy high now, right ?
     else :
         options.set_preference("general.useragent.override", PC_USER_AGENT)
+        driver.set_window_size(1900 + hash(_mail)%20 , 1070 + hash(_password + "salt")%10)
     driver = webdriver.Firefox(options=options)
-    driver.set_window_size(1900 + hash(_mail)%20 , 1070 + hash(_password + "salt")%10)
+    
     return(driver)
 
 
@@ -269,9 +271,16 @@ def all_cards():
                     printf(f"DailyCard {titre} ok")
                 except Exception as e:
                     printf(f"all_cards card {titre} error ({e})")
+            """ Check if everything worked fine TODO
+            try : # devrait renvoyer vrai si la carte i est faite ou pas, a l'aide su symbole en haut a droite de la carte
+                elm = driver.get(By.XPATH, f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]/div[1]/div[2]/div")
+                print("complete" in elm.get_attribute("innerHTML"))
+            except : 
+                pass
+            """
         except Exception as e:
             log_error(e, driver, _mail)
-
+    
 
     def weekly_cards():
         try:
@@ -443,7 +452,13 @@ def login():
                 print(f"element {i} not found")
         rgpd_popup()
         custom_sleep(uniform(3,5))
+
         driver.get("https://www.bing.com/rewardsapp/flyout")
+        try:
+            driver.find_element(By.CSS_SELECTOR, '[title="Rejoindre maintenant"]').click()  # depend of the language of the page
+        except:
+            print(f"unlock test: fail, probably normal")
+            
         print('on MsRewards')
         
     for _ in range(3) :
@@ -640,10 +655,19 @@ def fidelity():
 
 def mobile_login(error):
     try:
+        # TODO 
+        # aller direct sur bin pour ne pas avoir a utiliser le menu hamburger
         mobile_driver.get("https://www.bing.com/search?q=test+speed")
         mobile_rgpd()
         printf("start of Mobile login")
-        mobile_driver.find_element(By.ID, "mHamburger").click()
+        try :
+            mobile_driver.find_element(By.ID, "mHamburger").click()
+        except Exception as e :
+            log_error(f"trying something. 1 {e}", mobile_driver, _mail)
+            mobile_driver.find_element(By.TAG_NAME, "body").send_keys(Keys.UP) #force apparition of hamurger menu
+            log_error(f"trying something. 2 {e}", mobile_driver, _mail)
+            mobile_driver.find_element(By.ID, "mHamburger").click()
+
         wait_until_visible(By.ID, "hb_s", browser=mobile_driver)
         mobile_driver.find_element(By.ID, "hb_s").click()
         wait_until_visible(By.ID, "i0116", browser=mobile_driver)
