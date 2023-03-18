@@ -2,10 +2,6 @@ from time import sleep
 from datetime import timedelta, datetime
 from random import uniform
 import discord
-from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
-    Colour,
-    Webhook,
-)
 
 from selenium.webdriver.common.by import By
 from modules.config import *
@@ -21,35 +17,6 @@ def send_keys_wait(element, keys):
             pass
         else :
             sleep(uniform(0.1, 0.3))
-
-
-def log_error(error, driver, mail, log=FULL_LOG):
-    if type(error) != str :
-        error = format_error(error)
-    print(f"\n\n\033[93m Erreur : {str(error)}  \033[0m\n\n")
-    if DISCORD_ENABLED_ERROR:
-        with open("page.html", "w") as f:
-            f.write(driver.page_source)
-
-        driver.save_screenshot("screenshot.png")
-        if not log:
-            embed = discord.Embed(
-                title="An Error has occured",
-                description=str(error),
-                colour=Colour.red(),
-            )
-        else:
-            embed = discord.Embed(
-                title="Full log is enabled",
-                description=str(error),
-                colour=Colour.blue(),
-            )
-
-        file = discord.File("screenshot.png")
-        embed.set_image(url="attachment://screenshot.png")
-        embed.set_footer(text=mail)
-        webhookFailure.send(embed=embed, file=file)
-        webhookFailure.send(file=discord.File("page.html"))
 
 
 

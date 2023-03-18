@@ -15,7 +15,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-
+from pyotp import TOTP
 from pyvirtualdisplay import Display
 from pyvirtualdisplay.smartdisplay import SmartDisplay
 
@@ -29,7 +29,7 @@ import modules.progress
 
 global driver
 driver = None
-global _mail, _password
+global _mail, _password, _otp, display
 
 # TODO : replace by a better print (with logging, cf https://realpython.com/python-logging/)
 def printf(e, f = ""):
@@ -37,12 +37,39 @@ def printf(e, f = ""):
 
 # TODO
 # handle "panda"'s error: error while logging in preventing some task to be done
-# replace driver's screenshot by Display's one
-# test PlayQuiz8 fix
-# check that each card worked (lot of misses lately)
+# check that each card worked (lot of misses lately) -- test that
 # add date and account before print
 
 custom_sleep = CustomSleep
+
+
+def log_error(error, driver=driver log=FULL_LOG):
+    if type(error) != str :
+        error = format_error(error)
+    print(f"\n\n\033[93m Erreur : {str(error)}  \033[0m\n\n")
+    if DISCORD_ENABLED_ERROR:
+        with open("page.html", "w") as f:
+            f.write(driver.page_source)
+        img = display.waitgrab()
+        img.save("screenshot.png")
+        if not log:
+            embed = discord.Embed(
+                title="An Error has occured",
+                description=str(error),
+                colour=Colour.red(),
+            )
+        else:
+            embed = discord.Embed(
+                title="Full log is enabled",
+                description=str(error),
+                colour=Colour.blue(),
+            )
+
+        file = discord.File("screenshot.png")
+        embed.set_image(url="attachment://screenshot.png")
+        embed.set_footer(text=_mail)
+        webhookFailure.send(embed=embed, file=file)
+        webhookFailure.send(file=discord.File("page.html"))
 
 # Wait for the presence of the element identifier or [timeout]s
 def wait_until_visible(search_by: str, identifier: str, timeout = 20, browser = driver) -> None:
@@ -145,7 +172,7 @@ def play_quiz2(override=10) -> None:
         except exceptions.ElementNotInteractableException as e:
             driver.execute_script("arguments[0].click();", answer_elem)
         except Exception as e:
-            log_error(e, driver, _mail)
+            log_error(e)
             break
     printf("play_quiz2 done")
 
@@ -187,7 +214,7 @@ def play_quiz8(task = None):
                     correct_answers.append(answer_id)
 
     except Exception as e:
-        log_error(f"{format_error(e)} \n Good answers : {' '.join(correct_answers)}", driver, _mail)
+        log_error(f"{format_error(e)} \n Good answers : {' '.join(correct_answers)}")
     printf("play_quiz8 : fin ")
 
 
@@ -214,7 +241,7 @@ def play_quiz4(override=None):
                 driver.execute_script("arguments[0].click();", answer_element)
 
     except Exception as e:
-        log_error(e, driver, _mail)
+        log_error(e)
         raise ValueError(e)
     printf("play_quiz4 : end")
 
@@ -230,7 +257,7 @@ def do_poll():
             driver.execute_script("arguments[0].click();", answer_elem)
         custom_sleep(uniform(2, 2.5))
     except Exception as error:
-        log_error(error , driver, _mail)
+        log_error(error)
         raise ValueError(error)
     printf("do_poll : end")
 
@@ -272,15 +299,19 @@ def all_cards():
                     printf(f"DailyCard {titre} ok")
                 except Exception as e:
                     printf(f"all_cards card {titre} error ({e})")
-            """ Check if everything worked fine TODO
-            try : # devrait renvoyer vrai si la carte i est faite ou pas, a l'aide su symbole en haut a droite de la carte
-                elm = driver.get(By.XPATH, f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]/div[1]/div[2]/div")
-                print("complete" in elm.get_attribute("innerHTML"))
-            except : 
-                pass
-            """
+
+                try : # devrait renvoyer vrai si la carte i est faite ou pas, a l'aide su symbole en haut a droite de la carte
+                    elm = driver.find_element(By.XPATH, f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]/div[1]/div[2]/div")
+                    if not ("correctCircle" in elm.get_attribute("innerHTML")):
+                        print(f"missed card {i}")
+                        try_play(titre, task=task["daily"][f"carte{i}"])
+                        sleep(3)
+                        reset()
+                except : 
+                    pass # if it fail, it's probably okay
+
         except Exception as e:
-            log_error(e, driver, _mail)
+            log_error(e)
     
 
     def weekly_cards():
@@ -328,17 +359,17 @@ def all_cards():
     try :
         top_cards()
     except Exception as e:
-        log_error(e, driver, _mail)
+        log_error(e)
 
     try:
         daily_cards()
     except Exception as e:
-        log_error(e, driver, _mail)
+        log_error(e)
 
     try :
         weekly_cards()
     except Exception as e:
-        log_error(e, driver, _mail)
+        log_error(e)
 
 
 # Find out which type of action to do
@@ -373,7 +404,7 @@ def try_play(nom="inconnu", task = None):
             except Exception as e:
                 printf(f"fail of PlayQuiz 2. Aborted {e}")
         else:
-            log_error("There is an error. rqAnswerOption present in page but no action to do. skipping.", driver, _mail)
+            log_error("There is an error. rqAnswerOption present in page but no action to do. skipping.")
 
     try:
         driver.find_element(By.ID, "rqStartQuiz").click()  # start the quiz
@@ -424,10 +455,19 @@ def login():
         pwd_elem = driver.find_element(By.ID, "i0118")
         send_keys_wait(pwd_elem, _password)
         pwd_elem.send_keys(Keys.ENTER)
+        custom_sleep(2)
+        if "Entrez le code de sécurité" in driver.page_source :
+            try : 
+                a2f_elem = driver.find_element(By.ID, "idTxtBx_SAOTCC_OTC")
+                a2f_elem.send_keys(_otp.now())
+                a2f_elem.send_keys(Keys.ENTER)
+            except Exception as e :
+                log_error(e)
         custom_sleep(5)
 
+
         if ('Abuse' in driver.current_url) : 
-            log_error("account suspended", driver, _mail)
+            log_error("account suspended")
             raise Banned()
 
         for id in ["KmsiCheckboxField","iLooksGood", "idSIButton9", "iCancel"]:
@@ -438,10 +478,11 @@ def login():
                 pass
 
         try : 
-            body_elem = driver.find_element(By.TAG_NAME, "body")
+            body_elem = driver.find_element(By.TAG_NAME, "body") # in case of any random popup
             body_elem.send_keys(Keys.ENTER)
         except :
             pass
+
         printf("login completed - going to MsRewards")
         custom_sleep(uniform(3,5))
         driver.get("https://www.bing.com/rewardsapp/flyout")
@@ -469,7 +510,7 @@ def login():
         except Banned:
             raise Banned()
         except Exception as e:
-            log_error(e, driver, _mail)
+            log_error(e)
             driver.quit()
             custom_sleep(1200)
             driver = firefox_driver()
@@ -511,7 +552,7 @@ def bing_pc_search(override=randint(35, 40)):
                 driver.get('https://www.bing.com/search?q=plans')
                 driver.find_element(By.ID, "sb_form_q").clear()
             except Exception as e:
-                log_error(f"clear la barre de recherche - {format_error(e)}", driver, _mail)
+                log_error(f"clear la barre de recherche - {format_error(e)}")
     AdvanceTask(task["PC"], 100 )
     ChangeColor(task["PC"], "green")
 
@@ -570,11 +611,11 @@ def log_points(account="unknown"):
             break
         except Exception as e:
             custom_sleep(300)
-            log_error(e, driver, _mail)
+            log_error(e)
             points = None
             
     if not points : 
-        log_error(f"impossible d'avoir les points", driver, _mail)
+        log_error(f"impossible d'avoir les points")
 
     custom_sleep(uniform(3, 20))
     account_name = account.split("@")[0]
@@ -636,7 +677,7 @@ def fidelity():
                             recover_elem = driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/main/div[2]/div[2]/div[7]/div[3]/div[1]/a')
                             recover_elem.click()
                         except Exception as e2 :
-                            log_error(f"fidélité - double erreur - e1 : {format_error(e1)} - e2 {format_error(e2)}", driver, _mail)
+                            log_error(f"fidélité - double erreur - e1 : {format_error(e1)} - e2 {format_error(e2)}")
                             break
                     custom_sleep(uniform(3, 5))
                     driver.switch_to.window(driver.window_handles[1])
@@ -651,24 +692,24 @@ def fidelity():
             else :
                 printf("invalid fidelity link.")
     except Exception as e:
-        log_error(e, driver, _mail)
+        log_error(e)
 
 
 def mobile_login(error):
     try:
         # TODO 
-        # aller direct sur bin pour ne pas avoir a utiliser le menu hamburger
-        mobile_driver.get("https://www.bing.com/search?q=test+speed")
+        # seems fine, check if there are no issues
+        mobile_driver.get(f"https://www.bing.com/search?q={choice(Liste_de_mot).replace(" ","+")}")
         mobile_rgpd()
         printf("start of Mobile login")
         try :
             mobile_driver.find_element(By.ID, "mHamburger").click()
         except Exception as e :
-            log_error(f"trying something. 1 {e}", mobile_driver, _mail)
+            log_error(f"trying something. 1 {e}", mobile_driver)
             elm = mobile_driver.find_element(By.ID, "mHamburger") 
             mobile_driver.execute_script("arguments[0].scrollIntoView();", elm)
             mobile_driver.find_element(By.ID, "mHamburger").click()
-            log_error(f"trying something. 2 {e}", mobile_driver, _mail)
+            log_error(f"trying something. 2 {e}", mobile_driver)
 
         wait_until_visible(By.ID, "hb_s", browser=mobile_driver)
         mobile_driver.find_element(By.ID, "hb_s").click()
@@ -696,9 +737,7 @@ def mobile_login(error):
             custom_sleep(uniform(5, 10))
             mobile_login(error)
         else:
-            log_error(
-                f"login impossible 3 fois de suite. {e}", mobile_driver, _mail
-            )
+            log_error(f"login impossible 3 fois de suite. {e}", mobile_driver)
             mobile_driver.quit()
             return(True)
 
@@ -718,7 +757,7 @@ def mobile_alert_popup():
     except exceptions.NoAlertPresentException as e:
         pass
     except Exception as e:
-        log_error(e, mobile_driver, _mail)
+        log_error(e, mobile_driver)
 
 
 def bing_mobile_search(override=randint(22, 25)):
@@ -748,7 +787,7 @@ def bing_mobile_search(override=randint(22, 25)):
             ChangeColor(task["Mobile"], "green")
 
     except Exception as e:
-        log_error(e, mobile_driver, _mail)
+        log_error(e, mobile_driver)
         mobile_driver.quit()
 
 
@@ -758,33 +797,33 @@ def daily_routine(custom = False):
         if not custom: # custom already login 
             login()
     except Banned :
-        log_error("THIS ACCOUNT IS BANNED. FIX THIS ISSUE WITH -U", driver, _mail)
+        log_error("THIS ACCOUNT IS BANNED. FIX THIS ISSUE WITH -U")
         return()
 
     try:
         all_cards()
     except Exception as e:
-        log_error(e, driver, _mail)
+        log_error(e)
 
     try:
         bing_pc_search()
     except Exception as e:
-        log_error(e, driver, _mail)
+        log_error(e)
         
     try:
         bing_mobile_search()
     except Exception as e:
-        log_error(e, driver, _mail)
+        log_error(e)
 
     try:
         fidelity()
     except Exception as e:
-        log_error(e, driver, _mail)
+        log_error(e)
 
     try:
         log_points(_mail)
     except Exception as e:
-        log_error(e, driver, _mail)
+        log_error(e)
 
 
 def dev():
@@ -823,27 +862,27 @@ def CustomStart(Credentials):
                     try:
                         all_cards()
                     except Exception as e:
-                        log_error(e, driver, _mail)
+                        log_error(e)
 
                 if "pc" in Actions:
                     try:
                         ShowTask(task["PC"])
                         bing_pc_search()
                     except Exception as e:
-                        log_error(e, driver, _mail)
+                        log_error(e)
 
                 if "mobile" in Actions:
                     try:
                         ShowTask(task["Mobile"])
                         bing_mobile_search()
                     except Exception as e:
-                        log_error(e, driver, _mail)
+                        log_error(e)
 
                 if "fidelity" in Actions:
                     try :
                         fidelity()
                     except Exception as e :
-                        log_error(e, driver, _mail)
+                        log_error(e)
 
                 if "dev" in Actions:
                     try:
@@ -937,8 +976,12 @@ else:
     ) as p:
         task = modules.progress.dico(p)
     
-        for _mail, _password in Credentials:
-            #system("pkill -9 firefox")
+        for cred in Credentials:
+            _mail = cred[0]
+            _password = cred[1]
+            if len(cred) == 3:
+                _otp = TOTP(cred[2])
+
             print("\n\n")
             print(_mail)
             custom_sleep(1)

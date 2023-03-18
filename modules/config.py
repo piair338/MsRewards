@@ -7,7 +7,9 @@ import argparse
 from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
     RequestsWebhookAdapter,
     Webhook,
+    Colour,
 )
+
 from time import time
 from random import shuffle
 

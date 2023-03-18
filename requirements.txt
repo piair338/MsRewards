@@ -8,3 +8,4 @@ requests
 pyvirtualdisplay
 pillow
 EasyProcess
+pyotp
