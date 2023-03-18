@@ -44,6 +44,8 @@ custom_sleep = CustomSleep
 
 
 def log_error(error, driver=driver, log=FULL_LOG):
+    if driver is None:
+        global driver
     if type(error) != str :
         error = format_error(error)
     print(f"\n\n\033[93m Erreur : {str(error)}  \033[0m\n\n")
