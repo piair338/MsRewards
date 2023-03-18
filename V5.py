@@ -665,9 +665,10 @@ def mobile_login(error):
             mobile_driver.find_element(By.ID, "mHamburger").click()
         except Exception as e :
             log_error(f"trying something. 1 {e}", mobile_driver, _mail)
-            mobile_driver.find_element(By.TAG_NAME, "body").send_keys(Keys.UP) #force apparition of hamurger menu
-            log_error(f"trying something. 2 {e}", mobile_driver, _mail)
+            elm = mobile_driver.find_element(By.ID, "mHamburger") 
+            mobile_driver.execute_script("arguments[0].scrollIntoView();", elm)
             mobile_driver.find_element(By.ID, "mHamburger").click()
+            log_error(f"trying something. 2 {e}", mobile_driver, _mail)
 
         wait_until_visible(By.ID, "hb_s", browser=mobile_driver)
         mobile_driver.find_element(By.ID, "hb_s").click()
