@@ -88,11 +88,12 @@ def firefox_driver(mobile=False, Headless=False):
         options.add_argument("-headless")
     if mobile :
         options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
+        driver = webdriver.Firefox(options=options)
         driver.set_window_size(1070 + hash(_mail)%20 , 1900 + hash(_password + "salt")%10) # mobile resolution are crazy high now, right ?
     else :
         options.set_preference("general.useragent.override", PC_USER_AGENT)
+        driver = webdriver.Firefox(options=options)
         driver.set_window_size(1900 + hash(_mail)%20 , 1070 + hash(_password + "salt")%10)
-    driver = webdriver.Firefox(options=options)
     
     return(driver)
 
