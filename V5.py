@@ -43,7 +43,7 @@ def printf(e, f = ""):
 custom_sleep = CustomSleep
 
 
-def log_error(error, driver=driver log=FULL_LOG):
+def log_error(error, driver=driver, log=FULL_LOG):
     if type(error) != str :
         error = format_error(error)
     print(f"\n\n\033[93m Erreur : {str(error)}  \033[0m\n\n")
@@ -699,7 +699,8 @@ def mobile_login(error):
     try:
         # TODO 
         # seems fine, check if there are no issues
-        mobile_driver.get(f"https://www.bing.com/search?q={choice(Liste_de_mot).replace(" ","+")}")
+        mot = choice(Liste_de_mot).replace(" ","+")
+        mobile_driver.get(f"https://www.bing.com/search?q={mot}")
         mobile_rgpd()
         printf("start of Mobile login")
         try :
@@ -834,7 +835,7 @@ def CustomStart(Credentials):
     global START_TIME
     if not LINUX_HOST :
         raise NameError('You need to be on linux to do that, due to the utilisation of a module named enquieries, sorry.') 
-    global driver, _mail, _password, p, task
+    global driver, _mail, _password, p, task, _otp
 
     system("clear")  # clear from previous command to allow a clean choice
     actions = ["tout", "daily", "pc", "mobile", "log_points","fidelity", "dev"]
@@ -849,7 +850,11 @@ def CustomStart(Credentials):
         TimeElapsedColumn(),
     ) as p:
         task = modules.progress.dico(p)
-        for _mail, _password in liste:
+        for cred in Credentials:
+            _mail = cred[0]
+            _password = cred[1]
+            if len(cred) == 3:
+                _otp = TOTP(cred[2])
 
             driver = firefox_driver()
             driver.implicitly_wait(3)
