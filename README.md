@@ -1,8 +1,8 @@
 #  MsReward
 
 
-A Microsoft reward automator, designed to work headless on a raspberry pi. Tested with a pi 3b+ and a pi 4 2Gb .  
-Using a discord webhook or SQL to log points everydays.  
+A Microsoft reward automator, designed to work headless on any server.  
+Using a discord webhook or SQL to log points everyday.  
 Using Selenium and geckodriver.
 
 ## If you're using docker (way easier)  
