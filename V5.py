@@ -522,7 +522,8 @@ def login():
 # Makes 30 search as PC Edge
 def bing_pc_search(override=randint(35, 40)):
     StartTask(task["PC"])
-    driver.get(f"https://www.bing.com/search?q=bing")  # {choice(Liste_de_mot)}')
+    mot = choice(Liste_de_mot).replace(" ","+")
+    driver.get(f"https://www.bing.com/search?q={mot}")  # {choice(Liste_de_mot)}')
     custom_sleep(uniform(1, 2))
     rgpd_popup()
     send_keys_wait(
@@ -723,6 +724,14 @@ def mobile_login(error):
         send_keys_wait(pwd_elem, _password)
         pwd_elem.send_keys(Keys.ENTER)
         custom_sleep(uniform(1, 2))
+        if "Entrez le code de sécurité" in driver.page_source :
+            try : 
+                a2f_elem = mobile_driver.find_element(By.ID, "idTxtBx_SAOTCC_OTC")
+                a2f_elem.send_keys(_otp.now())
+                a2f_elem.send_keys(Keys.ENTER)
+            except Exception as e :
+                log_error(e)
+        custom_sleep(uniform(1, 2))        
         for i in ["KmsiCheckboxField", "iLooksGood", "idSIButton9"]:
             try:
                 mobile_driver.find_element(By.ID,i ).click()
