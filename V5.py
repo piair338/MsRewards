@@ -19,7 +19,6 @@ from pyotp import TOTP
 from pyvirtualdisplay import Display
 from pyvirtualdisplay.smartdisplay import SmartDisplay
 
-from rich.progress import BarColumn, Progress, TextColumn, Progress, TimeElapsedColumn, TaskProgressColumn, TimeRemainingColumn
 
 from modules.db import add_to_database
 from modules.config import *
@@ -180,7 +179,7 @@ def play_quiz2(override=10) -> None:
     printf("play_quiz2 done")
 
 
-def play_quiz8(task = None):
+def play_quiz8():
     override = len(findall("<span id=\"rqQuestionState.\" class=\"emptyCircle\"></span>", driver.page_source))+1
     printf(f"play_quiz8 : start, override : {override}")
     try:
@@ -205,8 +204,6 @@ def play_quiz8(task = None):
                     answer_elem = driver.find_element(By.ID, answer_id)
                     answer_elem.click()
                     custom_sleep(1)
-                    if not task is None:
-                        AdvanceTask(task, 1/override / len(correct_answers) * 100)
                 except exceptions.NoSuchElementException :
                     driver.refresh()
                     custom_sleep(10)
@@ -283,9 +280,7 @@ def all_cards():
 
     def daily_cards():
         try:
-            StartTask(task["daily"][f"all"])
             for i in range(3):
-                StartTask(task["daily"][f"carte{i}"])
                 custom_sleep(uniform(3, 5))
                 try:
                     titre = "erreur"
@@ -294,9 +289,7 @@ def all_cards():
                     ).click()
                     sleep(1)
                     titre = driver.title
-                    try_play(titre, task=task["daily"][f"carte{i}"])
-                    AdvanceTask(task["daily"][f"carte{i}"], 100)
-                    ChangeColor(task["daily"][f"carte{i}"], "green")
+                    try_play(titre)
                     sleep(1)
                     reset()
                     printf(f"DailyCard {titre} ok")
@@ -307,7 +300,7 @@ def all_cards():
                     elm = driver.find_element(By.XPATH, f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]/div[1]/div[2]/div")
                     if not ("correctCircle" in elm.get_attribute("innerHTML")):
                         print(f"missed card {i}")
-                        try_play(titre, task=task["daily"][f"carte{i}"])
+                        try_play(titre)
                         sleep(3)
                         reset()
                 except : 
@@ -376,7 +369,7 @@ def all_cards():
 
 
 # Find out which type of action to do
-def try_play(nom="inconnu", task = None):
+def try_play(nom="inconnu"):
     rgpd_popup()
     printf("try_play en cours")
 
@@ -384,7 +377,7 @@ def try_play(nom="inconnu", task = None):
         if number == 8 or number == 9:
             try:
                 printf(f"\033[96m Quiz 8 detected on {nom} \033[0m")
-                play_quiz8(task=task)
+                play_quiz8()
                 printf(f"\033[92m Quiz 8 succeeded on {nom} \033[0m")
                 custom_sleep(uniform(3, 5))
             except Exception as e:
@@ -524,7 +517,6 @@ def login():
 
 # Makes 30 search as PC Edge
 def bing_pc_search(override=randint(35, 40)):
-    StartTask(task["PC"])
     mot = choice(Liste_de_mot).replace(" ","+")
     driver.get(f"https://www.bing.com/search?q={mot}")  # {choice(Liste_de_mot)}')
     custom_sleep(uniform(1, 2))
@@ -547,7 +539,6 @@ def bing_pc_search(override=randint(35, 40)):
             send_keys_wait(driver.find_element(By.ID, "sb_form_q"), word)
             driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
 
-        AdvanceTask(task["PC"], 1/override * 100 )
         custom_sleep(uniform(5, 20))
 
         try:
@@ -559,8 +550,7 @@ def bing_pc_search(override=randint(35, 40)):
                 driver.find_element(By.ID, "sb_form_q").clear()
             except Exception as e:
                 log_error(f"clear la barre de recherche - {format_error(e)}")
-    AdvanceTask(task["PC"], 100 )
-    ChangeColor(task["PC"], "green")
+
 
 
 # Unban an account, called with -u parameter. You will need a phone number
@@ -607,8 +597,12 @@ def log_points(account="unknown"):
             custom_sleep(5)
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
             custom_sleep(uniform(5,7))
-            point = search('availablePoints":([\d]+)', driver.page_source)[1]
-
+            try : 
+                point = search('availablePoints":([\d]+)', driver.page_source)[1]
+            except :
+                driver.refresh()
+                sleep(5)
+                point = search('availablePoints":([\d]+)', driver.page_source)[1]
         return(point)
 
     for _ in range (3):
@@ -778,7 +772,6 @@ def bing_mobile_search(override=randint(22, 25)):
     mobile_driver = firefox_driver(mobile=True)
     try:
         if not mobile_login(0):
-            StartTask(task["Mobile"])
             custom_sleep(uniform(1, 2))
             mobile_rgpd()
             custom_sleep(uniform(1, 1.5))
@@ -788,7 +781,6 @@ def bing_mobile_search(override=randint(22, 25)):
                     mot = choice(Liste_de_mot)
                     send_keys_wait(mobile_driver.find_element(By.ID, "sb_form_q"), mot)
                     mobile_driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
-                    AdvanceTask(task["Mobile"], 1/override * 100)
                     custom_sleep(uniform(5, 20))
                     mobile_alert_popup()  # check for alert (asking for position or for allowing notifications)
                     mobile_driver.find_element(By.ID, "sb_form_q").clear()
@@ -797,7 +789,6 @@ def bing_mobile_search(override=randint(22, 25)):
                     custom_sleep(30)
                     i -= 1
             mobile_driver.quit()
-            ChangeColor(task["Mobile"], "green")
 
     except Exception as e:
         log_error(e, mobile_driver)
@@ -805,7 +796,6 @@ def bing_mobile_search(override=randint(22, 25)):
 
 
 def daily_routine(custom = False):
-    ShowDefaultTask()
     try : 
         if not custom: # custom already login 
             login()
@@ -847,72 +837,63 @@ def CustomStart(Credentials):
     global START_TIME
     if not LINUX_HOST :
         raise NameError('You need to be on linux to do that, due to the utilisation of a module named enquieries, sorry.') 
-    global driver, _mail, _password, p, task, _otp
+    global driver, _mail, _password, p, _otp
 
     system("clear")  # clear from previous command to allow a clean choice
     actions = ["tout", "daily", "pc", "mobile", "log_points","fidelity", "dev"]
     Actions = enquiries.choose("quels Actions ?", actions, multi=True)
     liste = select_accounts()
     START_TIME = time() # Reset timer to the start of the actions
-    with Progress(
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TaskProgressColumn(),
-        TimeRemainingColumn(),
-        TimeElapsedColumn(),
-    ) as p:
-        task = modules.progress.dico(p)
-        for cred in Credentials:
-            _mail = cred[0]
-            _password = cred[1]
-            if len(cred) == 3:
-                _otp = TOTP(cred[2])
 
-            driver = firefox_driver()
-            driver.implicitly_wait(3)
+    for cred in liste:
+        _mail = cred[0]
+        _password = cred[1]
+        if len(cred) == 3:
+            _otp = TOTP(cred[2])
 
-            if login() != "STOP":
-                if "tout" in Actions:
-                    daily_routine(True)
+        driver = firefox_driver()
+        driver.implicitly_wait(3)
 
-                if "daily" in Actions:
-                    try:
-                        all_cards()
-                    except Exception as e:
-                        log_error(e)
+        if login() != "STOP":
+            if "tout" in Actions:
+                daily_routine(True)
 
-                if "pc" in Actions:
-                    try:
-                        ShowTask(task["PC"])
-                        bing_pc_search()
-                    except Exception as e:
-                        log_error(e)
+            if "daily" in Actions:
+                try:
+                    all_cards()
+                except Exception as e:
+                    log_error(e)
 
-                if "mobile" in Actions:
-                    try:
-                        ShowTask(task["Mobile"])
-                        bing_mobile_search()
-                    except Exception as e:
-                        log_error(e)
+            if "pc" in Actions:
+                try:
+                    bing_pc_search()
+                except Exception as e:
+                    log_error(e)
 
-                if "fidelity" in Actions:
-                    try :
-                        fidelity()
-                    except Exception as e :
-                        log_error(e)
+            if "mobile" in Actions:
+                try:
+                    bing_mobile_search()
+                except Exception as e:
+                    log_error(e)
 
-                if "dev" in Actions:
-                    try:
-                        dev()
-                    except Exception as e:
-                        printf(e)
-                        break
+            if "fidelity" in Actions:
+                try :
+                    fidelity()
+                except Exception as e :
+                    log_error(e)
 
-                if not "tout" in Actions:
-                    try:
-                        log_points(_mail)
-                    except Exception as e:
-                        print(f"CustomStart {e}")
+            if "dev" in Actions:
+                try:
+                    dev()
+                except Exception as e:
+                    printf(e)
+                    break
+
+            if not "tout" in Actions:
+                try:
+                    log_points(_mail)
+                except Exception as e:
+                    print(f"CustomStart {e}")
             driver.close()
 
 
@@ -936,30 +917,6 @@ def SavePointsFromFile(file):
         f.write("")
 
 
-def StartTask(task):
-    ChangeColor(task, "blue")
-    p.start_task(task)
-    p.update(task, advance=0) # Reset the Task if it was already filled to 100%
-
-def ShowTask(task):
-    p.update(task, visible=True)
-
-def AdvanceTask(task, pourcentage):
-    p.update(task, advance=pourcentage)
-
-def ChangeColor(task, newcolor):
-    old = p.tasks[task].description
-    old = old.split(']')
-    old[0] = f"[{newcolor}"
-    new = "]".join(old)
-    p.update(task,description=new)
-
-def ShowDefaultTask():
-    for i in ["all", "carte1", "carte2", "carte0"]:
-        ShowTask(task["daily"][i])
-    
-    for i in ["PC", "Mobile"]:
-        ShowTask(task[i])
 
 
 if VNC_ENABLED : 
@@ -984,43 +941,34 @@ elif UNBAN:
 elif POINTS_FILE != "":
     SavePointsFromFile(POINTS_FILE)
 else:
-    with Progress(
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TaskProgressColumn(),
-        TimeRemainingColumn(),
-        TimeElapsedColumn(),
-    ) as p:
-        task = modules.progress.dico(p)
-    
-        for cred in Credentials:
-            _mail = cred[0]
-            _password = cred[1]
-            if len(cred) == 3:
-                _otp = TOTP(cred[2])
+    for cred in Credentials:
+        _mail = cred[0]
+        _password = cred[1]
+        if len(cred) == 3:
+            _otp = TOTP(cred[2])
 
-            print("\n\n")
-            print(_mail)
-            custom_sleep(1)
-            printf("début du driver")
-            driver = firefox_driver()
-            printf("driver demarré")
-            driver.implicitly_wait(3)
+        print("\n\n")
+        print(_mail)
+        custom_sleep(1)
+        printf("début du driver")
+        driver = firefox_driver()
+        printf("driver demarré")
+        driver.implicitly_wait(3)
 
-            try:
-                daily_routine()
-                driver.quit()
-                attente = uniform(1200, 3600)
-                printf(f"finis. attente de {round(attente/60)}min")
-                custom_sleep(attente)
+        try:
+            daily_routine()
+            driver.quit()
+            attente = uniform(1200, 3600)
+            printf(f"finis. attente de {round(attente/60)}min")
+            custom_sleep(attente)
 
-            except KeyboardInterrupt:
-                print("canceled. Closing driver and display.")
-                driver.quit()
-                display.stop()
-            except Exception as e:
-                print(f"error not catch. skipping this account. {e}")
-                driver.quit()
+        except KeyboardInterrupt:
+            print("canceled. Closing driver and display.")
+            driver.quit()
+            display.stop()
+        except Exception as e:
+            print(f"error not catch. skipping this account. {e}")
+            driver.quit()
 
 
 display.stop()
