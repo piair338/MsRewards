@@ -33,25 +33,23 @@ global _mail, _password, _otp, display
 
 # TODO : replace by a better print (with logging, cf https://realpython.com/python-logging/)
 def printf(e, f = ""):
-    print(e+f)
+    print(str(e)+f)
 
 # TODO
 # handle "panda"'s error: error while logging in preventing some task to be done
-# check that each card worked (lot of misses lately) -- test that
+# check that each card worked (lot of misses lately) -- test that -- don't crash at least
 # add date and account before print
 
 custom_sleep = CustomSleep
 
 
-def log_error(error, driver=driver, log=FULL_LOG):
-    if driver is None:
-        global driver
+def log_error(error, ldriver=driver, log=FULL_LOG):
     if type(error) != str :
         error = format_error(error)
     print(f"\n\n\033[93m Erreur : {str(error)}  \033[0m\n\n")
     if DISCORD_ENABLED_ERROR:
         with open("page.html", "w") as f:
-            f.write(driver.page_source)
+            f.write(ldriver.page_source)
         img = display.waitgrab()
         img.save("screenshot.png")
         if not log:
@@ -449,10 +447,12 @@ def login():
     def sub_login():    
         printf("sub_login : start")
         driver.get("https://login.live.com")
+        custom_sleep(2)
         wait_until_visible(By.ID, "i0116", browser = driver)
         mail_elem = driver.find_element(By.ID, "i0116")
         send_keys_wait(mail_elem, _mail)
         mail_elem.send_keys(Keys.ENTER)
+        custom_sleep(2)
         wait_until_visible(By.ID, "i0118", browser = driver)
         pwd_elem = driver.find_element(By.ID, "i0118")
         send_keys_wait(pwd_elem, _password)
@@ -708,11 +708,9 @@ def mobile_login(error):
         try :
             mobile_driver.find_element(By.ID, "mHamburger").click()
         except Exception as e :
-            log_error(f"trying something. 1 {e}", mobile_driver)
             elm = mobile_driver.find_element(By.ID, "mHamburger") 
             mobile_driver.execute_script("arguments[0].scrollIntoView();", elm)
             mobile_driver.find_element(By.ID, "mHamburger").click()
-            log_error(f"trying something. 2 {e}", mobile_driver)
 
         wait_until_visible(By.ID, "hb_s", browser=mobile_driver)
         mobile_driver.find_element(By.ID, "hb_s").click()
@@ -953,9 +951,9 @@ def ShowDefaultTask():
 
 
 if VNC_ENABLED : 
-    display = Display(backend="xvnc", size=(2000, 1100), rfbport=VNC_PORT, color_depth=24) 
+    display = SmartDisplay(backend="xvnc", size=(2160, 2160), rfbport=VNC_PORT, color_depth=24) 
 else :
-    display = SmartDisplay(size=(2000, 1100)) 
+    display = SmartDisplay(size=(2160, 2160)) 
 display.start()
 
 
