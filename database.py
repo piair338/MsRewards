@@ -1,6 +1,18 @@
 import mysql.connector
 import configparser
 from os import path
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "-f", 
+    "--file", 
+    help="Choose a file", 
+    type=argparse.FileType('r')
+)
+
+args = parser.parse_args()
+
 
 config_path = "./user_data/config.cfg"
 config = configparser.ConfigParser()
@@ -39,10 +51,17 @@ def update_pts(name: str, pts = 0):
 print("ajouter un compte : 1\nban un compte : 2")
 i = input()
 if i == "1":
-    name = input("quel est le nom ? ").split("@")[0]
-    endroit = input("ou est le bot ? ")
-    proprio = input("qui est le proprio ? ")
-    add_account(name, endroit, proprio)
+    if args.file :
+        l =[x.split(",")[0] for x in args.file.readlines()] 
+        endroit = input("ou est le bot ? ")
+        proprio = input("qui est le proprio ? ")
+        for name in l :
+            add_account(name, endroit, proprio)
+    else : 
+        name = input("quel est le nom ? ").split("@")[0]
+        endroit = input("ou est le bot ? ")
+        proprio = input("qui est le proprio ? ")
+        add_account(name, endroit, proprio)
 elif i == '2':
     name = input("quel est le compte qui a été ban ? ")
     pts = input("il avait combien de points ? ")
