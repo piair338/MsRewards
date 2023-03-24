@@ -52,7 +52,7 @@ print("ajouter un compte : 1\nban un compte : 2")
 i = input()
 if i == "1":
     if args.file :
-        l =[x.split(",")[0] for x in args.file.readlines()] 
+        l =[x.split(",")[0].split("@")[0] for x in args.file.readlines()] 
         endroit = input("ou est le bot ? ")
         proprio = input("qui est le proprio ? ")
         for name in l :
