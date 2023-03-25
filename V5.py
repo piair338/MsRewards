@@ -18,7 +18,7 @@ from selenium.webdriver.support.ui import Select
 from pyotp import TOTP
 from pyvirtualdisplay import Display
 from pyvirtualdisplay.smartdisplay import SmartDisplay
-
+import pickle
 
 from modules.db import add_to_database
 from modules.config import *
@@ -37,10 +37,17 @@ def printf(e, f = ""):
 # TODO
 # handle "panda"'s error: error while logging in preventing some task to be done
 # check that each card worked (lot of misses lately) -- test that -- don't crash at least
-# add date and account before print
+
 
 custom_sleep = CustomSleep
 
+def save_cookies():
+    pickle.dump(driver.get_cookies(), open(f"{'/'.join(__file__.split('/')[:-1])}/user_data/cookies/{_mail}.pkl", "wb"))
+
+def load_cookies(driver):
+    cookies = pickle.load(open(f"{'/'.join(__file__.split('/')[:-1])}/user_data/cookies/{_mail}.pkl", "rb"))
+    for cookie in cookies:
+        driver.add_cookie(cookie)
 
 def log_error(error, ldriver=driver, log=FULL_LOG):
     global driver
@@ -72,6 +79,7 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
         embed.set_footer(text=_mail)
         webhookFailure.send(embed=embed, file=file)
         webhookFailure.send(file=discord.File("page.html"))
+
 
 # Wait for the presence of the element identifier or [timeout]s
 def wait_until_visible(search_by: str, identifier: str, timeout = 20, browser = driver) -> None:
@@ -123,9 +131,7 @@ def firefox_driver(mobile=False, Headless=False):
         options.set_preference("general.useragent.override", PC_USER_AGENT)
         driver = webdriver.Firefox(options=options)
         driver.set_window_size(1900 + hash(_mail)%20 , 1070 + hash(_password + "salt")%10)
-    
     return(driver)
-
 
 
 # close the tab currently on and go back to the one first, or the one specified
@@ -136,7 +142,7 @@ def close_tab(tab, SwitchTo=0) -> None:
 
 
 #Deal with rgpd popup as well as some random popup like 'are you satisfied' one
-def rgpd_popup() -> None:
+def rgpd_popup(driver) -> None:
     for i in ["bnp_btn_accept", "bnp_hfly_cta2", "bnp_hfly_close"] :
         try:
             driver.find_element(By.ID, i).click()
@@ -150,7 +156,7 @@ def play_quiz2(override=10) -> None:
     printf("starting play_quiz2")
     for j in range(override):
         try:
-            rgpd_popup()
+            rgpd_popup(driver)
             custom_sleep(uniform(3, 5))
             page_html = driver.page_source
             secret_answer = search('IG:"([^"]+)"', page_html)[1]                      # variable used to calculate offset
@@ -184,7 +190,7 @@ def play_quiz8():
     printf(f"play_quiz8 : start, override : {override}")
     try:
         counter = 0
-        rgpd_popup()
+        rgpd_popup(driver)
         for _ in range(override):  
             custom_sleep(uniform(3, 5))
             correct_answers = []
@@ -210,7 +216,7 @@ def play_quiz8():
                     answer_elem = driver.find_element(By.ID, answer_id)
                     answer_elem.click()
                 except ElementClickInterceptedException :
-                    rgpd_popup()
+                    rgpd_popup(driver)
                     correct_answers.append(answer_id)
 
     except Exception as e:
@@ -231,7 +237,7 @@ def play_quiz4(override=None):
         for i in range(override):
             custom_sleep(uniform(3, 5))
             txt = driver.page_source
-            rgpd_popup()
+            rgpd_popup(driver)
             answer_option = search('correctAnswer":"([^"]+)', txt)[1]
             answer_option = answer_option.replace("\\u0027", "'")    # replace Unicode weird symbols
             try:
@@ -309,7 +315,6 @@ def all_cards():
         except Exception as e:
             log_error(e)
     
-
     def weekly_cards():
         try:
             driver.find_element(
@@ -342,7 +347,6 @@ def all_cards():
             except:
                 break
 
-
     def top_cards():
         for _ in range(10):
             try : 
@@ -370,7 +374,7 @@ def all_cards():
 
 # Find out which type of action to do
 def try_play(nom="inconnu"):
-    rgpd_popup()
+    rgpd_popup(driver)
     printf("try_play en cours")
 
     def play(number):
@@ -411,7 +415,7 @@ def try_play(nom="inconnu"):
         if "bt_PollRadio" in driver.page_source:
             try:
                 printf("Poll detected")
-                rgpd_popup()
+                rgpd_popup(driver)
                 do_poll()
                 printf("Poll succeeded")
             except Exception as e:
@@ -427,92 +431,104 @@ def try_play(nom="inconnu"):
 
         elif search("([0-9]) de ([0-9]) finalisée", driver.page_source):
             print("fidélité")
-            rgpd_popup()
+            rgpd_popup(driver)
             fidelity()
 
         else:
             printf(f"rien à faire sur la page {nom}")
-            rgpd_popup()
+            rgpd_popup(driver)
             custom_sleep(uniform(3, 5))
 
 
 # login() tries to login to your Microsoft account.
 # it uses global variable _mail and _password to login
-def login():
-    global driver
-    def sub_login():    
-        printf("sub_login : start")
-        driver.get("https://login.live.com")
+def login(ldriver):
+    def pwd_login():    
+        printf("pwd_login : start")
+        ldriver.get("https://login.live.com")
         custom_sleep(2)
-        wait_until_visible(By.ID, "i0116", browser = driver)
-        mail_elem = driver.find_element(By.ID, "i0116")
+        wait_until_visible(By.ID, "i0116", browser = ldriver)
+        mail_elem = ldriver.find_element(By.ID, "i0116")
         send_keys_wait(mail_elem, _mail)
         mail_elem.send_keys(Keys.ENTER)
         custom_sleep(2)
-        wait_until_visible(By.ID, "i0118", browser = driver)
-        pwd_elem = driver.find_element(By.ID, "i0118")
+        wait_until_visible(By.ID, "i0118", browser = ldriver)
+        pwd_elem = ldriver.find_element(By.ID, "i0118")
         send_keys_wait(pwd_elem, _password)
         pwd_elem.send_keys(Keys.ENTER)
         custom_sleep(2)
-        if "Entrez le code de sécurité" in driver.page_source :
+        if "Entrez le code de sécurité" in ldriver.page_source :
             try : 
-                a2f_elem = driver.find_element(By.ID, "idTxtBx_SAOTCC_OTC")
+                a2f_elem = ldriver.find_element(By.ID, "idTxtBx_SAOTCC_OTC")
                 a2f_elem.send_keys(_otp.now())
                 a2f_elem.send_keys(Keys.ENTER)
             except Exception as e :
                 log_error(e)
         custom_sleep(5)
 
-
-        if ('Abuse' in driver.current_url) : 
+        if ('Abuse' in ldriver.current_url) : 
             log_error("account suspended")
             raise Banned()
-
+        save_cookies()
         for id in ["KmsiCheckboxField","iLooksGood", "idSIButton9", "iCancel"]:
             try:
-                driver.find_element(By.ID, id).click()
+                ldriver.find_element(By.ID, id).click()
                 restart = True
             except Exception as e:
                 pass
 
         try : 
-            body_elem = driver.find_element(By.TAG_NAME, "body") # in case of any random popup
+            body_elem = ldriver.find_element(By.TAG_NAME, "body") # in case of any random popup
             body_elem.send_keys(Keys.ENTER)
         except :
             pass
-
         printf("login completed - going to MsRewards")
         custom_sleep(uniform(3,5))
-        driver.get("https://www.bing.com/rewardsapp/flyout")
+        ldriver.get("https://www.bing.com/rewardsapp/flyout")
         custom_sleep(uniform(3,5))
         for i in [f'[title="Rejoindre maintenant"]', f'[title="Rejoindre"]', f'[title="Join now"]'] :
             try:
-                driver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
+                ldriver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
             except:
                 print(f"element {i} not found")
-        rgpd_popup()
+        rgpd_popup(ldriver)
         custom_sleep(uniform(3,5))
-
-        driver.get("https://www.bing.com/rewardsapp/flyout")
+        ldriver.get("https://www.bing.com/rewardsapp/flyout")
         try:
-            driver.find_element(By.CSS_SELECTOR, '[title="Rejoindre maintenant"]').click()  # depend of the language of the page
+            ldriver.find_element(By.CSS_SELECTOR, '[title="Rejoindre maintenant"]').click()  # depend of the language of the page
         except:
             print(f"unlock test: fail, probably normal")
             
         print('on MsRewards')
-        
-    for _ in range(3) :
+    
+    def cookie_login():
+        ldriver.get("https://login.live.com")
         try : 
-            sub_login()
-            return (driver.current_window_handle)
-        except Banned:
-            raise Banned()
-        except Exception as e:
-            log_error(e)
-            driver.quit()
-            custom_sleep(1200)
-            driver = firefox_driver()
-    return("STOP")
+            load_cookies(ldriver)
+        except FileNotFoundError :
+            print("Creating cookies file")
+
+        ldriver.refresh()
+        CustomSleep(10)
+        if ("account.microsoft.com" in ldriver.current_url) :
+            ldriver.get("https://bing.com")
+            rgpd_popup(ldriver)
+            ldriver.get("https://www.bing.com/rewardsapp/flyout")
+            return(True)
+        return(False)
+
+    try : 
+        if cookie_login():
+            return (ldriver.current_window_handle)
+        pwd_login()
+        return(ldriver.current_window_handle)
+    except Banned:
+        raise Banned()
+    except Exception as e:
+        log_error(e)
+        ldriver.quit()
+
+
 
 
 # Makes 30 search as PC Edge
@@ -520,7 +536,7 @@ def bing_pc_search(override=randint(35, 40)):
     mot = choice(Liste_de_mot).replace(" ","+")
     driver.get(f"https://www.bing.com/search?q={mot}")  # {choice(Liste_de_mot)}')
     custom_sleep(uniform(1, 2))
-    rgpd_popup()
+    rgpd_popup(driver)
     send_keys_wait(
         driver.find_element(By.ID, "sb_form_q"),
           Keys.BACKSPACE + Keys.BACKSPACE + Keys.BACKSPACE + Keys.BACKSPACE + Keys.BACKSPACE + Keys.BACKSPACE
@@ -695,13 +711,13 @@ def fidelity():
         log_error(e)
 
 
-def mobile_login(error):
+def mobile_login_pwd(error):
     try:
         # TODO 
-        # seems fine, check if there are no issues
+        # seems fine, check if there are no issues NO
         mot = choice(Liste_de_mot).replace(" ","+")
         mobile_driver.get(f"https://www.bing.com/search?q={mot}")
-        mobile_rgpd()
+        rgpd_popup(mobile_driver)
         printf("start of Mobile login")
         try :
             mobile_driver.find_element(By.ID, "mHamburger").click()
@@ -742,19 +758,11 @@ def mobile_login(error):
         if error <= 3:
             printf(f"failure on mobile_login. Retrying({error}/3), {e}")
             custom_sleep(uniform(5, 10))
-            mobile_login(error)
+            mobile_login_pwd(error)
         else:
             log_error(f"login impossible 3 fois de suite. {e}", mobile_driver)
             mobile_driver.quit()
             return(True)
-
-
-def mobile_rgpd():
-    for id in ["bnp_btn_accept", "bnp_hfly_cta2"]:
-        try:
-            mobile_driver.find_element(By.ID, id).click()
-        except Exception:
-            pass
 
 
 def mobile_alert_popup():
@@ -768,27 +776,30 @@ def mobile_alert_popup():
 
 
 def bing_mobile_search(override=randint(22, 25)):
+    print(1)
     global mobile_driver
     mobile_driver = firefox_driver(mobile=True)
     try:
-        if not mobile_login(0):
-            custom_sleep(uniform(1, 2))
-            mobile_rgpd()
-            custom_sleep(uniform(1, 1.5))
-    
-            for i in range(override):  # 20
-                try :
-                    mot = choice(Liste_de_mot)
-                    send_keys_wait(mobile_driver.find_element(By.ID, "sb_form_q"), mot)
-                    mobile_driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
-                    custom_sleep(uniform(5, 20))
-                    mobile_alert_popup()  # check for alert (asking for position or for allowing notifications)
-                    mobile_driver.find_element(By.ID, "sb_form_q").clear()
-                except :
-                    driver.refresh()
-                    custom_sleep(30)
-                    i -= 1
-            mobile_driver.quit()
+        login(mobile_driver)
+        mot = choice(Liste_de_mot).replace(" ","+")
+        mobile_driver.get(f"https://www.bing.com/search?q={mot}")
+        custom_sleep(uniform(1, 2))
+        rgpd_popup(mobile_driver)
+        custom_sleep(uniform(1, 1.5))
+        for i in range(override):  # 20
+            try :
+                mot = choice(Liste_de_mot)
+                send_keys_wait(mobile_driver.find_element(By.ID, "sb_form_q"), mot)
+                mobile_driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
+                custom_sleep(uniform(5, 20))
+                mobile_alert_popup()  # check for alert (asking for position or for allowing notifications)
+                mobile_driver.find_element(By.ID, "sb_form_q").clear()
+            except Exception as e:
+                print(e)
+                mobile_driver.refresh()
+                custom_sleep(30)
+                i -= 1
+        mobile_driver.quit()
 
     except Exception as e:
         log_error(e, mobile_driver)
@@ -798,7 +809,7 @@ def bing_mobile_search(override=randint(22, 25)):
 def daily_routine(custom = False):
     try : 
         if not custom: # custom already login 
-            login()
+            login(driver)
     except Banned :
         log_error("THIS ACCOUNT IS BANNED. FIX THIS ISSUE WITH -U")
         return()
@@ -854,41 +865,35 @@ def CustomStart(Credentials):
         driver = firefox_driver()
         driver.implicitly_wait(3)
 
-        if login() != "STOP":
+        if login(driver) != "STOP":
             if "tout" in Actions:
                 daily_routine(True)
-
             if "daily" in Actions:
                 try:
                     all_cards()
                 except Exception as e:
                     log_error(e)
-
             if "pc" in Actions:
                 try:
                     bing_pc_search()
                 except Exception as e:
                     log_error(e)
-
             if "mobile" in Actions:
                 try:
                     bing_mobile_search()
                 except Exception as e:
                     log_error(e)
-
             if "fidelity" in Actions:
                 try :
                     fidelity()
                 except Exception as e :
                     log_error(e)
-
             if "dev" in Actions:
                 try:
                     dev()
                 except Exception as e:
                     printf(e)
                     break
-
             if not "tout" in Actions:
                 try:
                     log_points(_mail)
@@ -912,11 +917,9 @@ def SavePointsFromFile(file):
     for item in points_list:
         compte, points = item[0], item[1]
         add_to_database(compte, points, sql_host,sql_usr,sql_pwd,sql_database, save_if_fail=False)
-    
+
     with open(file, "w") as f:
         f.write("")
-
-
 
 
 if VNC_ENABLED : 
@@ -932,12 +935,11 @@ elif UNBAN:
     _mail, _password  = select_accounts(False)[0]
     driver = firefox_driver()
     try : 
-        login()
+        login(driver)
     except Banned:
         unban()
 
     driver.quit()
-
 elif POINTS_FILE != "":
     SavePointsFromFile(POINTS_FILE)
 else:
@@ -946,7 +948,6 @@ else:
         _password = cred[1]
         if len(cred) == 3:
             _otp = TOTP(cred[2])
-
         print("\n\n")
         print(_mail)
         custom_sleep(1)
@@ -954,14 +955,12 @@ else:
         driver = firefox_driver()
         printf("driver demarré")
         driver.implicitly_wait(3)
-
         try:
             daily_routine()
             driver.quit()
             attente = uniform(1200, 3600)
             printf(f"finis. attente de {round(attente/60)}min")
             custom_sleep(attente)
-
         except KeyboardInterrupt:
             print("canceled. Closing driver and display.")
             driver.quit()
@@ -969,6 +968,5 @@ else:
         except Exception as e:
             print(f"error not catch. skipping this account. {e}")
             driver.quit()
-
 
 display.stop()
