@@ -6,8 +6,8 @@ update.sh
 page.html
 screenshot.png
 login.csv
-requirements.txt
 data
 **/__pycache__
 /user_data
 install.sh
+nohup.out
