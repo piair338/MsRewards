@@ -38,7 +38,7 @@ def printf(e, f = ""):
 # TODO
 # handle "panda"'s error: error while logging in preventing some task to be done
 # check that each card worked (lot of misses lately) -- test that -- don't crash at least
-
+# Fix l'affichage du compteur de custom_sleep
 
 custom_sleep = CustomSleep
 
@@ -516,13 +516,22 @@ def login(ldriver):
         except WebDriverException as e:
             if "Reached error page: about:neterror?e=netTimeout" in str(e):
                 print("Timeout error occurred. \"normal\".....")
+                log_error("test - 1", ldriver, True)
             else:
                 log_error(e)
         CustomSleep(10)
         if ("account.microsoft.com" in ldriver.current_url) :
             ldriver.get("https://bing.com")
+            custom_sleep(5)
+            log_error("test - 2", ldriver, True)
+            ldriver.refresh()
+            log_error("test - 3", ldriver, True)
             rgpd_popup(ldriver)
+            log_error("test - 4", ldriver, True)
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
+            log_error("test - 5", ldriver, True)
+            ldriver.refresh()
+            log_error("test - 6", ldriver, True)
             return(True)
         print("cookies plus valides")
         return(False)
@@ -786,7 +795,6 @@ def mobile_alert_popup():
 
 
 def bing_mobile_search(override=randint(22, 25)):
-    print(1)
     global mobile_driver
     mobile_driver = firefox_driver(mobile=True)
     try:
