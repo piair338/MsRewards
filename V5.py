@@ -9,6 +9,7 @@ from time import sleep
 from requests import get
 from selenium import webdriver
 from selenium.common import exceptions
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
@@ -59,8 +60,11 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
     if DISCORD_ENABLED_ERROR:
         with open("page.html", "w") as f:
             f.write(ldriver.page_source)
-        img = display.waitgrab()
-        img.save("screenshot.png")
+        try : 
+            img = display.waitgrab()
+            img.save("screenshot.png")
+        except :
+            ldriver.save_screenshot("screenshot.png")
         if not log:
             embed = discord.Embed(
                 title="An Error has occured",
@@ -73,7 +77,6 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
                 description=str(error),
                 colour=Colour.blue(),
             )
-
         file = discord.File("screenshot.png")
         embed.set_image(url="attachment://screenshot.png")
         embed.set_footer(text=_mail)
@@ -104,7 +107,7 @@ def setup_proxy(ip, port, options, socks=False) :
         }
 
 # create a webdriver 
-def firefox_driver(mobile=False, Headless=False):
+def firefox_driver(mobile=False, headless=False):
     PC_USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         "AppleWebKit/537.36 (KHTML, like Gecko)"
@@ -121,7 +124,7 @@ def firefox_driver(mobile=False, Headless=False):
     options.set_preference("browser.link.open_newwindow", 3)
     if FAST :
         options.set_preference("permissions.default.image", 2) #disable image loading. You shouldn't use it except if really nessecary 
-    if Headless:
+    if headless:
         options.add_argument("-headless")
     if mobile :
         options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
@@ -507,14 +510,21 @@ def login(ldriver):
             load_cookies(ldriver)
         except FileNotFoundError :
             print("Creating cookies file")
-
-        ldriver.refresh()
+            return(False)
+        try : # truc chelou sur docker (O)
+            ldriver.refresh()
+        except WebDriverException as e:
+            if "Reached error page: about:neterror?e=netTimeout" in str(e):
+                print("Timeout error occurred. \"normal\".....")
+            else:
+                log_error(e)
         CustomSleep(10)
         if ("account.microsoft.com" in ldriver.current_url) :
             ldriver.get("https://bing.com")
             rgpd_popup(ldriver)
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
             return(True)
+        print("cookies plus valides")
         return(False)
 
     try : 
@@ -966,7 +976,7 @@ else:
             driver.quit()
             display.stop()
         except Exception as e:
-            print(f"error not catch. skipping this account. {e}")
+            print(f"error not catched. skipping this account. {e}")
             driver.quit()
 
 display.stop()
