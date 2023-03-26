@@ -50,7 +50,7 @@ def CustomSleep(temps):
         if FAST and temps > 50:
             sleep(temps/10)
             return()
-        if not LOG or not LINUX_HOST: #only print sleep when user see it
+        if LOG: #only print sleep when user see it
             points = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
             passe = 0
             for i in range(int(temps)):
