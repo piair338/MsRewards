@@ -22,6 +22,37 @@ def printf(e, f = ""):
 custom_sleep = CustomSleep
 
 
+# create a webdriver 
+def firefox_driver(mobile=False, headless=False):
+    PC_USER_AGENT = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+        "AppleWebKit/537.36 (KHTML, like Gecko)"
+        "Chrome/112.0.0.0 Safari/537.36 Edg/110.0.1587.56")
+    MOBILE_USER_AGENT = (
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X)"
+        "AppleWebKit/605.1.15 (KHTML, like Gecko)"
+        "CriOS/107.0.5060.63 Mobile/15E148 Safari/604.1"
+    )
+    options = Options()
+    options.set_preference('intl.accept_languages', 'fr-FR, fr')
+    if proxy_enabled :
+        setup_proxy(proxy_address,proxy_port, options)
+    options.set_preference("browser.link.open_newwindow", 3)
+    if FAST :
+        options.set_preference("permissions.default.image", 2) #disable image loading. You shouldn't use it except if really nessecary 
+    if headless:
+        options.add_argument("-headless")
+    if mobile :
+        options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
+        driver = webdriver.Firefox(options=options)
+        driver.set_window_size(1070 + hash(_mail)%20 , 1900 + hash(_password + "salt")%10) # mobile resolution are crazy high now, right ?
+    else :
+        options.set_preference("general.useragent.override", PC_USER_AGENT)
+        driver = webdriver.Firefox(options=options)
+        driver.set_window_size(1900 + hash(_mail)%20 , 1070 + hash(_password + "salt")%10)
+    return(driver)
+
+
 def log_error(error, ldriver=driver, log=FULL_LOG):
     global driver
     if ldriver is None:
@@ -38,22 +69,22 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
         except :
             ldriver.save_screenshot("screenshot.png")
         if not log:
-            embed = discord.Embed(
+            embed = Embed(
                 title="An Error has occured",
                 description=str(error),
                 colour=Colour.red(),
             )
         else:
-            embed = discord.Embed(
+            embed = Embed(
                 title="Full log is enabled",
                 description=str(error),
                 colour=Colour.blue(),
             )
-        file = discord.File("screenshot.png")
+        file = File("screenshot.png")
         embed.set_image(url="attachment://screenshot.png")
         embed.set_footer(text=_mail)
         webhookFailure.send(embed=embed, file=file)
-        webhookFailure.send(file=discord.File("page.html"))
+        webhookFailure.send(file=File("page.html"))
 
 
 
@@ -383,7 +414,7 @@ def login(ldriver):
         if ('Abuse' in ldriver.current_url) : 
             log_error("account suspended")
             raise Banned()
-        save_cookies(driver)
+        save_cookies(driver, _mail)
         for id in ["KmsiCheckboxField","iLooksGood", "idSIButton9", "iCancel"]:
             try:
                 ldriver.find_element(By.ID, id).click()
@@ -418,7 +449,7 @@ def login(ldriver):
     def cookie_login():
         ldriver.get("https://login.live.com")
         try : 
-            load_cookies(ldriver)
+            load_cookies(ldriver, _mail)
         except FileNotFoundError :
             print("Creating cookies file")
             return(False)
@@ -562,7 +593,7 @@ def log_points(account="unknown"):
 
     if DISCORD_ENABLED_SUCCESS:
         if DISCORD_EMBED:
-            embed = discord.Embed(
+            embed = Embed(
                 title=f"{account_name} actuellement à {str(points)} points", colour=Colour.green()
             )
             embed.set_footer(text=account_name)
