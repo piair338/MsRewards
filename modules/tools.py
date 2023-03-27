@@ -1,23 +1,5 @@
-from time import sleep
-from datetime import timedelta, datetime
-from random import uniform
-import discord
-
-from selenium.webdriver.common.by import By
+from modules.imports import *
 from modules.config import *
-
-"""
-send_keys_wait([selenium element:element, str:keys]) send the different keys to the field element, with a random time between each press to simulate human action.
-keys can be an string, but alos selenium keys
-"""
-def send_keys_wait(element, keys):
-    for i in keys:
-        element.send_keys(i)
-        if FAST :
-            pass
-        else :
-            sleep(uniform(0.1, 0.3))
-
 
 
 # add the time arround the text given in [text]&
@@ -80,3 +62,24 @@ def progressBar(current, total=30, barLength=20, name="Progress"):
     arrow = "-" * int(percent / 100 * barLength - 1) + ">"
     spaces = " " * (barLength - len(arrow))
     print(name + ": [%s%s] %d %%" % (arrow, spaces, percent), end="\r")
+
+
+def save_points_from_file(file):
+    with open(file) as f:
+        reader = csv.reader(f)
+        points_list = list(reader)
+
+    for item in points_list:
+        compte, points = item[0], item[1]
+        add_to_database(compte, points, sql_host,sql_usr,sql_pwd,sql_database, save_if_fail=False)
+
+    with open(file, "w") as f:
+        f.write("")
+
+
+def select_accounts(multiple = True):
+    system("clear")  # clear from previous command to allow a clean choice
+    emails = [x[0] for x in Credentials]  # list of all email adresses
+    emails_selected = enquiries.choose(f"quel{'s' if multiple else ''} compte{'s' if multiple else ''} ?", emails, multi=multiple)
+    return([x for x in Credentials if x[0] in emails_selected])
+

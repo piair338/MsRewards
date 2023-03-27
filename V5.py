@@ -1,31 +1,10 @@
 #!/usr/bin/python3.10
-import asyncio
-import csv
-from os import sys, system, path
-from random import choice, randint, shuffle, uniform
-from re import findall, search
-from sys import platform
-from time import sleep
-from requests import get
-from selenium import webdriver
-from selenium.common import exceptions
-from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select
-from pyotp import TOTP
-from pyvirtualdisplay import Display
-from pyvirtualdisplay.smartdisplay import SmartDisplay
-import pickle
-
+from modules.imports import *
 from modules.db import add_to_database
 from modules.config import *
 from modules.tools import *
 from modules.error import *
-import modules.progress
+from modules.driver_tools import *
 
 global driver
 driver = None
@@ -42,13 +21,6 @@ def printf(e, f = ""):
 
 custom_sleep = CustomSleep
 
-def save_cookies():
-    pickle.dump(driver.get_cookies(), open(f"{'/'.join(__file__.split('/')[:-1])}/user_data/cookies/{_mail}.pkl", "wb"))
-
-def load_cookies(driver):
-    cookies = pickle.load(open(f"{'/'.join(__file__.split('/')[:-1])}/user_data/cookies/{_mail}.pkl", "rb"))
-    for cookie in cookies:
-        driver.add_cookie(cookie)
 
 def log_error(error, ldriver=driver, log=FULL_LOG):
     global driver
@@ -84,27 +56,6 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
         webhookFailure.send(file=discord.File("page.html"))
 
 
-# Wait for the presence of the element identifier or [timeout]s
-def wait_until_visible(search_by: str, identifier: str, timeout = 20, browser = driver) -> None:
-    try :
-        WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((search_by,identifier)), "element not found")
-    except TimeoutException as e:
-        print(f"element not found after {timeout}s")
-
-
-def setup_proxy(ip, port, options, socks=False) :
-    PROXY = f"{ip}:{port}"
-    if socks :
-        options.set_preference('network.proxy.type', 1)
-        options.set_preference('network.proxy.socks', ip)
-        options.set_preference('network.proxy.socks_port', int(port))
-        options.set_preference("browser.link.open_newwindow", 3)
-    else :
-        webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
-            "httpProxy": PROXY,
-            "sslProxy": PROXY,
-            "proxyType": "MANUAL",
-        }
 
 # create a webdriver 
 def firefox_driver(mobile=False, headless=False):
@@ -142,15 +93,6 @@ def close_tab(tab, SwitchTo=0) -> None:
     driver.switch_to.window(tab)
     driver.close()
     driver.switch_to.window(driver.window_handles[SwitchTo])
-
-
-#Deal with rgpd popup as well as some random popup like 'are you satisfied' one
-def rgpd_popup(driver) -> None:
-    for i in ["bnp_btn_accept", "bnp_hfly_cta2", "bnp_hfly_close"] :
-        try:
-            driver.find_element(By.ID, i).click()
-        except:
-            pass
 
 
 # play_quiz[N]([int : override]) make the quiz with N choice each time. They usually have between 4 and 10 questions. 
@@ -472,7 +414,7 @@ def login(ldriver):
         if ('Abuse' in ldriver.current_url) : 
             log_error("account suspended")
             raise Banned()
-        save_cookies()
+        save_cookies(driver)
         for id in ["KmsiCheckboxField","iLooksGood", "idSIButton9", "iCancel"]:
             try:
                 ldriver.find_element(By.ID, id).click()
@@ -914,25 +856,6 @@ def CustomStart(Credentials):
             driver.close()
 
 
-def select_accounts(multiple = True):
-    system("clear")  # clear from previous command to allow a clean choice
-    emails = [x[0] for x in Credentials]  # list of all email adresses
-    emails_selected = enquiries.choose(f"quel{'s' if multiple else ''} compte{'s' if multiple else ''} ?", emails, multi=multiple)
-    return([x for x in Credentials if x[0] in emails_selected])
-
-
-def SavePointsFromFile(file):
-    with open(file) as f:
-        reader = csv.reader(f)
-        points_list = list(reader)
-
-    for item in points_list:
-        compte, points = item[0], item[1]
-        add_to_database(compte, points, sql_host,sql_usr,sql_pwd,sql_database, save_if_fail=False)
-
-    with open(file, "w") as f:
-        f.write("")
-
 
 if VNC_ENABLED : 
     display = SmartDisplay(backend="xvnc", size=(2160, 2160), rfbport=VNC_PORT, color_depth=24) 
@@ -953,7 +876,7 @@ elif UNBAN:
 
     driver.quit()
 elif POINTS_FILE != "":
-    SavePointsFromFile(POINTS_FILE)
+    save_points_from_file(POINTS_FILE)
 else:
     for cred in Credentials:
         _mail = cred[0]
