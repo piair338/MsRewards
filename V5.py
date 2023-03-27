@@ -57,37 +57,6 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
 
 
 
-# create a webdriver 
-def firefox_driver(mobile=False, headless=False):
-    PC_USER_AGENT = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-        "AppleWebKit/537.36 (KHTML, like Gecko)"
-        "Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.56")
-    MOBILE_USER_AGENT = (
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X)"
-        "AppleWebKit/605.1.15 (KHTML, like Gecko)"
-        "CriOS/103.0.5060.63 Mobile/15E148 Safari/604.1"
-    )
-    options = Options()
-    options.set_preference('intl.accept_languages', 'fr-FR, fr')
-    if proxy_enabled :
-        setup_proxy(proxy_address,proxy_port, options)
-    options.set_preference("browser.link.open_newwindow", 3)
-    if FAST :
-        options.set_preference("permissions.default.image", 2) #disable image loading. You shouldn't use it except if really nessecary 
-    if headless:
-        options.add_argument("-headless")
-    if mobile :
-        options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
-        driver = webdriver.Firefox(options=options)
-        driver.set_window_size(1070 + hash(_mail)%20 , 1900 + hash(_password + "salt")%10) # mobile resolution are crazy high now, right ?
-    else :
-        options.set_preference("general.useragent.override", PC_USER_AGENT)
-        driver = webdriver.Firefox(options=options)
-        driver.set_window_size(1900 + hash(_mail)%20 , 1070 + hash(_password + "salt")%10)
-    return(driver)
-
-
 # close the tab currently on and go back to the one first, or the one specified
 def close_tab(tab, SwitchTo=0) -> None:
     driver.switch_to.window(tab)
