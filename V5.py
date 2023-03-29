@@ -297,8 +297,8 @@ def all_cards():
 
     def top_cards():
         for _ in range(10):
-            try : 
-                driver.find_element(By.ID, "/html/body/div/div/div[3]/div[1]/div/div[1]/div[2]").click()
+            try :
+                driver.find_element(By.XPATH, "/html/body/div/div/div[3]/div[1]/div/div[1]/div[2]").click()
                 close_tab(driver.window_handles[1])
             except Exception as e:
                 print(e)
