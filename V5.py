@@ -468,8 +468,12 @@ def login(ldriver):
             ldriver.refresh()
             rgpd_popup(ldriver)
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
-            return(True)
-        print("cookies plus valides")
+            if ("Rejoindre maintenant" in ldriver.page_source):
+                log_error("Not Connected 1", ldriver, True)
+                ldriver.refresh()
+                log_error("Not Connected 2", ldriver, True)
+                return(True)
+        print("cookies plus valides ?")
         return(False)
 
     try : 
