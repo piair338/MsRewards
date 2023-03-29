@@ -62,7 +62,10 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
     print(f"\n\n\033[93m Erreur : {str(error)}  \033[0m\n\n")
     if DISCORD_ENABLED_ERROR:
         with open("page.html", "w") as f:
-            f.write(ldriver.page_source)
+            try :
+                f.write(ldriver.page_source)
+            except :
+                f.write("the driver has closed or crashed. Can't access page content")
         try : 
             img = display.waitgrab()
             img.save("screenshot.png")
@@ -468,18 +471,33 @@ def login(ldriver):
             ldriver.refresh()
             rgpd_popup(ldriver)
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
-            if ("Rejoindre maintenant" in ldriver.page_source):
-                log_error("Not Connected 1", ldriver, True)
+            if not('class="b_subtitle bt_join"' in ldriver.page_source):
+                log_error(f"Not Connected 1. autre tag : {'>Tableau de bord' in ldriver.page_source}", ldriver, True)
                 ldriver.refresh()
                 log_error("Not Connected 2", ldriver, True)
-                return(True)
+                if not('class="b_subtitle bt_join"' in ldriver.page_source):
+                    log_error("Not connected 3", ldriver, True)
+                    try : 
+                        driver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()
+                        log_error("not connected 5", ldriver, True)
+                    except Exception as e:
+                        log_error(f"not connected 5 - error {e}", ldriver)
+                    if not('class="b_subtitle bt_join"' in ldriver.page_source):
+                        try : 
+                            driver.find_element(By.XPATH, "/html/body/div/div/div/div/div[2]/a").click()
+                        except Exception as e:
+                            log_error(f"erreur not connected 6{e}", ldriver)
+                        log_error("not connected 6", ldriver, True)
+                        
+
+            return(True)
         print("cookies plus valides ?")
         return(False)
 
     try : 
         if cookie_login():
             return (ldriver.current_window_handle)
-        pwd_login()
+        pwd_login() #mobile login in never called. TODO : check if it's bad.
         return(ldriver.current_window_handle)
     except Banned:
         raise Banned()
