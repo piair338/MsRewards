@@ -471,18 +471,18 @@ def login(ldriver):
             ldriver.refresh()
             rgpd_popup(ldriver)
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
-            if not('class="b_subtitle bt_join"' in ldriver.page_source):
+            if not('>Tableau de bord' in ldriver.page_source):
                 log_error(f"Not Connected 1. autre tag : {'>Tableau de bord' in ldriver.page_source}", ldriver, True)
                 ldriver.refresh()
                 log_error("Not Connected 2", ldriver, True)
-                if not('class="b_subtitle bt_join"' in ldriver.page_source):
+                if not('>Tableau de bord' in ldriver.page_source):
                     log_error("Not connected 3", ldriver, True)
                     try : 
                         driver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()
                         log_error("not connected 5", ldriver, True)
                     except Exception as e:
                         log_error(f"not connected 5 - error {e}", ldriver)
-                    if not('class="b_subtitle bt_join"' in ldriver.page_source):
+                    if not('>Tableau de bord' in ldriver.page_source):
                         try : 
                             driver.find_element(By.XPATH, "/html/body/div/div/div/div/div[2]/a").click()
                         except Exception as e:
