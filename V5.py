@@ -479,6 +479,11 @@ def login(ldriver):
                     log_error("Not connected 3", ldriver, True)
                     try : 
                         driver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()
+                        custom_sleep(5)
+                        if "bing.com" in ldriver.current_url :
+                            driver.get("https://www.bing.com/rewardsapp/flyout")
+                            log_error("connected 4", ldriver, True)
+                            #return(True)
                         log_error("not connected 5", ldriver, True)
                     except Exception as e:
                         log_error(f"not connected 5 - error {e}", ldriver)
