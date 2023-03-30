@@ -481,6 +481,8 @@ def login(ldriver):
                         driver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()
                         custom_sleep(5)
                         if "bing.com" in ldriver.current_url :
+                            log_error("connected 3.5", ldriver, True)
+                            rgpd_popup(ldriver)
                             driver.get("https://www.bing.com/rewardsapp/flyout")
                             log_error("connected 4", ldriver, True)
                             #return(True)
@@ -493,7 +495,6 @@ def login(ldriver):
                         except Exception as e:
                             log_error(f"erreur not connected 6{e}", ldriver)
                         log_error("not connected 6", ldriver, True)
-                        
 
             return(True)
         print("cookies plus valides ?")
