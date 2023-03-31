@@ -460,7 +460,7 @@ def login(ldriver):
             ldriver.refresh()
         except WebDriverException as e:
             if "Reached error page: about:neterror?e=netTimeout" in str(e):
-                print("Timeout error occurred. \"normal\".....")
+                print("Timeout error occurred. \"normal\"....., maybe because of mismatch date ? ")
                 log_error("test - 1", ldriver, True)
             else:
                 log_error(e)
@@ -472,29 +472,25 @@ def login(ldriver):
             rgpd_popup(ldriver)
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
             if not('>Tableau de bord' in ldriver.page_source):
-                log_error(f"Not Connected 1. autre tag : {'>Tableau de bord' in ldriver.page_source}", ldriver, True)
-                ldriver.refresh()
-                log_error("Not Connected 2", ldriver, True)
+                log_error("Not connected 3", ldriver, True)
+                try : 
+                    ldriver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()
+                    custom_sleep(5)
+                    if "bing.com" in ldriver.current_url :
+                        rgpd_popup(ldriver)
+                        ldriver.get("https://www.bing.com/rewardsapp/flyout")
+                        if ('>Tableau de bord' in ldriver.page_source) :
+                            return(True)
+                        else :
+                            log_error("not connected 3", ldriver, True)
+                except Exception as e:
+                    log_error(f"not connected 5 - error {e}", ldriver)
                 if not('>Tableau de bord' in ldriver.page_source):
-                    log_error("Not connected 3", ldriver, True)
                     try : 
-                        driver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()
-                        custom_sleep(5)
-                        if "bing.com" in ldriver.current_url :
-                            log_error("connected 3.5", ldriver, True)
-                            rgpd_popup(ldriver)
-                            driver.get("https://www.bing.com/rewardsapp/flyout")
-                            log_error("connected 4", ldriver, True)
-                            #return(True)
-                        log_error("not connected 5", ldriver, True)
+                        ldriver.find_element(By.XPATH, "/html/body/div/div/div/div/div[2]/a").click()
                     except Exception as e:
-                        log_error(f"not connected 5 - error {e}", ldriver)
-                    if not('>Tableau de bord' in ldriver.page_source):
-                        try : 
-                            driver.find_element(By.XPATH, "/html/body/div/div/div/div/div[2]/a").click()
-                        except Exception as e:
-                            log_error(f"erreur not connected 6{e}", ldriver)
-                        log_error("not connected 6", ldriver, True)
+                        log_error(f"erreur not connected 6{e}", ldriver)
+                    log_error("not connected 6", ldriver, True)
 
             return(True)
         print("cookies plus valides ?")
