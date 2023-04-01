@@ -30,8 +30,8 @@ def firefox_driver(mobile=False, headless=False):
         "Chrome/112.0.0.0 Safari/537.36 Edg/110.0.1587.56")
     MOBILE_USER_AGENT = (
         "Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X)"
-        "AppleWebKit/605.1.15 (KHTML, like Gecko)"
-        "CriOS/107.0.5060.63 Mobile/15E148 Safari/604.1"
+        "AppleWebKit/606.0.2 (KHTML, like Gecko)"
+        "CriOS/107.0.5060.64 Mobile/15E148 Safari/604.1"
     )
     options = Options()
     options.set_preference('intl.accept_languages', 'fr-FR, fr')
@@ -456,12 +456,12 @@ def login(ldriver):
         except FileNotFoundError :
             print("Creating cookies file")
             return(False)
-        try : # truc chelou sur docker (O)
+        try : 
             ldriver.refresh()
-        except WebDriverException as e:
+        except WebDriverException as e: # This error occurs at random time. Don't really know why
             if "Reached error page: about:neterror?e=netTimeout" in str(e):
                 print("Timeout error occurred. \"normal\"....., maybe because of mismatch date ? ")
-                log_error("test - 1", ldriver, True)
+                log_error("Timeout error occurred. \"normal\"....., maybe because of mismatch date ?", ldriver, True) # TODO check this hypothesis
             else:
                 log_error(e)
         CustomSleep(10)
@@ -472,7 +472,6 @@ def login(ldriver):
             rgpd_popup(ldriver)
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
             if not('>Tableau de bord' in ldriver.page_source):
-                log_error("Not connected 3", ldriver, True)
                 try : 
                     ldriver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()
                     custom_sleep(5)
@@ -482,7 +481,7 @@ def login(ldriver):
                         if ('>Tableau de bord' in ldriver.page_source) :
                             return(True)
                         else :
-                            log_error("not connected 3", ldriver, True)
+                            log_error("not connected 3", ldriver)
                 except Exception as e:
                     log_error(f"not connected 5 - error {e}", ldriver)
                 if not('>Tableau de bord' in ldriver.page_source):
