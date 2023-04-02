@@ -36,6 +36,7 @@ def firefox_driver(mobile=False, headless=False):
     if proxy_enabled :
         setup_proxy(proxy_address,proxy_port, options)
     options.set_preference("browser.link.open_newwindow", 3)
+    options.set_preference("dom.confirm_repost.testing.always_accept", True)
     if FAST :
         options.set_preference("permissions.default.image", 2) #disable image loading. You shouldn't use it except if really nessecary 
     if headless:
@@ -228,6 +229,8 @@ def all_cards(): # return to the main page and closes all other tabs
             printf(f"fermeture : {driver.current_url}")
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
+            if driver.current_url != "https://www.bing.com/rewardsapp/flyout":
+                driver.get("https://www.bing.com/rewardsapp/flyout")
             reset(part2)
 
     def daily_cards(): # cartes de la premiere partie (renouvelées chaque jours).
@@ -296,7 +299,7 @@ def all_cards(): # return to the main page and closes all other tabs
         for _ in range(10):
             try :
                 driver.find_element(By.XPATH, "/html/body/div/div/div[3]/div[1]/div/div[1]/div[2]").click()
-                close_tab(driver.window_handles[1])
+                reset()
             except Exception as e:
                 print(format_error(e))
                 break
@@ -794,6 +797,11 @@ def daily_routine(custom = False):
         log_error(e)
 
     try:
+        fidelity()
+    except Exception as e:
+        log_error(e)
+
+    try:
         bing_pc_search()
     except Exception as e:
         log_error(e)
@@ -803,10 +811,6 @@ def daily_routine(custom = False):
     except Exception as e:
         log_error(e)
 
-    try:
-        fidelity()
-    except Exception as e:
-        log_error(e)
 
     try:
         log_points(_mail)

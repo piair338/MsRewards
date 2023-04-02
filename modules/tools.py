@@ -50,7 +50,7 @@ def format_error(e) -> str:
     tb = e.__traceback__
     txt = ""
     while tb != None :
-        txt = txt + f" ({tb.tb_lineno}) -> {tb.tb_frame.f_code.co_name}"
+        txt = txt + f" -> {tb.tb_frame.f_code.co_name} ({tb.tb_lineno}) "
         tb = tb.tb_next
     return(txt + "\n" + str(e))
 
