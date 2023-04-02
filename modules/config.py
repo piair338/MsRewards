@@ -95,7 +95,7 @@ VNC_PORT = args.vnc
 POINTS_FILE = args.points_file
 
 # global variables used later in the code
-LINUX_HOST = platform == "linux" # if the computer running this programm is linux, it allow more things 
+LINUX_HOST = platform == "linux" # if the computer running this program is Linux, it allow more things 
 START_TIME = time()
 
 
@@ -148,7 +148,7 @@ sql_pwd = config["SQL"]["pwd"]
 sql_host = config["SQL"]["host"]
 sql_database = config["SQL"]["database"]
 
-# Other seetings 
+# Other settings 
 IPV6_CHECKED = config["OTHER"]["ipv6"]
 
 

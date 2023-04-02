@@ -8,16 +8,16 @@ def Timer(text: str, mail: str) -> str:
 
 
 # replace the function print, with more options
-# [txt] : string, [driver] : selenium wbdriver
+# [txt] : string, [driver] : selenium webdriver
 def printf2(txt, mail, LOG = LOG):
-    if LOG:
-        print(Timer(txt, mail))
+    print(Timer(txt, mail))
 
 
 
 # check if the user is using IPV4 using ipify.org
 # [driver] : selenium webdriver
 # never used here
+# can be useful as Ms had issues with IPV6 at some point
 def check_ipv4(driver):
     driver.get("https://api64.ipify.org")
     elm = driver.find_element(By.TAG_NAME, "body")
@@ -27,12 +27,11 @@ def check_ipv4(driver):
 
 
 
-def CustomSleep(temps):
+def custom_sleep(temps):
     try : 
         if FAST and temps > 50:
             sleep(temps/10)
-            return()
-        if LOG: #only print sleep when user see it
+        elif LOG: #only print sleep when user see it
             points = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
             passe = 0
             for i in range(int(temps)):
@@ -47,14 +46,13 @@ def CustomSleep(temps):
         print("attente annulée")
 
 
-def format_error(e):
+def format_error(e) -> str:
     tb = e.__traceback__
     txt = ""
     while tb != None :
-        txt = txt + f" -> {tb.tb_frame.f_code.co_name} ({tb.tb_lineno})"
+        txt = txt + f" ({tb.tb_lineno}) -> {tb.tb_frame.f_code.co_name}"
         tb = tb.tb_next
-    #type(ex).__name__ # Type of the error. Useless here.
-    return(txt[4::] + "\n" + str(e))
+    return(txt + "\n" + str(e))
 
 
 def progressBar(current, total=30, barLength=20, name="Progress"):

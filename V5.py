@@ -19,8 +19,6 @@ def printf(e, f = ""):
 # check that each card worked (lot of misses lately) -- test that -- don't crash at least
 # Fix l'affichage du compteur de custom_sleep
 
-custom_sleep = CustomSleep
-
 
 # create a webdriver 
 def firefox_driver(mobile=False, headless=False):
@@ -217,7 +215,7 @@ def do_poll():
 
 
 # finds all task to do, and launch them
-def all_cards():
+def all_cards(): # return to the main page and closes all other tabs
     def reset(part2=False): 
         if len(driver.window_handles) == 1:
             driver.get("https://www.bing.com/rewardsapp/flyout")
@@ -232,14 +230,19 @@ def all_cards():
             driver.switch_to.window(driver.window_handles[0])
             reset(part2)
 
-    def daily_cards():
+    def daily_cards(): # cartes de la premiere partie (renouvelées chaque jours).
         try:
+            # make sure that the daily area is expanded
+            row_element = driver.find_element(By.XPATH, "/html/body/div/div/div[3]/div[2]/div[1]/div[1]")
+            expanded = row_element.get_attribute("aria-expanded")
+            if expanded != "true":
+                row_element.click()
             for i in range(3):
                 custom_sleep(uniform(3, 5))
                 try:
-                    titre = "erreur"
+                    titre = "Placeholder"
                     driver.find_element(
-                        By.XPATH,f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]",
+                        By.XPATH,f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a",
                     ).click()
                     sleep(1)
                     titre = driver.title
@@ -248,7 +251,7 @@ def all_cards():
                     reset()
                     printf(f"DailyCard {titre} ok")
                 except Exception as e:
-                    printf(f"all_cards card {titre} error ({e})")
+                    log_error(f"all_cards card {titre} error ({format_error(e)})")
 
                 try : # devrait renvoyer vrai si la carte i est faite ou pas, a l'aide su symbole en haut a droite de la carte
                     elm = driver.find_element(By.XPATH, f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]/div[1]/div[2]/div")
@@ -257,27 +260,21 @@ def all_cards():
                         try_play(titre)
                         sleep(3)
                         reset()
-                except : 
-                    pass # if it fail, it's probably okay
+                except Exception as e : 
+                    print(format_error(e) + "probablement ok - check card")
+                 # if it fail, it's probably okay -> when all three card are done, the pannel fold
 
         except Exception as e:
             log_error(e)
     
     def weekly_cards():
-        try:
-            driver.find_element(
-                By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]"
-            ).click()  # declenche la premiere partie ?
-        except:
-            reset()
-            try:
-                driver.find_element(
-                    By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]"
-                ).click()  # declenche la deuxieme partie ?
-            except:
-                pass
+        # make sure that the weekly area is expanded
+        row_element = driver.find_element(By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]")
+        expanded = row_element.get_attribute("aria-expanded")
+        if expanded != "true":
+            row_element.click()
 
-        for i in range(20):
+        for i in range(20): # Should raise an error whene there is no card left
             printf("début de l'une des cartes")
             driver.find_element(
                 By.XPATH,
@@ -301,7 +298,7 @@ def all_cards():
                 driver.find_element(By.XPATH, "/html/body/div/div/div[3]/div[1]/div/div[1]/div[2]").click()
                 close_tab(driver.window_handles[1])
             except Exception as e:
-                print(e)
+                print(format_error(e))
                 break
     
     try :
@@ -464,7 +461,7 @@ def login(ldriver):
                 log_error("Timeout error occurred. \"normal\"....., maybe because of mismatch date ?", ldriver, True) # TODO check this hypothesis
             else:
                 log_error(e)
-        CustomSleep(10)
+        custom_sleep(10)
         if ("account.microsoft.com" in ldriver.current_url) :
             ldriver.get("https://bing.com")
             custom_sleep(5)
