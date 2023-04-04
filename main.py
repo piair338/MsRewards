@@ -169,9 +169,10 @@ def check_update():
         print("Already up to date.")
     else :
         print(f"updating to {latest}")
-        os.system("git pull --rebase")
-        os.system("python3 -m pip install -r requirements.txt")
-        print("updated")
+        os.system("git reset --hard")
+        os.system("git pull")
+        os.system("python3 -m pip install -r requirements.txt > update.result")
+        print(f"updated to {latest}")
 
 
 LogPath = config["PATH"]["logpath"]
