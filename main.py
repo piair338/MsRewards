@@ -1,5 +1,5 @@
 #/usr/bin/python3.10
-
+from packaging.version import parse as parse_version
 import configparser
 import os 
 import shutil
@@ -157,13 +157,15 @@ def proxy() :
 def check_update():
     try : 
         latest = requests.get("https://api.github.com/repos/piair338/MsRewards/releases").json()[0]["tag_name"]
+        latest = parse_version(latest)
     except Exception as e :
         print(e) 
         return ()
     f = open("./version", 'r')
     txt = f.readlines()[0].replace("\n","")
     f.close()
-    if (txt == latest) :
+    cur = parse_version(txt)
+    if (cur < latest) :
         print("Already up to date.")
     else :
         print(f"updating to {latest}")
