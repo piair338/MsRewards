@@ -11,8 +11,8 @@ driver = None
 global _mail, _password, _otp, display
 
 # TODO : replace by a better print (with logging, cf https://realpython.com/python-logging/)
-def printf(e, f = ""):
-    print(str(e)+f)
+def printf(e):
+    printf2(str(e), _mail)
 
 # TODO
 # handle "panda"'s error: error while logging in preventing some task to be done
@@ -58,7 +58,7 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
         ldriver = driver
     if type(error) != str :
         error = format_error(error)
-    print(f"\n\n\033[93m Erreur : {str(error)}  \033[0m\n\n")
+    printf(f"\n\n\033[93m Erreur : {str(error)}  \033[0m\n\n")
     if DISCORD_ENABLED_ERROR:
         with open("page.html", "w") as f:
             try :
@@ -259,12 +259,12 @@ def all_cards(): # return to the main page and closes all other tabs
                 try : # devrait renvoyer vrai si la carte i est faite ou pas, a l'aide su symbole en haut a droite de la carte
                     elm = driver.find_element(By.XPATH, f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]/div[1]/div[2]/div")
                     if not ("correctCircle" in elm.get_attribute("innerHTML")):
-                        print(f"missed card {i}")
+                        printf(f"missed card {i}")
                         try_play(titre)
                         sleep(3)
                         reset()
                 except Exception as e : 
-                    print(format_error(e) + "probablement ok - check card")
+                    printf(format_error(e) + "probablement ok - check card")
                  # if it fail, it's probably okay -> when all three card are done, the pannel fold
 
         except Exception as e:
@@ -286,7 +286,7 @@ def all_cards(): # return to the main page and closes all other tabs
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
             sleep(1)
             titre = driver.title
-            print(f"carte {titre} en cours")
+            printf(f"carte {titre} en cours")
             try_play(titre)
             reset(True)
             sleep(1)
@@ -301,7 +301,7 @@ def all_cards(): # return to the main page and closes all other tabs
                 driver.find_element(By.XPATH, "/html/body/div/div/div[3]/div[1]/div/div[1]/div[2]").click()
                 reset()
             except Exception as e:
-                print(format_error(e))
+                printf(format_error(e))
                 break
     
     try :
@@ -378,7 +378,7 @@ def try_play(nom="inconnu"):
                 printf(f"try_play - 2 - {e}")
 
         elif search("([0-9]) de ([0-9]) finalisée", driver.page_source):
-            print("fidélité")
+            printf("fidélité")
             rgpd_popup(driver)
             fidelity()
 
@@ -438,33 +438,33 @@ def login(ldriver):
             try:
                 ldriver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
             except:
-                print(f"element {i} not found")
+                printf(f"element {i} not found")
         rgpd_popup(ldriver)
         custom_sleep(uniform(3,5))
         ldriver.get("https://www.bing.com/rewardsapp/flyout")
         try:
             ldriver.find_element(By.CSS_SELECTOR, '[title="Rejoindre maintenant"]').click()  # depend of the language of the page
         except:
-            print(f"unlock test: fail, probably normal")
+            printf(f"unlock test: fail, probably normal")
             
-        print('on MsRewards')
+        printf('on MsRewards')
     
     def cookie_login():
         ldriver.get("https://login.live.com")
         try : 
             load_cookies(ldriver, _mail)
         except FileNotFoundError :
-            print("Creating cookies file")
+            printf("Creating cookies file")
             return(False)
         try : 
             ldriver.refresh()
         except WebDriverException as e: # This error occurs at random time. Don't really know why
             if "Reached error page: about:neterror?e=netTimeout" in str(e):
-                print("Timeout error occurred. \"normal\"....., maybe because of mismatch date ? ")
+                printf("Timeout error occurred. \"normal\"....., maybe because of mismatch date ? ")
                 log_error("Timeout error occurred. \"normal\"....., maybe because of mismatch date ?", ldriver, True) # TODO check this hypothesis
             else:
                 log_error(e)
-        custom_sleep(10)
+        custom_sleep(20) # TODO : remplacer par un wait_element
         if ("account.microsoft.com" in ldriver.current_url) :
             ldriver.get("https://bing.com")
             custom_sleep(5)
@@ -481,18 +481,38 @@ def login(ldriver):
                         if ('>Tableau de bord' in ldriver.page_source) :
                             return(True)
                         else :
-                            log_error("not connected 3", ldriver)
+                            printf("error during the connection. Trying something else")
                 except Exception as e:
                     log_error(f"not connected 5 - error {e}", ldriver)
                 if not('>Tableau de bord' in ldriver.page_source):
                     try : 
                         ldriver.find_element(By.XPATH, "/html/body/div/div/div/div/div[2]/a").click()
+                        custom_sleep(5)
                     except Exception as e:
                         log_error(f"erreur not connected 6{e}", ldriver)
-                    log_error("not connected 6", ldriver, True)
-
+                        return(False)
+                    if "bing.com" in ldriver.current_url :
+                        rgpd_popup(ldriver)
+                        ldriver.get("https://www.bing.com/rewardsapp/flyout")
+                        if ('>Tableau de bord' in ldriver.page_source) :
+                            return(True)
+                        else :
+                            log_error("not connected 6", ldriver)
+                            return(False)
             return(True)
-        print("cookies plus valides ?")
+
+        if ('account.live.com' in ldriver.current_url):
+            log_error("error 1", ldriver, True)
+            ldriver.refresh()
+            log_error("error 2", ldriver, True)
+            ldriver.get("https://bing.com")
+            ldriver.refresh()
+            rgpd_popup(ldriver)
+            log_error("error 3", ldriver, True)
+            sleep(5)
+            return(True)
+            
+        printf("cookies plus valides ?")
         return(False)
 
     try : 
@@ -648,8 +668,11 @@ def fidelity():
                 
                 driver.get(fidelity_link)
                 wait_until_visible(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]', browser=driver)
-                choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
-
+                try : 
+                    choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
+                except : # tentative de fix
+                    driver.refresh()
+                    choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')
                 answer_number = search("([0-9]) of ([0-9]) completed", driver.page_source)
                 if answer_number is None:
                     answer_number = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
@@ -772,7 +795,7 @@ def bing_mobile_search(override=randint(22, 25)):
                 mobile_alert_popup()  # check for alert (asking for position or for allowing notifications)
                 mobile_driver.find_element(By.ID, "sb_form_q").clear()
             except Exception as e:
-                print(e)
+                printf(e)
                 mobile_driver.refresh()
                 custom_sleep(30)
                 i -= 1
@@ -876,7 +899,7 @@ def CustomStart(Credentials):
                 try:
                     log_points(_mail)
                 except Exception as e:
-                    print(f"CustomStart {e}")
+                    printf(f"CustomStart {e}")
             driver.close()
 
 
@@ -907,8 +930,8 @@ else:
         _password = cred[1]
         if len(cred) == 3:
             _otp = TOTP(cred[2])
-        print("\n\n")
-        print(_mail)
+        printf("\n\n")
+        printf(_mail)
         custom_sleep(1)
         printf("début du driver")
         driver = firefox_driver()
@@ -921,11 +944,11 @@ else:
             printf(f"finis. attente de {round(attente/60)}min")
             custom_sleep(attente)
         except KeyboardInterrupt:
-            print("canceled. Closing driver and display.")
+            printf("canceled. Closing driver and display.")
             driver.quit()
             display.stop()
         except Exception as e:
-            print(f"error not catched. skipping this account. {e}")
+            printf(f"error not catched. skipping this account. {e}")
             driver.quit()
 
 display.stop()
