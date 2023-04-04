@@ -170,6 +170,7 @@ def check_update():
     else :
         print(f"updating to {latest}")
         os.system("git pull --rebase")
+        os.system("python3 -m pip install -r requirements.txt")
         print("updated")
 
 
