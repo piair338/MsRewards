@@ -3,6 +3,9 @@
 import configparser
 import os 
 import shutil
+import requests
+
+
 
 config = configparser.ConfigParser()
 
@@ -14,8 +17,6 @@ except :
     default_config = f"{os.path.abspath( os.path.dirname( __file__ ) )}/user_data/config.default"
     shutil.copyfile(default_config, config_path)
     config.read(config_path)
-
-
 
 
 def confirm(texte, default = False):
@@ -41,12 +42,12 @@ text = {"fr" : {
     "next" : "voulez vous ajouter un compte ? ",
     "finc" : "comptes en cours d'ajout ",
     "ajout" : "comptes ajouté ",
-    "fidelity" : "avez vous un lien sur lequel le lien vers la page fidelité du mois est le seul contenu de la page ? ",
+    "fidelity" : "avez vous un lien sur lequel le lien vers la page fidélité du mois est le seul contenu de la page ? ",
     "lien" : "entrez le lien ",
     "discorde" : "voulez vous envoyer les erreurs sur discord ? ",
     "w1" : "entrez le lien du WebHook pour envoyer les points ",
     "w2" : "entrez le lien du WebHook pour envoyer les erreurs ",
-    "msqle" : "voulez vous untiliser une base de donnée ",
+    "msqle" : "voulez vous utiliser une base de donnée ",
     "msqll" : "entrez le lien de la base de donnée ",
     "msqlu" : "entrez l'utilisateur de la base de donnée ",
     "msqlp" : "entrez le mot de passe de la base de donnée ",
@@ -83,8 +84,6 @@ def setup_comptes():
         f.write("\n")
     f.close()
     print(t["ajout"])
-
-    #modifie le fichier de configuration
     edit_config_txt("logpath",f'{os.getcwd()}/user_data/login.csv')
 
 
@@ -111,8 +110,8 @@ def setup_settings():
     discord()
     proxy()
     sql()
-    amazon()
-    
+
+
 def general():
     if confirm(t["fidelity"]):
         lien = input(t["lien"])
@@ -143,7 +142,8 @@ def sql() :
         edit_config_txt("usr",user)
         pwd = input(t["msqlp"])
         edit_config_txt("pwd",pwd)
-     
+
+
 def proxy() :
     enabled = confirm(t["proxye"], default = False)
     if enabled : 
@@ -152,14 +152,28 @@ def proxy() :
         edit_config_txt("url",lien)
         port = input(t["proxyp"])
         edit_config_txt("port",port)
-     
-def amazon():
-    enabled = confirm("claim les recompenses automatiquement sur amazon ?", default = False)
-    edit_config_txt("claim_amazon",enabled)
+
+
+def check_update():
+    try : 
+        latest = requests.get("https://api.github.com/repos/piair338/MsRewards/releases").json()[0]["tag_name"]
+    except Exception as e :
+        print(e) 
+        return ()
+    f = open("./latest", 'r')
+    txt = f.readlines()[0].replace("\n","")
+    f.close()
+    if (txt == latest) :
+        print("already up to date")
+    else :
+        print(f"updating to {latest}")
+        os.system("git pull")
+        print(updated)
 
 
 LogPath = config["PATH"]["logpath"]
 if LogPath == "/your/path/to/loginandpass.csv" :
     setup()
 else :
+    check_update()
     os.system("python3 V5.py")
