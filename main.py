@@ -160,15 +160,15 @@ def check_update():
     except Exception as e :
         print(e) 
         return ()
-    f = open("./latest", 'r')
+    f = open("./version", 'r')
     txt = f.readlines()[0].replace("\n","")
     f.close()
     if (txt == latest) :
-        print("already up to date")
+        print("Already up to date.")
     else :
         print(f"updating to {latest}")
         os.system("git pull")
-        print(updated)
+        print("updated")
 
 
 LogPath = config["PATH"]["logpath"]
