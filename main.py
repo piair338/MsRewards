@@ -169,7 +169,7 @@ def check_update():
         print("Already up to date.")
     else :
         print(f"updating to {latest}")
-        os.system("git pull")
+        os.system("git pull --rebase")
         print("updated")
 
 
