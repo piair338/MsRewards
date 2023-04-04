@@ -4,7 +4,7 @@ import configparser
 import os 
 import shutil
 import requests
-
+import sys
 
 
 config = configparser.ConfigParser()
@@ -165,7 +165,7 @@ def check_update():
     txt = f.readlines()[0].replace("\n","")
     f.close()
     cur = parse_version(txt)
-    if (cur < latest) :
+    if not (cur < latest) :
         print("Already up to date.")
     else :
         print(f"updating to {latest}")
@@ -177,5 +177,6 @@ LogPath = config["PATH"]["logpath"]
 if LogPath == "/your/path/to/loginandpass.csv" :
     setup()
 else :
+    args = " ".join(sys.argv[1::])
     check_update()
-    os.system("python3 V5.py")
+    os.system("python3 V5.py " + args)
