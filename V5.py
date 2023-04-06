@@ -221,9 +221,10 @@ def all_cards(): # return to the main page and closes all other tabs
         if len(driver.window_handles) == 1:
             driver.get("https://www.bing.com/rewardsapp/flyout")
             if part2:
-                driver.find_element(
-                    By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]/div[1]"
-                ).click()
+                row_element = driver.find_elements(By.CSS_SELECTOR, f'[class="i-h rw-sh fp_row"]')[1]
+                expanded = row_element.get_attribute("aria-expanded")
+                if expanded != "true":
+                    row_element.click()
         else:
             driver.switch_to.window(driver.window_handles[1])
             printf(f"fermeture : {driver.current_url}")
@@ -236,7 +237,7 @@ def all_cards(): # return to the main page and closes all other tabs
     def daily_cards(): # cartes de la premiere partie (renouvelées chaque jours).
         try:
             # make sure that the daily area is expanded
-            row_element = driver.find_element(By.XPATH, "/html/body/div/div/div[3]/div[2]/div[1]/div[1]")
+            row_element = driver.find_elements(By.CSS_SELECTOR, f'[class="i-h rw-sh fp_row"]')[0]
             expanded = row_element.get_attribute("aria-expanded")
             if expanded != "true":
                 row_element.click()
@@ -244,9 +245,8 @@ def all_cards(): # return to the main page and closes all other tabs
                 custom_sleep(uniform(3, 5))
                 try:
                     titre = "Placeholder"
-                    driver.find_element(
-                        By.XPATH,f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a",
-                    ).click()
+                    elm = driver.find_elements(By.CLASS_NAME, 'promo_cont')
+                    elm[i].click()
                     sleep(1)
                     titre = driver.title
                     try_play(titre)
@@ -255,7 +255,7 @@ def all_cards(): # return to the main page and closes all other tabs
                     printf(f"DailyCard {titre} ok")
                 except Exception as e:
                     log_error(f"all_cards card {titre} error ({format_error(e)})")
-
+                """
                 try : # devrait renvoyer vrai si la carte i est faite ou pas, a l'aide su symbole en haut a droite de la carte
                     elm = driver.find_element(By.XPATH, f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]/div[1]/div[2]/div")
                     if not ("correctCircle" in elm.get_attribute("innerHTML")):
@@ -266,23 +266,25 @@ def all_cards(): # return to the main page and closes all other tabs
                 except Exception as e : 
                     printf(format_error(e) + "probablement ok - check card")
                  # if it fail, it's probably okay -> when all three card are done, the pannel fold
-
+                """
         except Exception as e:
             log_error(e)
     
     def weekly_cards():
         # make sure that the weekly area is expanded
-        row_element = driver.find_element(By.XPATH, "/html/body/div/div/div[3]/div[2]/div[2]/div[2]")
+        row_element = driver.find_elements(By.CSS_SELECTOR, f'[class="i-h rw-sh fp_row"]')[1]
         expanded = row_element.get_attribute("aria-expanded")
         if expanded != "true":
             row_element.click()
 
         for i in range(20): # Should raise an error whene there is no card left
             printf("début de l'une des cartes")
-            driver.find_element(
-                By.XPATH,
-                "/html/body/div/div/div[3]/div[2]/div[2]/div[3]/div/div[1]/a/div/div[2]",
-            ).click()
+            elm = driver.find_elements(By.CLASS_NAME, 'promo_cont')
+            try :
+                elm[0].click()
+            except Exception as e :
+                print(f"{e} + {driver.current_url}")
+                break
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
             sleep(1)
             titre = driver.title
@@ -290,10 +292,10 @@ def all_cards(): # return to the main page and closes all other tabs
             try_play(titre)
             reset(True)
             sleep(1)
-            try:
-                findall('href="([^<]+)" title=""', driver.page_source)[3]  # return error if there is no cards left to do
-            except:
-                break
+            #try:
+            #    findall('href="([^<]+)" title=""', driver.page_source)[3]  # return error if there is no cards left to do
+            #except:
+            #    break
 
     def top_cards():
         for _ in range(10):
@@ -306,16 +308,19 @@ def all_cards(): # return to the main page and closes all other tabs
     
     try :
         top_cards()
+        print("top card")
     except Exception as e:
         log_error(e)
 
     try:
         daily_cards()
+        print("daily card")
     except Exception as e:
         log_error(e)
 
     try :
         weekly_cards()
+        print("weekly card")
     except Exception as e:
         log_error(e)
 

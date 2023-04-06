@@ -12,3 +12,4 @@ data
 install.sh
 nohup.out
 test.py
+points.csv
