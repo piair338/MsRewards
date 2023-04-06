@@ -298,7 +298,7 @@ def all_cards(): # return to the main page and closes all other tabs
             #    break
 
     def top_cards():
-        for _ in range(10):
+        for _ in range(2):
             try :
                 driver.find_element(By.XPATH, "/html/body/div/div/div[3]/div[1]/div/div[1]/div[2]").click()
                 reset()
@@ -307,8 +307,8 @@ def all_cards(): # return to the main page and closes all other tabs
                 break
     
     try :
-        top_cards()
-        print("top card")
+        #top_cards()
+        print("top card not working really well right now. Disableing them")
     except Exception as e:
         log_error(e)
 
@@ -670,7 +670,6 @@ def fidelity():
             fidelity_link = fidelity_link_page.content.decode("UTF-8")
 
             if (fidelity_link.split(":")[0] == "https") or (fidelity_link.split(":")[0] == "http") : 
-                
                 driver.get(fidelity_link)
                 wait_until_visible(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]', browser=driver)
                 try : 
@@ -684,8 +683,9 @@ def fidelity():
                 if answer_number is None :
                     answer_number = search("([0-9]) licence\(s\) sur ([0-9]) disponible\(s\)", driver.page_source)
                 if answer_number is None :
+                    answer_number = search("([0-9])&nbsp;défi\(s\) terminé\(s\) sur ([0-9])", driver.page_source)
+                if answer_number is None :
                     answer_number = [0,0,0]
-
                 for _ in range(int(answer_number[2]) - int(answer_number[1])):
                     driver.refresh()
                     custom_sleep(2)
