@@ -174,7 +174,7 @@ def check_update(args):
         os.system("git pull")
         os.system("python3 -m pip install -r requirements.txt > update.result")
         print(f"updated to {latest}")
-        return(args + f" --verion {latest}")
+        return(args + f" --version {latest}")
 
 LogPath = config["PATH"]["logpath"]
 if LogPath == "/your/path/to/loginandpass.csv" :

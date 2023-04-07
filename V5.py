@@ -930,7 +930,7 @@ elif UNBAN:
 elif POINTS_FILE != "":
     save_points_from_file(POINTS_FILE)
 else:
-    if UPDATE_VERSION != None:
+    if UPDATE_VERSION != "None":
         if DISCORD_ENABLED_ERROR:
             webhookFailure.send(f"Updated to {UPDATE_VERSION}")
     for cred in Credentials:
