@@ -81,6 +81,12 @@ parser.add_argument(
     default="None"
 )
 
+parser.add_argument( 
+    "--updated",
+    help="display a message on discord to tell that the bot have been updated",
+    dest="update_version",
+    default="None"
+)
 args = parser.parse_args()
 
 CUSTOM_START = args.override
@@ -93,7 +99,7 @@ if CUSTOM_START :
 VNC_ENABLED = args.vnc != "None"
 VNC_PORT = args.vnc
 POINTS_FILE = args.points_file
-
+UPDATE_VERSION = args.update_version
 # global variables used later in the code
 LINUX_HOST = platform == "linux" # if the computer running this program is Linux, it allow more things 
 START_TIME = time()

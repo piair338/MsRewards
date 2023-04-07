@@ -154,31 +154,32 @@ def proxy() :
         edit_config_txt("port",port)
 
 
-def check_update():
+def check_update(args):
     try : 
         latest = requests.get("https://api.github.com/repos/piair338/MsRewards/releases").json()[0]["tag_name"]
         latest = parse_version(latest)
     except Exception as e :
         print(e) 
-        return ()
+        return (args)
     f = open("./version", 'r')
     txt = f.readlines()[0].replace("\n","")
     f.close()
     cur = parse_version(txt)
     if not (cur < latest) :
         print("Already up to date.")
+        return(args)
     else :
         print(f"updating to {latest}")
         os.system("git reset --hard")
         os.system("git pull")
         os.system("python3 -m pip install -r requirements.txt > update.result")
         print(f"updated to {latest}")
-
+        return(args + f" --verion {latest}")
 
 LogPath = config["PATH"]["logpath"]
 if LogPath == "/your/path/to/loginandpass.csv" :
     setup()
 else :
     args = " ".join(sys.argv[1::])
-    check_update()
+    args = check_update(args)
     os.system("python3 V5.py " + args)
