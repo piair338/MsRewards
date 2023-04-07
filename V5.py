@@ -85,9 +85,8 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
         file = File("screenshot.png")
         embed.set_image(url="attachment://screenshot.png")
         embed.set_footer(text=_mail)
-        webhookFailure.send(embed=embed, file=file)
-        webhookFailure.send(file=File("page.html"))
-
+        webhookFailure.send(embed=embed, username="error", file=file, avatar_url = AVATAR_URL)
+        webhookFailure.send(username="error", file=File("page.html"), avatar_url = AVATAR_URL)
 
 
 # close the tab currently on and go back to the one first, or the one specified
@@ -103,7 +102,7 @@ def play_quiz2(override=10) -> None:
     printf("starting play_quiz2")
     for j in range(override):
         try:
-            rgpd_popup(driver)
+            # rgpd_popup(driver)
             custom_sleep(uniform(3, 5))
             page_html = driver.page_source
             secret_answer = search('IG:"([^"]+)"', page_html)[1]                      # variable used to calculate offset
@@ -137,7 +136,7 @@ def play_quiz8():
     printf(f"play_quiz8 : start, override : {override}")
     try:
         counter = 0
-        rgpd_popup(driver)
+        # rgpd_popup(driver)
         for _ in range(override):  
             custom_sleep(uniform(3, 5))
             correct_answers = []
@@ -184,7 +183,7 @@ def play_quiz4(override=None):
         for i in range(override):
             custom_sleep(uniform(3, 5))
             txt = driver.page_source
-            rgpd_popup(driver)
+            # rgpd_popup(driver)
             answer_option = search('correctAnswer":"([^"]+)', txt)[1]
             answer_option = answer_option.replace("\\u0027", "'")    # replace Unicode weird symbols
             try:
@@ -368,7 +367,7 @@ def try_play(nom="inconnu"):
         if "bt_PollRadio" in driver.page_source:
             try:
                 printf("Poll detected")
-                rgpd_popup(driver)
+                #rgpd_popup(driver)
                 do_poll()
                 printf("Poll succeeded")
             except Exception as e:
@@ -384,12 +383,12 @@ def try_play(nom="inconnu"):
 
         elif search("([0-9]) de ([0-9]) finalisée", driver.page_source):
             printf("fidélité")
-            rgpd_popup(driver)
+            #rgpd_popup(driver)
             fidelity()
 
         else:
             printf(f"rien à faire sur la page {nom}")
-            rgpd_popup(driver)
+            # rgpd_popup(driver)
             custom_sleep(uniform(3, 5))
 
 
@@ -468,13 +467,13 @@ def login(ldriver):
                 printf("Timeout error occurred. \"normal\"....., maybe because of mismatch date ? ")
                 log_error("Timeout error occurred. \"normal\"....., maybe because of mismatch date ?", ldriver, True) # TODO check this hypothesis
             else:
-                log_error(e)
-        custom_sleep(20) # TODO : remplacer par un wait_element
+                log_error(e, ldriver)
+        wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-rewards"]', 20, ldriver)
         if ("account.microsoft.com" in ldriver.current_url) :
             ldriver.get("https://bing.com")
             custom_sleep(5)
             ldriver.refresh()
-            rgpd_popup(ldriver)
+            rgpd_popup(ldriver) # Ultra important
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
             if not('>Tableau de bord' in ldriver.page_source):
                 try : 
@@ -847,7 +846,7 @@ def daily_routine(custom = False):
 
 
 def dev():
-    pass
+    log_error("test")
 
 
 def CustomStart(Credentials):

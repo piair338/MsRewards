@@ -131,7 +131,11 @@ DISCORD_SUCCESS_LINK = config["DISCORD"]["successlink"]
 DISCORD_ERROR_LINK = config["DISCORD"]["errorlink"]
 DISCORD_ENABLED_ERROR = config["DISCORD"]["DiscordErrorEnabled"] == "True"
 DISCORD_ENABLED_SUCCESS = config["DISCORD"]["DiscordSuccessEnabled"]== "True"
-
+try :
+    AVATAR_URL = config["OTHER"]["avatar"]== "True"
+except :
+    AVATAR_URL = "https://cdn.discordapp.com/icons/793934298977009674/d8055bccef6eca4855c349e808d0d788.webp"
+    
 if DISCORD_ENABLED_ERROR:
     webhookFailure = Webhook.from_url(DISCORD_ERROR_LINK, adapter=RequestsWebhookAdapter())
 if DISCORD_ENABLED_SUCCESS:
