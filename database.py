@@ -10,9 +10,16 @@ parser.add_argument(
     help="Choose a file", 
     type=argparse.FileType('r')
 )
+parser.add_argument(
+    "-m", 
+    "--manual", 
+    help="add point manually do database", 
+    dest="manual", 
+    action="store_true"
+)
 
 args = parser.parse_args()
-
+MANUAL = args.manual
 
 config_path = "./user_data/config.cfg"
 config = configparser.ConfigParser()
@@ -47,26 +54,39 @@ def ban_account(name: str, pts = 0):
 def update_pts(name: str, pts = 0):
     pass
 
-
-print("ajouter un compte : 1\nban un compte : 2")
-i = input()
-if i == "1":
-    if args.file :
-        l =[x.split(",")[0].split("@")[0] for x in args.file.readlines()] 
-        endroit = input("ou est le bot ? ")
-        proprio = input("qui est le proprio ? ")
-        for name in l :
+if not MANUAL :
+    print("ajouter un compte : 1\nban un compte : 2")
+    i = input()
+    if i == "1":
+        if args.file :
+            l =[x.split(",")[0].split("@")[0] for x in args.file.readlines()] 
+            endroit = input("ou est le bot ? ")
+            proprio = input("qui est le proprio ? ")
+            for name in l :
+                add_account(name, endroit, proprio)
+        else : 
+            name = input("quel est le nom ? ").split("@")[0]
+            endroit = input("ou est le bot ? ")
+            proprio = input("qui est le proprio ? ")
             add_account(name, endroit, proprio)
-    else : 
-        name = input("quel est le nom ? ").split("@")[0]
-        endroit = input("ou est le bot ? ")
-        proprio = input("qui est le proprio ? ")
-        add_account(name, endroit, proprio)
-elif i == '2':
-    name = input("quel est le compte qui a été ban ? ")
-    pts = input("il avait combien de points ? ")
-    ban_account(name, pts)
+    elif i == '2':
+        name = input("quel est le compte qui a été ban ? ")
+        pts = input("il avait combien de points ? ")
+        ban_account(name, pts)
 
-mydb.commit()
-mycursor.close()
-mydb.close()
+    mydb.commit()
+    mycursor.close()
+    mydb.close()
+else :
+    import modules.db as datab
+    config_path = f"{path.abspath(path.dirname(path.dirname( __file__ )))}/MsRewards/user_data/config.cfg"
+    print(config_path)
+    config = configparser.ConfigParser()
+    config.read(config_path)
+    sql_usr = config["SQL"]["usr"]
+    sql_pwd = config["SQL"]["pwd"]
+    sql_host = config["SQL"]["host"]
+    sql_database = config["SQL"]["database"]
+    account_name = input("compte ? ")
+    points = int(input("points ? "))
+    datab.add_to_database(account_name, points, sql_host, sql_usr, sql_pwd, sql_database)
