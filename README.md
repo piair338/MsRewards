@@ -3,7 +3,7 @@
 
 A Microsoft reward automator, designed to work headless on any server.  
 Using a discord webhook or SQL to log points everyday.  
-Using Selenium and geckodriver.
+Using Selenium and Geckodriver.
 
 ## If you're using docker (way easier)  
 to use docker, run 
@@ -12,17 +12,17 @@ sudo docker build .
 #copy the build id
 sudo docker run -ti --name MsRewards [build id]
 ```
-Then, fill the config and start the programm everydays with 
+Then, fill the config and start the program everyday with 
 ```
 sudo docker start MsRewards
 ```
 
 ## Other configuration
 
-To use the database, I recommand MySql, Create a database with the name you want and create a table `daily`, like the one from the image : 
+To use the database, I recommend MySql, Create a database with the name you want and create a table `daily`, like the one from the image : 
 ![B96F2F6D-7257-4F12-BFA7-0BEC3FB72993](https://user-images.githubusercontent.com/74496300/172872979-05396b6b-b682-471a-b71b-41602d816504.jpeg)
 
-You have to use the default worldlist (`sudo apt install wfrench`). The language is french by default, but you can change it if you want.  
+You have to use the default world list (`sudo apt install wfrench`). The language is french by default, but you can change it if you want.  
 You can add a link to a website where content is only the link of the monthly fidelity card.  
 
   

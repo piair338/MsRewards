@@ -15,9 +15,8 @@ def printf(e):
     printf2(str(e), _mail)
 
 # TODO
-# handle "panda"'s error: error while logging in preventing some task to be done
+# handle "panda"'s error: error while logging in preventing some task to be done SadPanda.svg
 # check that each card worked (lot of misses lately) -- test that -- don't crash at least
-# Fix l'affichage du compteur de custom_sleep
 
 
 # create a webdriver 
@@ -233,7 +232,7 @@ def all_cards(): # return to the main page and closes all other tabs
                 driver.get("https://www.bing.com/rewardsapp/flyout")
             reset(part2)
 
-    def daily_cards(): # cartes de la premiere partie (renouvelées chaque jours).
+    def daily_cards(): # cartes de la premiere partie (renouvelée chaque jour).
         try:
             # make sure that the daily area is expanded
             row_element = driver.find_elements(By.CSS_SELECTOR, f'[class="i-h rw-sh fp_row"]')[0]
@@ -307,7 +306,7 @@ def all_cards(): # return to the main page and closes all other tabs
     
     try :
         #top_cards()
-        print("top card not working really well right now. Disableing them")
+        print("top card not working really well right now. They are currently disabled")
     except Exception as e:
         log_error(e)
 
@@ -475,6 +474,10 @@ def login(ldriver):
             ldriver.refresh()
             rgpd_popup(ldriver) # Ultra important
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
+            if "SadPanda.svg" in ldriver.page_source :
+                log_error('test SadPanda before', ldriver)
+                ldriver.refresh()
+                log_error('test SadPanda after', ldriver)
             if not('>Tableau de bord' in ldriver.page_source):
                 try : 
                     ldriver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()
