@@ -476,7 +476,7 @@ def login(ldriver):
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
             if "SadPanda.svg" in ldriver.page_source :
                 log_error('test SadPanda before', ldriver)
-                ldriver.refresh()
+                driver.execute_script("location.reload(true);")
                 log_error('test SadPanda after', ldriver)
             if not('>Tableau de bord' in ldriver.page_source):
                 try : 
