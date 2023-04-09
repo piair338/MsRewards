@@ -474,10 +474,10 @@ def login(ldriver):
             ldriver.refresh()
             rgpd_popup(ldriver) # Ultra important
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
-            if "SadPanda.svg" in ldriver.page_source :
-                log_error('test SadPanda before', ldriver)
-                driver.execute_script("location.reload(true);")
-                log_error('test SadPanda after', ldriver)
+            #if "SadPanda.svg" in ldriver.page_source :
+            #    log_error('test SadPanda before', ldriver)
+            #    driver.execute_script("location.reload(true);")
+            #    log_error('test SadPanda after', ldriver)
             if not('>Tableau de bord' in ldriver.page_source):
                 try : 
                     ldriver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()

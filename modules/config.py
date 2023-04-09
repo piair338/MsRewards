@@ -82,7 +82,7 @@ parser.add_argument(
 )
 
 parser.add_argument( 
-    "--updated",
+    "--version",
     help="display a message on discord to tell that the bot have been updated",
     dest="update_version",
     default="None"
