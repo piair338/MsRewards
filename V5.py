@@ -137,7 +137,7 @@ def play_quiz8():
         counter = 0
         # rgpd_popup(driver)
         for _ in range(override):  
-            custom_sleep(uniform(3, 5))
+            sleep(uniform(3, 5))
             correct_answers = []
             for i in range(1,9):
                 try : 
@@ -154,10 +154,10 @@ def play_quiz8():
                 try:
                     answer_elem = driver.find_element(By.ID, answer_id)
                     answer_elem.click()
-                    custom_sleep(1)
+                    sleep(1)
                 except exceptions.NoSuchElementException :
                     driver.refresh()
-                    custom_sleep(10)
+                    sleep(10)
                     answer_elem = driver.find_element(By.ID, answer_id)
                     answer_elem.click()
                 except ElementClickInterceptedException :
@@ -252,19 +252,22 @@ def all_cards(): # return to the main page and closes all other tabs
                     reset()
                     printf(f"DailyCard {titre} ok")
                 except Exception as e:
-                    log_error(f"all_cards card {titre} error ({format_error(e)})")
-                """
+                    log_error(f"all_cards card `{titre}` error ({format_error(e)})")
+                    break
+                
                 try : # devrait renvoyer vrai si la carte i est faite ou pas, a l'aide su symbole en haut a droite de la carte
-                    elm = driver.find_element(By.XPATH, f"/html/body/div/div/div[3]/div[2]/div[1]/div[2]/div/div[{i+1}]/a/div/div[2]/div[1]/div[2]/div")
+                    elm = driver.find_elements(By.CLASS_NAME, 'promo_cont')[i]
                     if not ("correctCircle" in elm.get_attribute("innerHTML")):
                         printf(f"missed card {i}")
-                        try_play(titre)
+                        elm.click()
+                        try_play("recovery")
                         sleep(3)
                         reset()
+                    else :
+                        printf(f'carte OK')
                 except Exception as e : 
                     printf(format_error(e) + "probablement ok - check card")
                  # if it fail, it's probably okay -> when all three card are done, the pannel fold
-                """
         except Exception as e:
             log_error(e)
     
@@ -276,82 +279,73 @@ def all_cards(): # return to the main page and closes all other tabs
             row_element.click()
 
         for i in range(20): # Should raise an error whene there is no card left
-            printf("début de l'une des cartes")
             elm = driver.find_elements(By.CLASS_NAME, 'promo_cont')
             try :
                 elm[0].click()
+                printf(f"Carte {i+1} cliquée.")
             except Exception as e :
-                print(f"{e} + {driver.current_url}")
+                printf(f"Plus aucune carte.")
                 break
             driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
             sleep(1)
-            titre = driver.title
-            printf(f"carte {titre} en cours")
+            titre = driver.title.split(" - Recherche")[0]
+            printf(f"Carte `{titre}` en cours.")
             try_play(titre)
             reset(True)
             sleep(1)
-            #try:
-            #    findall('href="([^<]+)" title=""', driver.page_source)[3]  # return error if there is no cards left to do
-            #except:
-            #    break
 
     def top_cards():
         for _ in range(2):
             try :
-                driver.find_element(By.XPATH, "/html/body/div/div/div[3]/div[1]/div/div[1]/div[2]").click()
+                driver.find_elements(By.CSS_SELECTOR, '[class="banner_cont single wpoints"]')[0].click()
                 reset()
             except Exception as e:
                 printf(format_error(e))
                 break
     
     try :
-        #top_cards()
-        print("top card not working really well right now. They are currently disabled")
+        top_cards()
     except Exception as e:
         log_error(e)
 
     try:
         daily_cards()
-        print("daily card")
     except Exception as e:
         log_error(e)
 
     try :
         weekly_cards()
-        print("weekly card")
     except Exception as e:
         log_error(e)
 
 
 # Find out which type of action to do
 def try_play(nom="inconnu"):
-    rgpd_popup(driver)
-    printf("try_play en cours")
-
+    # rgpd_popup(driver)
     def play(number):
         if number == 8 or number == 9:
             try:
-                printf(f"\033[96m Quiz 8 detected on {nom} \033[0m")
+                printf(f"\033[96mQuiz 8 detected on `{nom}` \033[0m")
                 play_quiz8()
-                printf(f"\033[92m Quiz 8 succeeded on {nom} \033[0m")
+                printf(f"\033[92mQuiz 8 succeeded on `{nom}` \033[0m")
                 custom_sleep(uniform(3, 5))
             except Exception as e:
                 printf(f"fail of PlayQuiz 8. Aborted {e} \033[0m")
 
         elif number == 5 or number == 4:
             try:
-                printf(f"\033[96m Quiz 4 detected on {nom} \033[0m")
+                printf(f"\033[96mQuiz 4 detected on `{nom}` \033[0m")
                 play_quiz4()
-                printf(f"\033[92m Quiz 4 succeeded on {nom} \033[0m")
+                printf(f"\033[92mQuiz 4 succeeded on `{nom}` \033[0m")
                 custom_sleep(uniform(3, 5))
             except Exception as e:
-                printf(f"fail of PlayQuiz 4. Aborted {e} \033[0m")
+                printf(f"Fail of PlayQuiz 4. Aborted {e} \033[0m")
 
         elif number == 3 or number == 2:
             try:
-                printf(f"\033[96m Quiz 2 detected on {nom}\033[0m")
+                printf(f"\033[96mQuiz 2 detected on `{nom}`\033[0m")
                 play_quiz2()
-                printf(f"\033[92m Quiz 2 succeeded on {nom}\033[0m")
+                printf(f"\033[92mQuiz 2 succeeded on `{nom}`\033[0m")
             except Exception as e:
                 printf(f"fail of PlayQuiz 2. Aborted {e}")
         else:
@@ -366,7 +360,6 @@ def try_play(nom="inconnu"):
         if "bt_PollRadio" in driver.page_source:
             try:
                 printf("Poll detected")
-                #rgpd_popup(driver)
                 do_poll()
                 printf("Poll succeeded")
             except Exception as e:
@@ -382,12 +375,10 @@ def try_play(nom="inconnu"):
 
         elif search("([0-9]) de ([0-9]) finalisée", driver.page_source):
             printf("fidélité")
-            #rgpd_popup(driver)
             fidelity()
 
         else:
             printf(f"rien à faire sur la page {nom}")
-            # rgpd_popup(driver)
             custom_sleep(uniform(3, 5))
 
 
@@ -463,7 +454,6 @@ def login(ldriver):
             ldriver.refresh()
         except WebDriverException as e: # This error occurs at random time. Don't really know why
             if "Reached error page: about:neterror?e=netTimeout" in str(e):
-                printf("Timeout error occurred. \"normal\"....., maybe because of mismatch date ? ")
                 log_error("Timeout error occurred. \"normal\"....., maybe because of mismatch date ?", ldriver, True) # TODO check this hypothesis
             else:
                 log_error(e, ldriver)
@@ -510,6 +500,9 @@ def login(ldriver):
 
         if ('account.live.com' in ldriver.current_url):
             log_error("error 1", ldriver, True)
+            if "Abuse" in ldriver.current_url:
+                log_error("banned", ldriver)
+                raise Banned()
             ldriver.refresh()
             log_error("error 2", ldriver, True)
             ldriver.get("https://bing.com")
@@ -521,7 +514,6 @@ def login(ldriver):
             
         printf("cookies plus valides ?")
         return(False)
-
     try : 
         if cookie_login():
             return (ldriver.current_window_handle)
@@ -607,23 +599,16 @@ def unban() -> None:
 # Sends points to database, discord and whatever service you want
 def log_points(account="unknown"): 
     def get_points():
-        driver.get("https://www.bing.com/rewardsapp/flyout")
-        regex1 = '<a href="https://rewards\.bing\.com/" title="((.{1,3}),(.{1,3})) points" target="_blank"'
-        try:
-            point = search(regex1, driver.page_source)[1].replace(",", "")
-
+        driver.get("https://rewards.bing.com")
+        wait_until_visible(By.CSS_SELECTOR, 'span[mee-element-ready="$ctrl.loadCounterAnimation()"]', browser=driver)
+        try : 
+            point = search('availablePoints\":([\d]+)', driver.page_source)[1]
         except Exception as e:
-            elem = driver.find_element(By.CSS_SELECTOR, '[title="Microsoft Rewards"]')
-            elem.click()
-            custom_sleep(5)
-            driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-            custom_sleep(uniform(5,7))
-            try : 
-                point = search('availablePoints":([\d]+)', driver.page_source)[1]
-            except :
-                driver.refresh()
-                sleep(5)
-                point = search('availablePoints":([\d]+)', driver.page_source)[1]
+            sleep(5)
+            log_error(f"Dev error, checking why it doesn't work (waited a bit, is this still white ?) {format_error(e)}", driver, True)
+            driver.refresh()
+            sleep(5)
+            point = search('availablePoints\":([\d]+)', driver.page_source)[1]
         return(point)
 
     for _ in range (3):
@@ -677,7 +662,8 @@ def fidelity():
                 try : 
                     choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
                 except : # tentative de fix
-                    driver.refresh()
+                    driver.execute_script("location.reload(true);")
+                    wait_until_visible(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]', browser=driver)
                     choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')
                 answer_number = search("([0-9]) of ([0-9]) completed", driver.page_source)
                 if answer_number is None:
@@ -717,60 +703,6 @@ def fidelity():
                 printf("invalid fidelity link.")
     except Exception as e:
         log_error(e)
-
-
-def mobile_login_pwd(error):
-    try:
-        # TODO 
-        # seems fine, check if there are no issues NO
-        mot = choice(Liste_de_mot).replace(" ","+")
-        mobile_driver.get(f"https://www.bing.com/search?q={mot}")
-        rgpd_popup(mobile_driver)
-        printf("start of Mobile login")
-        try :
-            mobile_driver.find_element(By.ID, "mHamburger").click()
-        except Exception as e :
-            elm = mobile_driver.find_element(By.ID, "mHamburger") 
-            mobile_driver.execute_script("arguments[0].scrollIntoView();", elm)
-            mobile_driver.find_element(By.ID, "mHamburger").click()
-
-        wait_until_visible(By.ID, "hb_s", browser=mobile_driver)
-        mobile_driver.find_element(By.ID, "hb_s").click()
-        wait_until_visible(By.ID, "i0116", browser=mobile_driver)
-        mail_elem = mobile_driver.find_element(By.ID, "i0116")
-        send_keys_wait(mail_elem, _mail)
-        mail_elem.send_keys(Keys.ENTER)
-        wait_until_visible(By.ID, "i0118", browser=mobile_driver)
-        pwd_elem = mobile_driver.find_element(By.ID, "i0118")
-        send_keys_wait(pwd_elem, _password)
-        pwd_elem.send_keys(Keys.ENTER)
-        custom_sleep(uniform(1, 2))
-        if "Entrez le code de sécurité" in driver.page_source :
-            try : 
-                a2f_elem = mobile_driver.find_element(By.ID, "idTxtBx_SAOTCC_OTC")
-                a2f_elem.send_keys(_otp.now())
-                a2f_elem.send_keys(Keys.ENTER)
-            except Exception as e :
-                log_error(e)
-        custom_sleep(uniform(1, 2))        
-        for i in ["KmsiCheckboxField", "iLooksGood", "idSIButton9"]:
-            try:
-                mobile_driver.find_element(By.ID,i ).click()
-            except Exception as e:
-                pass
-
-        printf("end of Mobile login")
-
-    except Exception as e:
-        error += 1
-        if error <= 3:
-            printf(f"failure on mobile_login. Retrying({error}/3), {e}")
-            custom_sleep(uniform(5, 10))
-            mobile_login_pwd(error)
-        else:
-            log_error(f"login impossible 3 fois de suite. {e}", mobile_driver)
-            mobile_driver.quit()
-            return(True)
 
 
 def mobile_alert_popup():
@@ -910,7 +842,6 @@ def CustomStart(Credentials):
             driver.close()
 
 
-
 if VNC_ENABLED : 
     display = SmartDisplay(backend="xvnc", size=(2160, 2160), rfbport=VNC_PORT, color_depth=24) 
 else :
@@ -943,9 +874,9 @@ else:
         printf("\n\n")
         printf(_mail)
         custom_sleep(1)
-        printf("début du driver")
+        printf("Début du driver.")
         driver = firefox_driver()
-        printf("driver demarré")
+        printf("Driver demarré.")
         driver.implicitly_wait(3)
         try:
             daily_routine()

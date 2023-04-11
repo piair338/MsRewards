@@ -4,7 +4,7 @@ from modules.config import *
 
 # add the time arround the text given in [text]&
 def Timer(text: str, mail: str) -> str:
-    return(f"[{mail} - {datetime.today().strftime('%d-%m-%Y')} - {timedelta(seconds = round(float(time() - START_TIME)))}] " + str(text))
+    return(f"[{mail.split('@')[0]} - {datetime.today().strftime('%d/%m')} - {timedelta(seconds = round(float(time() - START_TIME)))}] " + str(text))
 
 
 # replace the function print, with more options
