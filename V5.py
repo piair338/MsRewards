@@ -470,14 +470,17 @@ def login(ldriver):
             ldriver.refresh()
             rgpd_popup(ldriver) # Ultra important
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
+            log_error("1", ldriver, True)
             #if "SadPanda.svg" in ldriver.page_source :
             #    log_error('test SadPanda before', ldriver)
             #    driver.execute_script("location.reload(true);")
             #    log_error('test SadPanda after', ldriver)
             if not('>Tableau de bord' in ldriver.page_source):
+                log_error("2", ldriver, True)
                 try : 
                     ldriver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()
                     custom_sleep(5)
+                    log_error("3", ldriver, True)
                     if "bing.com" in ldriver.current_url :
                         rgpd_popup(ldriver)
                         ldriver.get("https://www.bing.com/rewardsapp/flyout")
@@ -485,6 +488,8 @@ def login(ldriver):
                             return(True)
                         if "bing.com" in ldriver.current_url : # Mobile ONLY -> check that that is true
                             ldriver.get("https://www.bing.com/rewardsapp/flyout")
+                            custom_sleep(2)
+                            log_error("4", ldriver, True)
                             return(True)
                     else :
                         printf("error during the connection. Trying something else")
@@ -492,6 +497,7 @@ def login(ldriver):
                     log_error(f"not connected 5 - error {e}", ldriver)
                 if not('>Tableau de bord' in ldriver.page_source):
                     try : 
+                        log_error("5", ldriver, True)
                         ldriver.find_element(By.XPATH, "/html/body/div/div/div/div/div[2]/a").click()
                         custom_sleep(5)
                     except Exception as e:
@@ -501,6 +507,7 @@ def login(ldriver):
                         rgpd_popup(ldriver)
                         ldriver.get("https://www.bing.com/rewardsapp/flyout")
                         if ('>Tableau de bord' in ldriver.page_source) :
+                            log_error("7", ldriver, True)
                             return(True)
                         else :
                             log_error("not connected 6", ldriver)
