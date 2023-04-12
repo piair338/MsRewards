@@ -458,9 +458,15 @@ def login(ldriver):
             else:
                 log_error(e, ldriver)
         wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-rewards"]', 20, ldriver)
+        if "Abuse" in ldriver.current_url:
+            log_error("banned", ldriver)
+            raise Banned()
         if ("account.microsoft.com" in ldriver.current_url) :
+            if "notice" in ldriver.current_url:
+                ldriver.find_element(By.ID, "id__0").click()
+                wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-rewards"]', 20, ldriver)
             ldriver.get("https://bing.com")
-            custom_sleep(5)
+            wait_until_visible(By.CSS_SELECTOR, '[id="bnp_btn_accept"]', 5, ldriver)
             ldriver.refresh()
             rgpd_popup(ldriver) # Ultra important
             ldriver.get("https://www.bing.com/rewardsapp/flyout")
@@ -477,8 +483,11 @@ def login(ldriver):
                         ldriver.get("https://www.bing.com/rewardsapp/flyout")
                         if ('>Tableau de bord' in ldriver.page_source) :
                             return(True)
-                        else :
-                            printf("error during the connection. Trying something else")
+                        if "bing.com" in ldriver.current_url : # Mobile ONLY -> check that that is true
+                            ldriver.get("https://www.bing.com/rewardsapp/flyout")
+                            return(True)
+                    else :
+                        printf("error during the connection. Trying something else")
                 except Exception as e:
                     log_error(f"not connected 5 - error {e}", ldriver)
                 if not('>Tableau de bord' in ldriver.page_source):
@@ -500,9 +509,6 @@ def login(ldriver):
 
         if ('account.live.com' in ldriver.current_url):
             log_error("error 1", ldriver, True)
-            if "Abuse" in ldriver.current_url:
-                log_error("banned", ldriver)
-                raise Banned()
             ldriver.refresh()
             log_error("error 2", ldriver, True)
             ldriver.get("https://bing.com")
@@ -524,8 +530,7 @@ def login(ldriver):
     except Exception as e:
         log_error(e)
         ldriver.quit()
-
-
+        return(False)
 
 
 # Makes 30 search as PC Edge
@@ -551,9 +556,7 @@ def bing_pc_search(override=randint(35, 40)):
             sleep(3)
             send_keys_wait(driver.find_element(By.ID, "sb_form_q"), word)
             driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
-
-        custom_sleep(uniform(5, 20))
-
+        custom_sleep(uniform(3, 7))
         try:
             driver.find_element(By.ID, "sb_form_q").clear()
         except Exception as e:
@@ -563,7 +566,6 @@ def bing_pc_search(override=randint(35, 40)):
                 driver.find_element(By.ID, "sb_form_q").clear()
             except Exception as e:
                 log_error(f"clear la barre de recherche - {format_error(e)}")
-
 
 
 # Unban an account, called with -u parameter. You will need a phone number
@@ -600,6 +602,14 @@ def unban() -> None:
 def log_points(account="unknown"): 
     def get_points():
         driver.get("https://rewards.bing.com")
+        custom_sleep(1)
+        if "/proofs/" in driver.current_url:
+            for id in ["KmsiCheckboxField","iLooksGood", "idSIButton9", "iCancel"]:
+                try:
+                    driver.find_element(By.ID, id).click()
+                    restart = True
+                except Exception as e:
+                    pass
         wait_until_visible(By.CSS_SELECTOR, 'span[mee-element-ready="$ctrl.loadCounterAnimation()"]', browser=driver)
         try : 
             point = search('availablePoints\":([\d]+)', driver.page_source)[1]
@@ -730,7 +740,7 @@ def bing_mobile_search(override=randint(22, 25)):
                 mot = choice(Liste_de_mot)
                 send_keys_wait(mobile_driver.find_element(By.ID, "sb_form_q"), mot)
                 mobile_driver.find_element(By.ID, "sb_form_q").send_keys(Keys.ENTER)
-                custom_sleep(uniform(5, 20))
+                custom_sleep(uniform(3, 7))
                 mobile_alert_popup()  # check for alert (asking for position or for allowing notifications)
                 mobile_driver.find_element(By.ID, "sb_form_q").clear()
             except Exception as e:
@@ -865,7 +875,7 @@ elif POINTS_FILE != "":
 else:
     if UPDATE_VERSION != "None":
         if DISCORD_ENABLED_ERROR:
-            webhookFailure.send(f"Updated to {UPDATE_VERSION}")
+            webhookFailure.send(f"Updated to {UPDATE_VERSION}", username="UPDATE", avatar_url="https://cdn-icons-png.flaticon.com/512/1688/1688988.png")
     for cred in Credentials:
         _mail = cred[0]
         _password = cred[1]
@@ -885,11 +895,11 @@ else:
             printf(f"finis. attente de {round(attente/60)}min")
             custom_sleep(attente)
         except KeyboardInterrupt:
-            printf("canceled. Closing driver and display.")
+            printf("Canceled. Closing driver and display.")
             driver.quit()
             display.stop()
         except Exception as e:
-            printf(f"error not catched. skipping this account. {e}")
+            printf(f"Error not catched. Skipping this account. {e}")
             driver.quit()
 
 display.stop()
