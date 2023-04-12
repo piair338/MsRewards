@@ -1,19 +1,23 @@
 from modules.imports import *
 from modules.config import *
-
+import modules.globals as g
 
 # add the time arround the text given in [text]&
-def Timer(text: str, mail: str) -> str:
-    return(f"[{mail.split('@')[0]} - {datetime.today().strftime('%d/%m')} - {timedelta(seconds = round(float(time() - START_TIME)))}] " + str(text))
+def Timer(text: str) -> str:
+    return(f"[{g._mail.split('@')[0]} - {datetime.today().strftime('%d/%m')} - {timedelta(seconds = round(float(time() - START_TIME)))}] " + str(text))
 
 
 # replace the function print, with more options
 # [txt] : string, [driver] : selenium webdriver
-def printf2(txt, mail, LOG = LOG):
-    print(Timer(txt, mail))
+def printf(txt):
+    print(Timer(txt))
 
 
+# return current page domain
+def get_domain(driver):
+    return(driver.current_url.split("/")[2])
 
+    
 # check if the user is using IPV4 using ipify.org
 # [driver] : selenium webdriver
 # never used here
@@ -24,7 +28,6 @@ def check_ipv4(driver):
     if len(elm.text.split('.')) == 4 :
         return True
     return False
-
 
 
 def custom_sleep(temps):

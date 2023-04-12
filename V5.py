@@ -5,18 +5,15 @@ from modules.config import *
 from modules.tools import *
 from modules.error import *
 from modules.driver_tools import *
+import modules.globals as g
 
-global driver
-driver = None
-global _mail, _password, _otp, display
 
-# TODO : replace by a better print (with logging, cf https://realpython.com/python-logging/)
-def printf(e):
-    printf2(str(e), _mail)
+driver = g.driver
+display = g.display
+
 
 # TODO
-# handle "panda"'s error: error while logging in preventing some task to be done SadPanda.svg
-# check that each card worked (lot of misses lately) -- test that -- don't crash at least
+# handle "panda"'s error: error while logging in preventing some task to be done SadPanda.svg:
 
 
 # create a webdriver 
@@ -43,11 +40,11 @@ def firefox_driver(mobile=False, headless=False):
     if mobile :
         options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
         driver = webdriver.Firefox(options=options)
-        driver.set_window_size(1070 + hash(_mail)%20 , 1900 + hash(_password + "salt")%10) # mobile resolution are crazy high now, right ?
+        driver.set_window_size(1070 + hash(g._mail)%20 , 1900 + hash(g._password + "salt")%10) # mobile resolution are crazy high now, right ?
     else :
         options.set_preference("general.useragent.override", PC_USER_AGENT)
         driver = webdriver.Firefox(options=options)
-        driver.set_window_size(1900 + hash(_mail)%20 , 1070 + hash(_password + "salt")%10)
+        driver.set_window_size(1900 + hash(g._mail)%20 , 1070 + hash(g._password + "salt")%10)
     return(driver)
 
 
@@ -83,7 +80,7 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
             )
         file = File("screenshot.png")
         embed.set_image(url="attachment://screenshot.png")
-        embed.set_footer(text=_mail)
+        embed.set_footer(text=g._mail)
         webhookFailure.send(embed=embed, username="error", file=file, avatar_url = AVATAR_URL)
         webhookFailure.send(username="error", file=File("page.html"), avatar_url = AVATAR_URL)
 
@@ -266,7 +263,7 @@ def all_cards(): # return to the main page and closes all other tabs
                     else :
                         printf(f'carte OK')
                 except Exception as e : 
-                    printf(format_error(e) + "probablement ok - check card")
+                    printf(format_error(e) + " probablement ok - check card")
                  # if it fail, it's probably okay -> when all three card are done, the pannel fold
         except Exception as e:
             log_error(e)
@@ -382,156 +379,94 @@ def try_play(nom="inconnu"):
             custom_sleep(uniform(3, 5))
 
 
-# login() tries to login to your Microsoft account.
-# it uses global variable _mail and _password to login
-def login(ldriver):
-    def pwd_login():    
-        printf("pwd_login : start")
-        ldriver.get("https://login.live.com")
-        custom_sleep(2)
-        wait_until_visible(By.ID, "i0116", browser = ldriver)
-        mail_elem = ldriver.find_element(By.ID, "i0116")
-        send_keys_wait(mail_elem, _mail)
-        mail_elem.send_keys(Keys.ENTER)
-        custom_sleep(2)
-        wait_until_visible(By.ID, "i0118", browser = ldriver)
-        pwd_elem = ldriver.find_element(By.ID, "i0118")
-        send_keys_wait(pwd_elem, _password)
-        pwd_elem.send_keys(Keys.ENTER)
-        custom_sleep(2)
-        if "Entrez le code de sécurité" in ldriver.page_source :
-            try : 
-                a2f_elem = ldriver.find_element(By.ID, "idTxtBx_SAOTCC_OTC")
-                a2f_elem.send_keys(_otp.now())
-                a2f_elem.send_keys(Keys.ENTER)
-            except Exception as e :
-                log_error(e)
-        custom_sleep(5)
-
-        if ('Abuse' in ldriver.current_url) : 
-            log_error("account suspended")
-            raise Banned()
-        save_cookies(driver, _mail)
-        for id in ["KmsiCheckboxField","iLooksGood", "idSIButton9", "iCancel"]:
-            try:
-                ldriver.find_element(By.ID, id).click()
-                restart = True
-            except Exception as e:
-                pass
-
+# Login with password or with cookies.
+# The driver should be in the same state on both case 
+def pwd_login(ldriver):    
+    printf("pwd_login : start")
+    ldriver.get("https://login.live.com")
+    wait_until_visible(By.ID, "i0116", browser = ldriver)
+    mail_elem = ldriver.find_element(By.ID, "i0116")
+    send_keys_wait(mail_elem, g._mail)
+    mail_elem.send_keys(Keys.ENTER)
+    wait_until_visible(By.ID, "i0118", browser = ldriver)
+    pwd_elem = ldriver.find_element(By.ID, "i0118")
+    send_keys_wait(pwd_elem, g._password)
+    pwd_elem.send_keys(Keys.ENTER)
+    custom_sleep(2)
+    # 2FA
+    if "Entrez le code de sécurité" in ldriver.page_source : 
         try : 
-            body_elem = ldriver.find_element(By.TAG_NAME, "body") # in case of any random popup
-            body_elem.send_keys(Keys.ENTER)
-        except :
-            pass
-        printf("login completed - going to MsRewards")
-        custom_sleep(uniform(3,5))
-        ldriver.get("https://www.bing.com/rewardsapp/flyout")
-        custom_sleep(uniform(3,5))
-        for i in [f'[title="Rejoindre maintenant"]', f'[title="Rejoindre"]', f'[title="Join now"]'] :
-            try:
-                ldriver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
-            except:
-                printf(f"element {i} not found")
-        rgpd_popup(ldriver)
-        custom_sleep(uniform(3,5))
-        ldriver.get("https://www.bing.com/rewardsapp/flyout")
-        try:
-            ldriver.find_element(By.CSS_SELECTOR, '[title="Rejoindre maintenant"]').click()  # depend of the language of the page
-        except:
-            printf(f"unlock test: fail, probably normal")
-            
-        printf('on MsRewards')
-    
-    def cookie_login():
-        ldriver.get("https://login.live.com")
-        try : 
-            load_cookies(ldriver, _mail)
-        except FileNotFoundError :
-            printf("Creating cookies file")
-            return(False)
-        try : 
-            ldriver.refresh()
-        except WebDriverException as e: # This error occurs at random time. Don't really know why
-            if "Reached error page: about:neterror?e=netTimeout" in str(e):
-                log_error("Timeout error occurred. \"normal\"....., maybe because of mismatch date ?", ldriver, True) # TODO check this hypothesis
-            else:
-                log_error(e, ldriver)
-        wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-rewards"]', 20, ldriver)
-        if "Abuse" in ldriver.current_url:
-            log_error("banned", ldriver)
-            raise Banned()
-        if ("account.microsoft.com" in ldriver.current_url) :
-            if "notice" in ldriver.current_url:
-                ldriver.find_element(By.ID, "id__0").click()
-                wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-rewards"]', 20, ldriver)
-            ldriver.get("https://bing.com")
-            wait_until_visible(By.CSS_SELECTOR, '[id="bnp_btn_accept"]', 5, ldriver)
-            ldriver.refresh()
-            rgpd_popup(ldriver) # Ultra important
-            ldriver.get("https://www.bing.com/rewardsapp/flyout")
-            log_error("1", ldriver, True)
-            #if "SadPanda.svg" in ldriver.page_source :
-            #    log_error('test SadPanda before', ldriver)
-            #    driver.execute_script("location.reload(true);")
-            #    log_error('test SadPanda after', ldriver)
-            if not('>Tableau de bord' in ldriver.page_source):
-                log_error("2", ldriver, True)
-                try : 
-                    ldriver.find_element(By.CSS_SELECTOR, "[h='ID=RewardsFlyout,2.1']").click()
-                    custom_sleep(5)
-                    log_error("3", ldriver, True)
-                    if "bing.com" in ldriver.current_url :
-                        rgpd_popup(ldriver)
-                        ldriver.get("https://www.bing.com/rewardsapp/flyout")
-                        if ('>Tableau de bord' in ldriver.page_source) :
-                            return(True)
-                        if "bing.com" in ldriver.current_url : # Mobile ONLY -> check that that is true
-                            ldriver.get("https://www.bing.com/rewardsapp/flyout")
-                            custom_sleep(2)
-                            log_error("4", ldriver, True)
-                            return(True)
-                    else :
-                        printf("error during the connection. Trying something else")
-                except Exception as e:
-                    log_error(f"not connected 5 - error {e}", ldriver)
-                if not('>Tableau de bord' in ldriver.page_source):
-                    try : 
-                        log_error("5", ldriver, True)
-                        ldriver.find_element(By.XPATH, "/html/body/div/div/div/div/div[2]/a").click()
-                        custom_sleep(5)
-                    except Exception as e:
-                        log_error(f"erreur not connected 6{e}", ldriver)
-                        return(False)
-                    if "bing.com" in ldriver.current_url :
-                        rgpd_popup(ldriver)
-                        ldriver.get("https://www.bing.com/rewardsapp/flyout")
-                        if ('>Tableau de bord' in ldriver.page_source) :
-                            log_error("7", ldriver, True)
-                            return(True)
-                        else :
-                            log_error("not connected 6", ldriver)
-                            return(False)
-            return(True)
+            a2f_elem = ldriver.find_element(By.ID, "idTxtBx_SAOTCC_OTC")
+            a2f_elem.send_keys(g._otp.now())
+            a2f_elem.send_keys(Keys.ENTER)
+        except Exception as e :
+            log_error(e)
 
-        if ('account.live.com' in ldriver.current_url):
-            log_error("error 1", ldriver, True)
-            ldriver.refresh()
-            log_error("error 2", ldriver, True)
-            ldriver.get("https://bing.com")
-            ldriver.refresh()
-            rgpd_popup(ldriver)
-            log_error("error 3", ldriver, True)
-            sleep(5)
-            return(True)
-            
-        printf("cookies plus valides ?")
-        return(False)
+
+def cookie_login(ldriver):
+    printf("cookies_login : start")
+    ldriver.get("https://login.live.com")
     try : 
-        if cookie_login():
-            return (ldriver.current_window_handle)
-        pwd_login() #mobile login in never called. TODO : check if it's bad.
-        return(ldriver.current_window_handle)
+        load_cookies(ldriver)
+    except FileNotFoundError :
+        printf("No cookies file Found.")
+        return(False)
+    ldriver.refresh()
+    return(True)
+
+
+# Accept all cookies question, and check if the account is locked
+def login_part_2(ldriver, cookies = False):
+    custom_sleep(5)
+    if ('Abuse' in ldriver.current_url) : 
+        raise Banned()
+    if cookies:
+        save_cookies(ldriver)
+    for id in ["KmsiCheckboxField", "id__0", "iLooksGood", "idSIButton9", "iCancel"]:
+        if get_domain(ldriver) == "account.microsoft.com":
+            break
+        try:
+            ldriver.find_element(By.ID, id).click()
+            restart = True
+        except Exception as e:
+            pass
+    wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 20, ldriver)
+    ldriver.get("https://www.bing.com")
+    rgpd_popup(ldriver)
+    ldriver.refresh()
+    rgpd_popup(ldriver)
+    ldriver.get("https://account.microsoft.com/")
+    if wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 30, ldriver) :
+        return(True) #the account logging was successful
+    else :
+        log_error("Error during login. Trying to refresh")
+        ldriver.refresh()
+        return(wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 30, ldriver))
+
+
+#going to MsRewards
+def go_to_msrewards(ldriver):
+    for i in ["[h='ID=RewardsFlyout,2.1']", f'[title="Rejoindre maintenant"]', f'[title="Rejoindre"]', f'[title="Join now"]'] :
+        ldriver.get("https://www.bing.com/rewardsapp/flyout")
+        if ('>Tableau de bord' in ldriver.page_source) :
+            printf('On MsRewards flyout')
+            return(True)
+        try:
+            ldriver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
+        except:
+            printf(f"element {i} not found")
+
+
+# login() tries to login to your Microsoft account.
+# it uses global variable g._mail and g._password to login
+def login(ldriver):
+    try : 
+        success_cookies = cookie_login(ldriver)
+        input("paused")
+        if not success_cookies:
+            pwd_login(ldriver)
+        login_part_2(ldriver, not success_cookies)
+        go_to_msrewards(ldriver)
     except Banned:
         raise Banned()
     except Exception as e:
@@ -792,20 +727,20 @@ def daily_routine(custom = False):
 
 
     try:
-        log_points(_mail)
+        log_points(g._mail)
     except Exception as e:
         log_error(e)
 
 
 def dev():
-    log_error("test")
+    input("paused")
 
 
 def CustomStart(Credentials):
     global START_TIME
     if not LINUX_HOST :
         raise NameError('You need to be on linux to do that, due to the utilisation of a module named enquieries, sorry.') 
-    global driver, _mail, _password, p, _otp
+    global driver, p
 
     system("clear")  # clear from previous command to allow a clean choice
     actions = ["tout", "daily", "pc", "mobile", "log_points","fidelity", "dev"]
@@ -814,10 +749,10 @@ def CustomStart(Credentials):
     START_TIME = time() # Reset timer to the start of the actions
 
     for cred in liste:
-        _mail = cred[0]
-        _password = cred[1]
+        g._mail = cred[0]
+        g._password = cred[1]
         if len(cred) == 3:
-            _otp = TOTP(cred[2])
+            g._otp = TOTP(cred[2])
 
         driver = firefox_driver()
         driver.implicitly_wait(3)
@@ -853,7 +788,7 @@ def CustomStart(Credentials):
                     break
             if not "tout" in Actions:
                 try:
-                    log_points(_mail)
+                    log_points(g._mail)
                 except Exception as e:
                     printf(f"CustomStart {e}")
             driver.close()
@@ -869,7 +804,7 @@ display.start()
 if CUSTOM_START:
         CustomStart(Credentials)
 elif UNBAN:
-    _mail, _password  = select_accounts(False)[0]
+    g._mail, g._password  = select_accounts(False)[0]
     driver = firefox_driver()
     try : 
         login(driver)
@@ -884,12 +819,10 @@ else:
         if DISCORD_ENABLED_ERROR:
             webhookFailure.send(f"Updated to {UPDATE_VERSION}", username="UPDATE", avatar_url="https://cdn-icons-png.flaticon.com/512/1688/1688988.png")
     for cred in Credentials:
-        _mail = cred[0]
-        _password = cred[1]
+        g._mail = cred[0]
+        g._password = cred[1]
         if len(cred) == 3:
-            _otp = TOTP(cred[2])
-        printf("\n\n")
-        printf(_mail)
+            g._otp = TOTP(cred[2])
         custom_sleep(1)
         printf("Début du driver.")
         driver = firefox_driver()

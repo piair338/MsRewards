@@ -1,6 +1,6 @@
 from modules.imports import *
 from modules.config import *
-
+import modules.globals as g
 
 def setup_proxy(ip, port, options, socks=False) :
     PROXY = f"{ip}:{port}"
@@ -25,12 +25,12 @@ def rgpd_popup(driver) -> None:
             pass
 
 # save webdriver cookies
-def save_cookies(driver, _mail):
-    pickle.dump(driver.get_cookies(), open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{_mail}.pkl", "wb"))
+def save_cookies(driver):
+    pickle.dump(driver.get_cookies(), open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}.pkl", "wb"))
 
 # load cookies previously saved to the driver
-def load_cookies(driver, _mail):
-    cookies = pickle.load(open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{_mail}.pkl", "rb"))
+def load_cookies(driver):
+    cookies = pickle.load(open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}.pkl", "rb"))
     for cookie in cookies:
         driver.add_cookie(cookie)
 
@@ -52,6 +52,8 @@ def send_keys_wait(element, keys):
 def wait_until_visible(search_by: str, identifier: str, timeout = 20, browser = None) -> None:
     try :
         WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((search_by,identifier)), "element not found")
+        return(True)
     except TimeoutException as e:
         print(f"element not found after {timeout}s")
+        return(False)
 
