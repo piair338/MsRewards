@@ -462,7 +462,6 @@ def go_to_msrewards(ldriver):
 def login(ldriver):
     try : 
         success_cookies = cookie_login(ldriver)
-        input("paused")
         if not success_cookies:
             pwd_login(ldriver)
         login_part_2(ldriver, not success_cookies)
