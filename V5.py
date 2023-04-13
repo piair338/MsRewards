@@ -234,7 +234,7 @@ def all_cards():
             liste[i].click()
             if len(driver.window_handles) > 1 :
                 driver.switch_to.window(driver.window_handles[1])
-                try_play()
+                try_play(driver.title)
                 close_tab(driver.window_handles[1])
                 try : 
                     driver.refresh()
@@ -243,7 +243,7 @@ def all_cards():
                         printf(f"carte {i} not okay. Retrying.")
                         liste[i].click()
                         driver.switch_to.window(driver.window_handles[1])
-                        try_play()
+                        try_play(driver.title)
                         close_tab(driver.window_handles[1])
                 except :
                     pass
@@ -254,6 +254,7 @@ def all_cards():
                     print(format_error(e))
                     log_error("no new windows", driver)
             custom_sleep(3)
+
 
 def welcome_tour(elm):
     try : 
@@ -272,11 +273,13 @@ def welcome_tour(elm):
     sleep(5)
     driver.find_element(By.CSS_SELECTOR, '[class="c-glyph glyph-cancel"]').click()
 
+
 def spotify():
     custom_sleep(5)
     driver.find_element(By.CSS_SELECTOR, '[data-bi-id="spotify-premium gratuit"]').click()
     custom_sleep(5)
     close_tab(driver.window_handles[1])
+
 
 def promo():
     elm = driver.find_element(By.ID, "promo-item")
@@ -296,8 +299,6 @@ def promo():
 
 # Find out which type of action to do
 def try_play(nom="inconnu"):
-    if (nom=="inconnu"):
-        nom = driver.title
     def play(number):
         if number == 8 or number == 9:
             try:
