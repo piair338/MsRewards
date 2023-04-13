@@ -210,115 +210,94 @@ def do_poll():
     printf("do_poll : end")
 
 
-# finds all task to do, and launch them
-def all_cards(): # return to the main page and closes all other tabs
-    def reset(part2=False): 
-        if len(driver.window_handles) == 1:
-            driver.get("https://www.bing.com/rewardsapp/flyout")
-            if part2:
-                row_element = driver.find_elements(By.CSS_SELECTOR, f'[class="i-h rw-sh fp_row"]')[1]
-                expanded = row_element.get_attribute("aria-expanded")
-                if expanded != "true":
-                    row_element.click()
-        else:
-            driver.switch_to.window(driver.window_handles[1])
-            printf(f"fermeture : {driver.current_url}")
-            driver.close()
-            driver.switch_to.window(driver.window_handles[0])
-            if driver.current_url != "https://www.bing.com/rewardsapp/flyout":
-                driver.get("https://www.bing.com/rewardsapp/flyout")
-            reset(part2)
+def all_cards():
+    driver.get("https://rewards.bing.com")
+    liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
+    custom_sleep(2)
+    try :
+        promo()
+    except Exception as e:
+        #printf(format_error(e))
+        printf("no promo card")
 
-    def daily_cards(): # cartes de la premiere partie (renouvelée chaque jour).
-        try:
-            # make sure that the daily area is expanded
-            row_element = driver.find_elements(By.CSS_SELECTOR, f'[class="i-h rw-sh fp_row"]')[0]
-            expanded = row_element.get_attribute("aria-expanded")
-            if expanded != "true":
-                row_element.click()
-            for i in range(3):
-                custom_sleep(uniform(3, 5))
-                try:
-                    titre = "Placeholder"
-                    elm = driver.find_elements(By.CLASS_NAME, 'promo_cont')
-                    elm[i].click()
-                    sleep(1)
-                    titre = driver.title
-                    try_play(titre)
-                    sleep(1)
-                    reset()
-                    printf(f"DailyCard {titre} ok")
+    for i in range(len(liste)):
+        printf(f"carte {i}")
+        try : 
+            checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
+        except StaleElementReferenceException :
+            liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
+            printf(f"staled, {len(liste)}")
+            checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
+        if checked:
+            custom_sleep(3)
+            driver.execute_script("arguments[0].scrollIntoView();", liste[i])
+            liste[i].click()
+            if len(driver.window_handles) > 1 :
+                driver.switch_to.window(driver.window_handles[1])
+                try_play()
+                close_tab(driver.window_handles[1])
+                try : 
+                    driver.refresh()
+                    liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
+                    if ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML")) :
+                        printf(f"carte {i} not okay. Retrying.")
+                        liste[i].click()
+                        driver.switch_to.window(driver.window_handles[1])
+                        try_play()
+                        close_tab(driver.window_handles[1])
+                except :
+                    pass
+            else : 
+                try : 
+                    welcome_tour(liste[i])
                 except Exception as e:
-                    log_error(f"all_cards card `{titre}` error ({format_error(e)})")
-                    break
-                
-                try : # devrait renvoyer vrai si la carte i est faite ou pas, a l'aide su symbole en haut a droite de la carte
-                    elm = driver.find_elements(By.CLASS_NAME, 'promo_cont')[i]
-                    if not ("correctCircle" in elm.get_attribute("innerHTML")):
-                        printf(f"missed card {i}")
-                        elm.click()
-                        try_play("recovery")
-                        sleep(3)
-                        reset()
-                    else :
-                        printf(f'carte OK')
-                except Exception as e : 
-                    printf(format_error(e) + " probablement ok - check card")
-                 # if it fail, it's probably okay -> when all three card are done, the pannel fold
-        except Exception as e:
-            log_error(e)
-    
-    def weekly_cards():
-        # make sure that the weekly area is expanded
-        row_element = driver.find_elements(By.CSS_SELECTOR, f'[class="i-h rw-sh fp_row"]')[1]
-        expanded = row_element.get_attribute("aria-expanded")
-        if expanded != "true":
-            row_element.click()
+                    print(format_error(e))
+                    log_error("no new windows", driver)
+            custom_sleep(3)
 
-        for i in range(20): # Should raise an error whene there is no card left
-            elm = driver.find_elements(By.CLASS_NAME, 'promo_cont')
-            try :
-                elm[0].click()
-                printf(f"Carte {i+1} cliquée.")
-            except Exception as e :
-                printf(f"Plus aucune carte.")
-                break
-            driver.switch_to.window(driver.window_handles[len(driver.window_handles) - 1])
-            sleep(1)
-            titre = driver.title.split(" - Recherche")[0]
-            printf(f"Carte `{titre}` en cours.")
-            try_play(titre)
-            reset(True)
-            sleep(1)
+def welcome_tour(elm):
+    try : 
+        driver.find_element(By.CSS_SELECTOR, '[class="welcome-tour-next-button c-call-to-action c-glyph"]').click()
+    except :
+        pass
+    driver.find_element(By.CSS_SELECTOR, '[class="quiz-link gray-button c-call-to-action c-glyph f-lightweight"]').click()
+    sleep(5)
+    driver.find_element(By.CSS_SELECTOR, '[class="c-glyph glyph-cancel"]').click()
+    elm.click()
+    driver.find_element(By.CSS_SELECTOR, '[class="quiz-link gray-button c-call-to-action c-glyph f-lightweight"]').click()
+    sleep(5)
+    driver.find_element(By.CSS_SELECTOR, '[class="c-glyph glyph-cancel"]').click()
+    elm.click()
+    driver.find_element(By.CSS_SELECTOR, '[class="quiz-link gray-button c-call-to-action c-glyph f-lightweight"]').click()
+    sleep(5)
+    driver.find_element(By.CSS_SELECTOR, '[class="c-glyph glyph-cancel"]').click()
 
-    def top_cards():
-        for _ in range(2):
-            try :
-                driver.find_elements(By.CSS_SELECTOR, '[class="banner_cont single wpoints"]')[0].click()
-                reset()
-            except Exception as e:
-                printf(format_error(e))
-                break
-    
-    try :
-        top_cards()
-    except Exception as e:
-        log_error(e)
+def spotify():
+    custom_sleep(5)
+    driver.find_element(By.CSS_SELECTOR, '[data-bi-id="spotify-premium gratuit"]').click()
+    custom_sleep(5)
+    close_tab(driver.window_handles[1])
 
-    try:
-        daily_cards()
-    except Exception as e:
-        log_error(e)
-
-    try :
-        weekly_cards()
-    except Exception as e:
-        log_error(e)
-
+def promo():
+    elm = driver.find_element(By.ID, "promo-item")
+    while elm:
+        driver.execute_script("arguments[0].click();", elm)
+        custom_sleep(3)
+        if len(driver.window_handles) > 1 :
+            driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
+            try_play()
+            close_tab(driver.window_handles[1])
+        else : 
+            try : 
+                spotify()
+            except :
+                log_error("no new windows", driver)
+        custom_sleep(3)
 
 # Find out which type of action to do
 def try_play(nom="inconnu"):
-    # rgpd_popup(driver)
+    if (nom=="inconnu"):
+        nom = driver.title
     def play(number):
         if number == 8 or number == 9:
             try:
@@ -349,10 +328,13 @@ def try_play(nom="inconnu"):
             log_error("There is an error. rqAnswerOption present in page but no action to do. skipping.")
 
     try:
-        driver.find_element(By.ID, "rqStartQuiz").click()  # start the quiz
-        answer_number = driver.page_source.count("rqAnswerOption")
-        play(answer_number)
-
+        if wait_until_visible(By.ID, "rqStartQuiz", 5, driver):
+            custom_sleep(3)
+            driver.find_element(By.ID, "rqStartQuiz").click()  # start the quiz
+            answer_number = driver.page_source.count("rqAnswerOption")
+            play(answer_number)
+        else :
+            raise (NameError("going to next part"))
     except Exception as e: # if there is no start button, an error is thrown
         if "bt_PollRadio" in driver.page_source:
             try:
@@ -444,19 +426,6 @@ def login_part_2(ldriver, cookies = False):
         return(wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 30, ldriver))
 
 
-#going to MsRewards
-def go_to_msrewards(ldriver):
-    for i in ["[h='ID=RewardsFlyout,2.1']", f'[title="Rejoindre maintenant"]', f'[title="Rejoindre"]', f'[title="Join now"]'] :
-        ldriver.get("https://www.bing.com/rewardsapp/flyout")
-        if ('>Tableau de bord' in ldriver.page_source) :
-            printf('On MsRewards flyout')
-            return(True)
-        try:
-            ldriver.find_element(By.CSS_SELECTOR, i).click()  # depend of the language of the page
-        except:
-            printf(f"element {i} not found")
-
-
 # login() tries to login to your Microsoft account.
 # it uses global variable g._mail and g._password to login
 def login(ldriver):
@@ -465,7 +434,7 @@ def login(ldriver):
         if not success_cookies:
             pwd_login(ldriver)
         login_part_2(ldriver, not success_cookies)
-        go_to_msrewards(ldriver)
+        ldriver.get("https://rewards.bing.com/")
     except Banned:
         raise Banned()
     except Exception as e:

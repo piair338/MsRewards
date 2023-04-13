@@ -1,5 +1,6 @@
 from modules.imports import *
 from modules.config import *
+from modules.tools import *
 import modules.globals as g
 
 def setup_proxy(ip, port, options, socks=False) :
@@ -54,6 +55,6 @@ def wait_until_visible(search_by: str, identifier: str, timeout = 20, browser = 
         WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((search_by,identifier)), "element not found")
         return(True)
     except TimeoutException as e:
-        print(f"element not found after {timeout}s")
+        printf(f"element not found after {timeout}s")
         return(False)
 
