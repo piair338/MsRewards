@@ -4,11 +4,11 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV GECKODRIVER_VER v0.31.0
 ENV FIREFOX_VER 87.0
 WORKDIR /app
-
 RUN set -x \
    && apt update \
    && apt upgrade -y \
    && apt install -y \
+       tzdata \
        wfrench \
        git \
        libx11-xcb1 \
@@ -31,6 +31,7 @@ RUN set -x \
    && mv geckodriver /usr/bin/
 
 
+ENV TZ="Europe/Paris"
 WORKDIR /app/MsRewards
 CMD python main.py
 

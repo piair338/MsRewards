@@ -283,18 +283,23 @@ def spotify():
 
 def promo():
     elm = driver.find_element(By.ID, "promo-item")
-    while elm:
+    for i in range(10):
+        if not elm:
+            break
+        if i > 8 :
+            log_error("chelou, plus de 8 truc", driver)
         driver.execute_script("arguments[0].click();", elm)
         custom_sleep(3)
         if len(driver.window_handles) > 1 :
             driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
-            try_play()
+            try_play(driver.title)
             close_tab(driver.window_handles[1])
         else : 
             try : 
                 spotify()
             except :
                 log_error("no new windows", driver)
+                driver.get("https://rewards.bing.com")
         custom_sleep(3)
 
 # Find out which type of action to do
