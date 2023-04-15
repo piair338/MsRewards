@@ -1,18 +1,7 @@
 #!/usr/bin/python3.10
-import configparser
-from csv import reader
-from os import sys, system, path
-from sys import platform
-import argparse
-from discord import (  # Importing discord.Webhook and discord.RequestsWebhookAdapter
-    RequestsWebhookAdapter,
-    Webhook,
-    Colour,
-)
-
-from time import time
-from random import shuffle
-
+from modules.driver_tools import *
+from modules.imports import *
+import modules.globals as g
 """
 Setup for option, like --override or --fulllog
 """
@@ -50,13 +39,6 @@ parser.add_argument(
     help="enable full logging in discord",
     action="store_true",
 )
-parser.add_argument(
-    "-r", 
-    "--risky", 
-    help="make the program faster, probably better risk of ban", 
-    dest="fast", 
-    action="store_true"
-)
 
 parser.add_argument(
     "-c", 
@@ -89,26 +71,21 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-CUSTOM_START = args.override
-UNBAN = args.unban
-LOG = args.log
-FULL_LOG = args.fulllog
-FAST = args.fast
-if CUSTOM_START :
-    LOG = True
-VNC_ENABLED = args.vnc != "None"
-VNC_PORT = args.vnc
-POINTS_FILE = args.points_file
-UPDATE_VERSION = args.update_version
+g.custom_start = args.override
+g.unban = args.unban
+g.log = args.log
+g.full_log = args.fulllog
+
+if g.custom_start :
+    g.log = True
+
+g.vnc_enabled = args.vnc != "None"
+g.vnc_port = args.vnc
+g.points_file = args.points_file
+g.update_version = args.update_version
 # global variables used later in the code
-LINUX_HOST = platform == "linux" # if the computer running this program is Linux, it allow more things 
-START_TIME = time()
-
-
-if LINUX_HOST:
-    import enquiries
-else:
-    system("")  # enable colors in windows cmd
+g.islinux = platform == "linux" # if the computer running this program is Linux, it allow more things 
+g.start_time = time()
 
 #reading configuration
 
@@ -122,56 +99,57 @@ config = configparser.ConfigParser()
 config.read(config_path)
 
 # path configurations
-MotPath = config["PATH"]["motpath"]
-CREDENTIALS_PATH = config["PATH"]["logpath"]
+g.mot_path = config["PATH"]["motpath"]
+g.credential_path = config["PATH"]["logpath"]
 
 
 # discord configuration
-DISCORD_SUCCESS_LINK = config["DISCORD"]["successlink"]
-DISCORD_ERROR_LINK = config["DISCORD"]["errorlink"]
-DISCORD_ENABLED_ERROR = config["DISCORD"]["DiscordErrorEnabled"] == "True"
-DISCORD_ENABLED_SUCCESS = config["DISCORD"]["DiscordSuccessEnabled"]== "True"
+g.discord_success_link = config["DISCORD"]["successlink"]
+g.discord_error_link = config["DISCORD"]["errorlink"]
+g.discord_enabled_error = config["DISCORD"]["DiscordErrorEnabled"] == "True"
+g.discord_enabled_success = config["DISCORD"]["DiscordSuccessEnabled"]== "True"
 try :
-    AVATAR_URL = config["OTHER"]["avatar"]== "True"
+    g.avatar_url = config["OTHER"]["avatar"] 
 except :
-    AVATAR_URL = "https://cdn.discordapp.com/icons/793934298977009674/d8055bccef6eca4855c349e808d0d788.webp"
+    g.avatar_url = "https://cdn.discordapp.com/icons/793934298977009674/d8055bccef6eca4855c349e808d0d788.webp"
     
-if DISCORD_ENABLED_ERROR:
-    webhookFailure = Webhook.from_url(DISCORD_ERROR_LINK, adapter=RequestsWebhookAdapter())
-if DISCORD_ENABLED_SUCCESS:
-    webhookSuccess = Webhook.from_url(DISCORD_SUCCESS_LINK, adapter=RequestsWebhookAdapter())
+if g.discord_enabled_error:
+    webhookFailure = Webhook.from_url(g.discord_error_link, adapter=RequestsWebhookAdapter())
+if g.discord_enabled_success:
+    webhookSuccess = Webhook.from_url(g.discord_success_link, adapter=RequestsWebhookAdapter())
 
 # base settings
-FidelityLink = config["SETTINGS"]["FidelityLink"]
-DISCORD_EMBED = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
-Headless = config["SETTINGS"]["headless"] == "True"
+g.fidelity_link = config["SETTINGS"]["FidelityLink"]
+g.discord_embed = config["SETTINGS"]["embeds"] == "True" #print new point value in an embed
+g.headless = config["SETTINGS"]["headless"] == "True"
 
 # proxy settings
-proxy_enabled = config["PROXY"]["proxy_enabled"] == "True"
-proxy_address = config["PROXY"]["url"]
-proxy_port = config["PROXY"]["port"]
+g.proxy_enabled = config["PROXY"]["proxy_enabled"] == "True"
+g.proxy_address = config["PROXY"]["url"]
+g.proxy_port = config["PROXY"]["port"]
 
 # MySQL settings
-sql_enabled = config["SQL"]["sql_enabled"] == "True"
-sql_usr = config["SQL"]["usr"]
-sql_pwd = config["SQL"]["pwd"]
-sql_host = config["SQL"]["host"]
-sql_database = config["SQL"]["database"]
-
-# Other settings 
-IPV6_CHECKED = config["OTHER"]["ipv6"]
+g.sql_enabled = config["SQL"]["sql_enabled"] == "True"
+g.sql_usr = config["SQL"]["usr"]
+g.sql_pwd = config["SQL"]["pwd"]
+g.sql_host = config["SQL"]["host"]
+g.sql_database = config["SQL"]["database"]
 
 
-g = open(MotPath, "r", encoding="utf-8")
-lines = g.readlines()
+h = open(g.mot_path, "r", encoding="utf-8")
+lines = h.readlines()
 if len(lines) < 3 : 
     Liste_de_mot = list(lines[0].split(","))
 else :
     Liste_de_mot = [x.replace('\n', "") for x in lines]
-g.close()
+h.close()
 
 
-with open(CREDENTIALS_PATH) as f:
+with open(g.credential_path) as f:
     reader = reader(f)
     Credentials = list(reader)
 shuffle(Credentials)
+g._cred = Credentials
+
+if g.proxy_enabled :
+    setup_proxy(g.proxy_address,g.proxy_port)

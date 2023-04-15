@@ -1,7 +1,7 @@
 #!/usr/bin/python3.10
 from modules.imports import *
-from modules.db import add_to_database
 from modules.config import *
+from modules.db import add_to_database
 from modules.tools import *
 from modules.error import *
 from modules.driver_tools import *
@@ -29,12 +29,8 @@ def firefox_driver(mobile=False, headless=False):
     )
     options = Options()
     options.set_preference('intl.accept_languages', 'fr-FR, fr')
-    if proxy_enabled :
-        setup_proxy(proxy_address,proxy_port, options)
     options.set_preference("browser.link.open_newwindow", 3)
     options.set_preference("dom.confirm_repost.testing.always_accept", True)
-    if FAST :
-        options.set_preference("permissions.default.image", 2) #disable image loading. You shouldn't use it except if really nessecary 
     if headless:
         options.add_argument("-headless")
     if mobile :
@@ -48,14 +44,14 @@ def firefox_driver(mobile=False, headless=False):
     return(driver)
 
 
-def log_error(error, ldriver=driver, log=FULL_LOG):
+def log_error(error, ldriver=driver, log=g.full_log):
     global driver
     if ldriver is None:
         ldriver = driver
     if type(error) != str :
         error = format_error(error)
     printf(f"\n\n\033[93m Erreur : {str(error)}  \033[0m\n\n")
-    if DISCORD_ENABLED_ERROR:
+    if g.discord_enabled_error:
         with open("page.html", "w") as f:
             try :
                 f.write(ldriver.page_source)
@@ -81,8 +77,8 @@ def log_error(error, ldriver=driver, log=FULL_LOG):
         file = File("screenshot.png")
         embed.set_image(url="attachment://screenshot.png")
         embed.set_footer(text=g._mail)
-        webhookFailure.send(embed=embed, username="error", file=file, avatar_url = AVATAR_URL)
-        webhookFailure.send(username="error", file=File("page.html"), avatar_url = AVATAR_URL)
+        webhookFailure.send(embed=embed, username="error", file=file, avatar_url = g.avatar_url)
+        webhookFailure.send(username="error", file=File("page.html"), avatar_url = g.avatar_url)
 
 
 # close the tab currently on and go back to the one first, or the one specified
@@ -125,6 +121,7 @@ def play_quiz2(override=10) -> None:
             log_error(e)
             break
     printf("play_quiz2 done")
+    custom_sleep(3)
 
 
 def play_quiz8():
@@ -164,6 +161,7 @@ def play_quiz8():
     except Exception as e:
         log_error(f"{format_error(e)} \n Good answers : {' '.join(correct_answers)}")
     printf("play_quiz8 : fin ")
+    custom_sleep(3)
 
 
 def play_quiz4(override=None):
@@ -192,6 +190,7 @@ def play_quiz4(override=None):
         log_error(e)
         raise ValueError(e)
     printf("play_quiz4 : end")
+    custom_sleep(3)
 
 
 # do_poll() answer a random thing to poll, on of daily activities
@@ -208,6 +207,7 @@ def do_poll():
         log_error(error)
         raise ValueError(error)
     printf("do_poll : end")
+    custom_sleep(3)
 
 
 def all_cards():
@@ -552,8 +552,8 @@ def log_points(account="unknown"):
     custom_sleep(uniform(3, 20))
     account_name = account.split("@")[0]
 
-    if DISCORD_ENABLED_SUCCESS:
-        if DISCORD_EMBED:
+    if g.discord_enabled_success:
+        if g.discord_embed:
             embed = Embed(
                 title=f"{account_name} actuellement à {str(points)} points", colour=Colour.green()
             )
@@ -562,8 +562,8 @@ def log_points(account="unknown"):
         else:
             webhookSuccess.send(f"{account_name} actuellement à {str(points)} points")
 
-    if sql_enabled :
-        add_to_database(account_name, points, sql_host, sql_usr, sql_pwd, sql_database)
+    if g.sql_enabled :
+        add_to_database(account_name, points, g.sql_host, g.sql_usr, g.sql_pwd, g.sql_database)
 
 
 def fidelity():
@@ -707,20 +707,19 @@ def daily_routine(custom = False):
 
 
 def dev():
-    input("paused")
+    input("dev pause")
 
 
-def CustomStart(Credentials):
-    global START_TIME
-    if not LINUX_HOST :
+def CustomStart():
+    if not g.islinux :
         raise NameError('You need to be on linux to do that, due to the utilisation of a module named enquieries, sorry.') 
-    global driver, p
+    global driver
 
     system("clear")  # clear from previous command to allow a clean choice
     actions = ["tout", "daily", "pc", "mobile", "log_points","fidelity", "dev"]
     Actions = enquiries.choose("quels Actions ?", actions, multi=True)
     liste = select_accounts()
-    START_TIME = time() # Reset timer to the start of the actions
+    g.start_time = time() # Reset timer to the start of the actions
 
     for cred in liste:
         g._mail = cred[0]
@@ -730,7 +729,6 @@ def CustomStart(Credentials):
 
         driver = firefox_driver()
         driver.implicitly_wait(3)
-
         if login(driver) != "STOP":
             if "tout" in Actions:
                 daily_routine(True)
@@ -765,34 +763,33 @@ def CustomStart(Credentials):
                     log_points(g._mail)
                 except Exception as e:
                     printf(f"CustomStart {e}")
-            driver.close()
+            driver.quit()
 
 
-if VNC_ENABLED : 
-    display = SmartDisplay(backend="xvnc", size=(2160, 2160), rfbport=VNC_PORT, color_depth=24) 
+if g.vnc_enabled : 
+    display = SmartDisplay(backend="xvnc", size=(2160, 2160), rfbport=g.vnc_port, color_depth=24) 
 else :
     display = SmartDisplay(size=(2160, 2160)) 
 display.start()
 
 
-if CUSTOM_START:
-        CustomStart(Credentials)
-elif UNBAN:
+if g.custom_start:
+    CustomStart()
+elif g.unban:
     g._mail, g._password  = select_accounts(False)[0]
     driver = firefox_driver()
     try : 
         login(driver)
     except Banned:
         unban()
-
     driver.quit()
-elif POINTS_FILE != "":
-    save_points_from_file(POINTS_FILE)
+elif g.points_file != "":
+    save_points_from_file(g.points_file)
 else:
-    if UPDATE_VERSION != "None":
-        if DISCORD_ENABLED_ERROR:
-            webhookFailure.send(f"Updated to {UPDATE_VERSION}", username="UPDATE", avatar_url="https://cdn-icons-png.flaticon.com/512/1688/1688988.png")
-    for cred in Credentials:
+    if g.update_version != "None":
+        if g.discord_enabled_error:
+            webhookFailure.send(f"Updated to {g.update_version}", username="UPDATE", avatar_url="https://cdn-icons-png.flaticon.com/512/1688/1688988.png")
+    for cred in g._cred:
         g._mail = cred[0]
         g._password = cred[1]
         if len(cred) == 3:

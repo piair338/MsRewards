@@ -1,10 +1,9 @@
 from modules.imports import *
 from modules.config import *
 import modules.globals as g
-
 # add the time arround the text given in [text]&
 def Timer(text: str) -> str:
-    return(f"[{g._mail.split('@')[0]} - {datetime.today().strftime('%d/%m')} - {timedelta(seconds = round(float(time() - START_TIME)))}] " + str(text))
+    return(f"[{g._mail.split('@')[0]} - {datetime.today().strftime('%d/%m')} - {timedelta(seconds = round(float(time() - g.start_time)))}] " + str(text))
 
 
 # replace the function print, with more options
@@ -32,9 +31,7 @@ def check_ipv4(driver):
 
 def custom_sleep(temps):
     try : 
-        if FAST and temps > 50:
-            sleep(temps/10)
-        elif LOG: #only print sleep when user see it
+        if g.log : #only print sleep when user see it
             points = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
             passe = 0
             for i in range(int(temps)):
@@ -80,7 +77,7 @@ def save_points_from_file(file):
 
 def select_accounts(multiple = True):
     system("clear")  # clear from previous command to allow a clean choice
-    emails = [x[0] for x in Credentials]  # list of all email adresses
+    emails = [x[0] for x in g._cred]  # list of all email adresses
     emails_selected = enquiries.choose(f"quel{'s' if multiple else ''} compte{'s' if multiple else ''} ?", emails, multi=multiple)
-    return([x for x in Credentials if x[0] in emails_selected])
+    return([x for x in g._cred if x[0] in emails_selected])
 

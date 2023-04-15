@@ -3,19 +3,13 @@ from modules.config import *
 from modules.tools import *
 import modules.globals as g
 
-def setup_proxy(ip, port, options, socks=False) :
+def setup_proxy(ip, port) :
     PROXY = f"{ip}:{port}"
-    if socks :
-        options.set_preference('network.proxy.type', 1)
-        options.set_preference('network.proxy.socks', ip)
-        options.set_preference('network.proxy.socks_port', int(port))
-        options.set_preference("browser.link.open_newwindow", 3)
-    else :
-        webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
-            "httpProxy": PROXY,
-            "sslProxy": PROXY,
-            "proxyType": "MANUAL",
-        }
+    webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
+        "httpProxy": PROXY,
+        "sslProxy": PROXY,
+        "proxyType": "MANUAL",
+    }
 
 #Deal with rgpd popup as well as some random popup like 'are you satisfied' one
 def rgpd_popup(driver) -> None:
@@ -42,10 +36,7 @@ keys can be an string, but also selenium keys
 def send_keys_wait(element, keys):
     for i in keys:
         element.send_keys(i)
-        if FAST :
-            pass
-        else :
-            sleep(uniform(0.1, 0.3))
+        sleep(uniform(0.1, 0.3))
 
 
 

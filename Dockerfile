@@ -19,6 +19,7 @@ RUN set -x \
        nano \
        tigervnc-standalone-server \
    && git clone https://github.com/piair338/MsRewards \
+   && ln -fs /usr/share/zoneinfo/Europe/Paris /etc/localtime \
    && pip install -r MsRewards/requirements.txt \
    && curl -sSLO https://download-installer.cdn.mozilla.net/pub/firefox/releases/91.9.1esr/linux-x86_64/en-US/firefox-91.9.1esr.tar.bz2 \
    && tar -jxf firefox-* \
