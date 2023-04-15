@@ -574,7 +574,7 @@ def fidelity():
             except:
                 break
         try : 
-            fidelity_link_page = get(FidelityLink) #get the url of fidelity page
+            fidelity_link_page = get(g.fidelity_link) #get the url of fidelity page
         except Exception as e :
             printf(e)
             fidelity_link_page = False
