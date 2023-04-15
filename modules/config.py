@@ -44,7 +44,7 @@ parser.add_argument(
     "-c", 
     "--config", 
     help="Choose a specific config file", 
-    type=argparse.FileType('r')
+    default=""
 )
 
 parser.add_argument(
@@ -88,15 +88,20 @@ g.islinux = platform == "linux" # if the computer running this program is Linux,
 g.start_time = time()
 
 #reading configuration
-
-config_path = f"{path.abspath(path.dirname(path.dirname( __file__ )))}/user_data/config.cfg"
-if args.config :
-    config_path = path.abspath(args.config.name)
-
-
-
 config = configparser.ConfigParser()
-config.read(config_path)
+
+if args.config :
+    try :
+        config_path  =f"{path.abspath(path.dirname(path.dirname( __file__ )))}/user_data/config{args.config}.cfg"
+        config.read(config_path)
+        g.mot_path = config["PATH"]["motpath"]
+    except :
+        config_path = path.abspath(args.config)
+        config.read(config_path)
+else : 
+    config_path = f"{path.abspath(path.dirname(path.dirname( __file__ )))}/user_data/config.cfg"
+    config.read(config_path)
+
 
 # path configurations
 g.mot_path = config["PATH"]["motpath"]
