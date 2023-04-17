@@ -5,15 +5,12 @@ from modules.db import add_to_database
 from modules.tools import *
 from modules.error import *
 from modules.driver_tools import *
+from modules.cards import *
 import modules.globals as g
 
 
 driver = g.driver
 display = g.display
-
-
-# TODO
-# handle "panda"'s error: error while logging in preventing some task to be done SadPanda.svg:
 
 
 # create a webdriver 
@@ -221,12 +218,19 @@ def all_cards():
         printf("no promo card")
 
     for i in range(len(liste)):
+        if(len(liste) < 20):
+            log_error("moins de 20 cartes", driver) 
         printf(f"carte {i}")
         try : 
             checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
         except StaleElementReferenceException :
             liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
             printf(f"staled, {len(liste)}")
+            checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
+        except IndexError:
+            log_error("IndexError ?", driver)
+            driver.refresh()
+            custom_sleep(10)
             checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
         if checked:
             custom_sleep(3)
@@ -249,36 +253,11 @@ def all_cards():
                     pass
             else : 
                 try : 
-                    welcome_tour(liste[i])
+                    welcome_tour(liste[i], driver)
                 except Exception as e:
                     print(format_error(e))
                     log_error("no new windows", driver)
             custom_sleep(3)
-
-
-def welcome_tour(elm):
-    try : 
-        driver.find_element(By.CSS_SELECTOR, '[class="welcome-tour-next-button c-call-to-action c-glyph"]').click()
-    except :
-        pass
-    driver.find_element(By.CSS_SELECTOR, '[class="quiz-link gray-button c-call-to-action c-glyph f-lightweight"]').click()
-    sleep(5)
-    driver.find_element(By.CSS_SELECTOR, '[class="c-glyph glyph-cancel"]').click()
-    elm.click()
-    driver.find_element(By.CSS_SELECTOR, '[class="quiz-link gray-button c-call-to-action c-glyph f-lightweight"]').click()
-    sleep(5)
-    driver.find_element(By.CSS_SELECTOR, '[class="c-glyph glyph-cancel"]').click()
-    elm.click()
-    driver.find_element(By.CSS_SELECTOR, '[class="quiz-link gray-button c-call-to-action c-glyph f-lightweight"]').click()
-    sleep(5)
-    driver.find_element(By.CSS_SELECTOR, '[class="c-glyph glyph-cancel"]').click()
-
-
-def spotify():
-    custom_sleep(5)
-    driver.find_element(By.CSS_SELECTOR, '[data-bi-id="spotify-premium gratuit"]').click()
-    custom_sleep(5)
-    close_tab(driver.window_handles[1])
 
 
 def promo():
@@ -296,11 +275,12 @@ def promo():
             close_tab(driver.window_handles[1])
         else : 
             try : 
-                spotify()
+                spotify(driver)
             except :
                 log_error("no new windows", driver)
                 driver.get("https://rewards.bing.com")
         custom_sleep(3)
+
 
 # Find out which type of action to do
 def try_play(nom="inconnu"):
