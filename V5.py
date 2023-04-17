@@ -106,11 +106,13 @@ def play_quiz2(override=10) -> None:
             if somme + offset == int(correct_answer_value):
                 answer_elem = driver.find_element(By.ID, "rqAnswerOption0")
                 answer_elem.click()
-                progressBar(j, 10, name="quiz 2")
+                if g.log:
+                    progressBar(j, 10, name="quiz 2")
             else:
                 answer_elem = driver.find_element(By.ID, "rqAnswerOption1")
                 answer_elem.click()
-                progressBar(j, 10, name="quiz 2")
+                if g.log:
+                    progressBar(j, 10, name="quiz 2")
 
         except exceptions.ElementNotInteractableException as e:
             driver.execute_script("arguments[0].click();", answer_elem)
@@ -141,7 +143,8 @@ def play_quiz8():
             for answer_id in correct_answers:
                 wait_until_visible(By.ID, answer_id, timeout = 20, browser=driver)
                 counter += 1
-                progressBar(counter, 16, name="Quiz 8")
+                if g.log :
+                    progressBar(counter, 16, name="Quiz 8")
                 try:
                     answer_elem = driver.find_element(By.ID, answer_id)
                     answer_elem.click()
@@ -214,7 +217,6 @@ def all_cards():
     try :
         promo()
     except Exception as e:
-        #printf(format_error(e))
         printf("no promo card")
 
     for i in range(len(liste)):
@@ -246,6 +248,7 @@ def all_cards():
                     if ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML")) :
                         printf(f"carte {i} not okay. Retrying.")
                         liste[i].click()
+                        log_error(f"Card {i} with issue. WTF ?", driver)
                         driver.switch_to.window(driver.window_handles[1])
                         try_play(driver.title)
                         close_tab(driver.window_handles[1])
