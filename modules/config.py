@@ -69,12 +69,22 @@ parser.add_argument(
     dest="update_version",
     default="None"
 )
+
+parser.add_argument(
+    "--dev", 
+    help="dev option", 
+    dest="dev", 
+    action="store_true"
+)
+
+
 args = parser.parse_args()
 
 g.custom_start = args.override
 g.unban = args.unban
 g.log = args.log
 g.full_log = args.fulllog
+g.dev = args.dev
 
 if g.custom_start :
     g.log = True

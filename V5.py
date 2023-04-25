@@ -212,16 +212,24 @@ def do_poll():
 
 def all_cards():
     driver.get("https://rewards.bing.com")
+    wait_until_visible(By.CLASS_NAME, "c-card-content", 10, driver)
     liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
     custom_sleep(2)
+    if "welcometour" in driver.current_url:
+        welcome_tour_NO(driver)
     try :
         promo()
     except Exception as e:
         printf("no promo card")
-
+    if(len(liste) < 10):
+        log_error("moins de 10 cartes", driver) 
+    if (len(liste) < 20):
+        if not g.norvege :
+            g.norvege = True
+            printf("moins de 20 cartes, disabling fidelity")
+            g.fidelity_link = "Disabled because norway"
+            log_error("Verifying if Norway", driver, True)
     for i in range(len(liste)):
-        if(len(liste) < 20):
-            log_error("moins de 20 cartes", driver) 
         printf(f"carte {i}")
         try : 
             checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
@@ -258,8 +266,8 @@ def all_cards():
                 try : 
                     welcome_tour(liste[i], driver)
                 except Exception as e:
-                    print(format_error(e))
-                    log_error("no new windows", driver)
+                    printf("no new windows" + format_error(e))
+                    driver.get("https://rewards.bing.com")
             custom_sleep(3)
 
 
@@ -382,7 +390,12 @@ def cookie_login(ldriver):
     except FileNotFoundError :
         printf("No cookies file Found.")
         return(False)
-    ldriver.refresh()
+    try :
+        ldriver.refresh()
+    except Exception as e:
+        printf(format_error(e))
+        printf("FIX YOUR SITE MS.......")
+        
     return(True)
 
 
@@ -402,18 +415,18 @@ def login_part_2(ldriver, cookies = False):
         except Exception as e:
             pass
     wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 20, ldriver)
-    ldriver.get("https://www.bing.com")
+    ldriver.get("https://www.bing.com/?setlang=fr&cc=fr&cc=FR")
     rgpd_popup(ldriver)
     ldriver.refresh()
     rgpd_popup(ldriver)
-    ldriver.get("https://account.microsoft.com/")
-    if wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 30, ldriver) :
-        return(True) #the account logging was successful
-    else :
-        log_error("Error during login. Trying to refresh")
-        ldriver.refresh()
-        return(wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 30, ldriver))
-
+    #ldriver.get("https://account.microsoft.com/")
+    #if wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 30, ldriver) :
+    #    return(True) #the account logging was successful
+    #else :
+    #    log_error("Error during login. Trying to refresh")
+    #    ldriver.refresh()
+    #    return(wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 30, ldriver))
+    # useless ?
 
 # login() tries to login to your Microsoft account.
 # it uses global variable g._mail and g._password to login
@@ -659,7 +672,7 @@ def daily_routine(custom = False):
         if not custom: # custom already login 
             login(driver)
     except Banned :
-        log_error("THIS ACCOUNT IS BANNED. FIX THIS ISSUE WITH -U")
+        log_error("This account is locked. Fix that. (-U ?)", driver)
         return()
 
     try:
@@ -676,12 +689,11 @@ def daily_routine(custom = False):
         bing_pc_search()
     except Exception as e:
         log_error(e)
-        
+
     try:
         bing_mobile_search()
     except Exception as e:
         log_error(e)
-
 
     try:
         log_points(g._mail)

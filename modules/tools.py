@@ -1,5 +1,6 @@
 from modules.imports import *
 from modules.config import *
+from modules.db import *
 import modules.globals as g
 # add the time arround the text given in [text]&
 def Timer(text: str) -> str:
@@ -64,13 +65,11 @@ def progressBar(current, total=30, barLength=20, name="Progress"):
 
 def save_points_from_file(file):
     with open(file) as f:
-        reader = csv.reader(f)
-        points_list = list(reader)
-
+        read = reader(f)
+        points_list = list(read)
     for item in points_list:
         compte, points = item[0], item[1]
-        add_to_database(compte, points, sql_host,sql_usr,sql_pwd,sql_database, save_if_fail=False)
-
+        add_to_database(compte, points, g.sql_host,g.sql_usr,g.sql_pwd,g.sql_database, save_if_fail=False)
     with open(file, "w") as f:
         f.write("")
 

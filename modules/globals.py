@@ -32,3 +32,5 @@ sql_usr = "None"
 sql_pwd = "azerty"
 sql_host = "https://example.com"
 sql_database = "MsRewards"
+dev = False
+norvege = False

@@ -21,11 +21,23 @@ def rgpd_popup(driver) -> None:
 
 # save webdriver cookies
 def save_cookies(driver):
-    pickle.dump(driver.get_cookies(), open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}.pkl", "wb"))
+    if g.dev:
+        f = open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}_unsafe.pkl", "w")
+        for i in driver.get_cookies():
+            f.write(str(i) + "\n")
+        f.close()
+    else :
+        pickle.dump(driver.get_cookies(), open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}.pkl", "wb"))
 
 # load cookies previously saved to the driver
 def load_cookies(driver):
-    cookies = pickle.load(open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}.pkl", "rb"))
+    if g.dev:
+        f = open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}_unsafe.pkl", "r")
+        lines = f.readlines()
+        f.close()
+        cookies = [literal_eval(x) for x in lines]
+    else :
+        cookies = pickle.load(open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}.pkl", "rb"))
     for cookie in cookies:
         driver.add_cookie(cookie)
 

@@ -18,6 +18,14 @@ def welcome_tour(elm, driver):
     sleep(5)
     driver.find_element(By.CSS_SELECTOR, '[class="c-glyph glyph-cancel"]').click()
 
+def welcome_tour_NO(driver):
+    try : 
+        driver.find_element(By.CSS_SELECTOR, '[class="welcome-tour-next-button c-call-to-action c-glyph"]').click()
+    except :
+        pass
+    driver.find_element(By.CSS_SELECTOR, '[class="c-glyph glyph-cancel"]').click()
+    sleep(5)
+
 
 def spotify(driver):
     sleep(5)
