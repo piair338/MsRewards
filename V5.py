@@ -412,7 +412,6 @@ def login_part_2(ldriver, cookies = False):
     if ('Abuse' in ldriver.current_url) : 
         raise Banned()
     if ('identity' in ldriver.current_url) : 
-        custom_sleep(100)
         raise Identity()
     if ('notice' in ldriver.current_url) : 
         ldriver.find_element(By.ID, "id__0").click()
@@ -680,6 +679,9 @@ def daily_routine(custom = False):
             login(driver)
     except Banned :
         log_error("This account is locked. Fix that. (-U ?)", driver)
+        return()
+    except Identity :
+        log_error("This account has an issue. Fix that.", driver)
         return()
 
     try:
