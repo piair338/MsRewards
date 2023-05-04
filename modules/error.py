@@ -3,3 +3,6 @@ class Banned(Exception):
 
 class NotBanned(Exception):
     pass
+
+class Identity(Exception):
+    pass

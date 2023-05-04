@@ -234,6 +234,7 @@ def all_cards():
         try : 
             checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
         except StaleElementReferenceException :
+            driver.refresh()
             liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
             printf(f"staled, {len(liste)}")
             checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
@@ -255,11 +256,17 @@ def all_cards():
                     liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
                     if ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML")) :
                         printf(f"carte {i} not okay. Retrying.")
-                        liste[i].click()
-                        log_error(f"Card {i} with issue. WTF ?", driver)
+                        try :
+                            liste[i].click()
+                        except :
+                            log_error("problème inconnu ? sauf si c'est un element obscure...", driver)
+                            driver.get("https://rewards.bing.com")
+                            checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
                         driver.switch_to.window(driver.window_handles[1])
                         try_play(driver.title)
                         close_tab(driver.window_handles[1])
+                        if ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML")):
+                            log_error(f"Card {i} with issue. Why MS ?", driver)
                 except :
                     pass
             else : 
@@ -288,7 +295,7 @@ def promo():
             try : 
                 spotify(driver)
             except :
-                log_error("no new windows", driver)
+                printf("no new windows", driver)
                 driver.get("https://rewards.bing.com")
         custom_sleep(3)
 
@@ -404,6 +411,11 @@ def login_part_2(ldriver, cookies = False):
     custom_sleep(5)
     if ('Abuse' in ldriver.current_url) : 
         raise Banned()
+    if ('identity' in ldriver.current_url) : 
+        custom_sleep(100)
+        raise Identity()
+    if ('notice' in ldriver.current_url) : 
+        ldriver.find_element(By.ID, "id__0").click()
     if cookies:
         save_cookies(ldriver)
     for id in ["KmsiCheckboxField", "id__0", "iLooksGood", "idSIButton9", "iCancel"]:
@@ -419,14 +431,7 @@ def login_part_2(ldriver, cookies = False):
     rgpd_popup(ldriver)
     ldriver.refresh()
     rgpd_popup(ldriver)
-    #ldriver.get("https://account.microsoft.com/")
-    #if wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 30, ldriver) :
-    #    return(True) #the account logging was successful
-    #else :
-    #    log_error("Error during login. Trying to refresh")
-    #    ldriver.refresh()
-    #    return(wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 30, ldriver))
-    # useless ?
+
 
 # login() tries to login to your Microsoft account.
 # it uses global variable g._mail and g._password to login
@@ -438,6 +443,8 @@ def login(ldriver):
         login_part_2(ldriver, not success_cookies)
         ldriver.get("https://rewards.bing.com/")
     except Banned:
+        raise Banned()
+    except Identity:
         raise Banned()
     except Exception as e:
         log_error(e)
