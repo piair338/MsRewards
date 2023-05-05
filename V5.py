@@ -406,6 +406,9 @@ def cookie_login(ldriver):
     except FileNotFoundError :
         printf("No cookies file Found.")
         return(False)
+    except Exception as e:
+        log_error(f"error performing cookies login. Trying with password instead. {str(e)}", driver)
+        return(False)
     try :
         ldriver.refresh()
     except Exception as e:
