@@ -221,9 +221,13 @@ def all_cards():
         promo()
     except Exception as e:
         printf("no promo card")
-    if(len(liste) < 10):
-        log_error("moins de 10 cartes", driver) 
-    if (len(liste) < 20):
+    if(len(liste) < 10): #most likely an error during loading
+        driver.refresh()
+        liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
+        if(len(liste) < 10):
+            log_error("moins de 10 cartes", driver)
+            return("PAS ASSEZ DE CARTES")
+    if (len(liste) < 20): # most likely not in france
         if not g.norvege :
             g.norvege = True
             printf("moins de 20 cartes, disabling fidelity")
@@ -239,13 +243,18 @@ def all_cards():
             printf(f"staled, {len(liste)}")
             checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
         except IndexError:
-            log_error("IndexError ?", driver)
             driver.refresh()
             custom_sleep(10)
-            checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
+            liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
+            try : 
+                checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
+            except :
+                log_error("IndexError", driver)
+                return("INDEX ERROR")
         if checked:
-            custom_sleep(3)
+            custom_sleep(1.5)
             driver.execute_script("arguments[0].scrollIntoView();", liste[i])
+            custom_sleep(1.5)
             liste[i].click()
             if len(driver.window_handles) > 1 :
                 driver.switch_to.window(driver.window_handles[1])
@@ -266,7 +275,7 @@ def all_cards():
                         try_play(driver.title)
                         close_tab(driver.window_handles[1])
                         if ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML")):
-                            log_error(f"Card {i} with issue. Why MS ?", driver)
+                            log_error(f"Card {i} Can't be completed. Why MS ?", driver)
                 except :
                     pass
             else : 
@@ -329,7 +338,7 @@ def try_play(nom="inconnu"):
             except Exception as e:
                 printf(f"fail of PlayQuiz 2. Aborted {e}")
         else:
-            log_error("There is an error. rqAnswerOption present in page but no action to do. skipping.")
+            printf("There is an error. rqAnswerOption present in page but no action to do. skipping.")
 
     try:
         if wait_until_visible(By.ID, "rqStartQuiz", 5, driver):
