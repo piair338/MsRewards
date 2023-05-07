@@ -33,7 +33,7 @@ def firefox_driver(mobile=False, headless=False):
     if mobile :
         options.set_preference("general.useragent.override", MOBILE_USER_AGENT)
         driver = webdriver.Firefox(options=options)
-        driver.set_window_size(1070 + hash(g._mail)%20 , 1900 + hash(g._password + "salt")%10) # mobile resolution are crazy high now, right ?
+        driver.set_window_size(1070 + hash(g._mail)%10 , 1900 + hash(g._password + "salt")%20) # mobile resolution are crazy high now, right ?
     else :
         options.set_preference("general.useragent.override", PC_USER_AGENT)
         driver = webdriver.Firefox(options=options)
@@ -407,7 +407,7 @@ def cookie_login(ldriver):
         printf("No cookies file Found.")
         return(False)
     except Exception as e:
-        log_error(f"error performing cookies login. Trying with password instead. {str(e)}", driver)
+        log_error(f"Error performing cookies login. Trying with password instead. \n{str(e)}", driver)
         return(False)
     try :
         ldriver.refresh()
@@ -579,70 +579,64 @@ def log_points(account="unknown"):
     if g.sql_enabled :
         add_to_database(account_name, points, g.sql_host, g.sql_usr, g.sql_pwd, g.sql_database)
 
-
 def fidelity():
-    try:
-        while 1: #close all tabs
-            try:
-                close_tab(1)
-            except:
-                break
-        try : 
-            fidelity_link_page = get(g.fidelity_link) #get the url of fidelity page
-        except Exception as e :
-            printf(e)
-            fidelity_link_page = False
-
-        if fidelity_link_page : 
-            fidelity_link = fidelity_link_page.content.decode("UTF-8")
-
-            if (fidelity_link.split(":")[0] == "https") or (fidelity_link.split(":")[0] == "http") : 
-                driver.get(fidelity_link)
-                wait_until_visible(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]', browser=driver)
+    def sub_fidelity(): 
+        try:
+            wait_until_visible(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]', browser=driver)
+            answer_number = search("([0-9]) of ([0-9]) completed", driver.page_source)
+            if answer_number is None :
+                answer_number = search("([0-9])&nbsp;défi\(s\) terminé\(s\) sur ([0-9])", driver.page_source)
+            if answer_number is None:
+                answer_number = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
+            if answer_number is None :
+                answer_number = search("([0-9]) licence\(s\) sur ([0-9]) disponible\(s\)", driver.page_source)
+            if answer_number is None :
+                answer_number = [0,0,0]
+            for _ in range(int(answer_number[2]) - int(answer_number[1])):
+                driver.refresh()
+                custom_sleep(2)
+                card_elem = driver.find_element(By.CLASS_NAME, "spacer-48-bottom")
                 try : 
-                    choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')  # pull-left spacer-48-bottom punchcard-row? USELESS ?
-                except : # tentative de fix
-                    driver.execute_script("location.reload(true);")
-                    wait_until_visible(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]', browser=driver)
-                    choix = driver.find_element(By.CSS_SELECTOR, 'div[class="pull-left spacer-48-bottom punchcard-row"]')
-                answer_number = search("([0-9]) of ([0-9]) completed", driver.page_source)
-                if answer_number is None:
-                    answer_number = search("([0-9]) de ([0-9]) finalisé", driver.page_source)
-                if answer_number is None :
-                    answer_number = search("([0-9]) licence\(s\) sur ([0-9]) disponible\(s\)", driver.page_source)
-                if answer_number is None :
-                    answer_number = search("([0-9])&nbsp;défi\(s\) terminé\(s\) sur ([0-9])", driver.page_source)
-                if answer_number is None :
-                    answer_number = [0,0,0]
-                for _ in range(int(answer_number[2]) - int(answer_number[1])):
-                    driver.refresh()
-                    custom_sleep(2)
-                    card_elem = driver.find_element(By.CLASS_NAME, "spacer-48-bottom")
+                    button_text = search('<span class="pull-left margin-right-15">([^<^>]+)</span>',card_elem.get_attribute("innerHTML"))[1]
+                    bouton_card = driver.find_element(By.XPATH, f'//span[text()="{button_text}"]')
+                    bouton_card.click()
+                except Exception as e1 :
                     try : 
-                        button_text = search('<span class="pull-left margin-right-15">([^<^>]+)</span>',card_elem.get_attribute("innerHTML"))[1]
-                        bouton_card = driver.find_element(By.XPATH, f'//span[text()="{button_text}"]')
-                        bouton_card.click()
-                    except Exception as e1 :
-                        try : 
-                            recover_elem = driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/main/div[2]/div[2]/div[7]/div[3]/div[1]/a')
-                            recover_elem.click()
-                        except Exception as e2 :
-                            log_error(f"fidélité - double erreur - e1 : {format_error(e1)} - e2 {format_error(e2)}")
-                            break
-                    custom_sleep(uniform(3, 5))
-                    driver.switch_to.window(driver.window_handles[1])
-                    try_play(driver.title)
-                    driver.get(fidelity_link) # USELESS ?
-                    custom_sleep(uniform(3, 5))
-                    try:
-                        close_tab(driver.window_handles[1])
-                    except Exception as e:
-                        printf(e)
-                printf("fidelity - done")
-            else :
-                printf("invalid fidelity link.")
-    except Exception as e:
-        log_error(e)
+                        recover_elem = driver.find_element(By.XPATH,'/html/body/div[1]/div[2]/main/div[2]/div[2]/div[7]/div[3]/div[1]/a')
+                        recover_elem.click()
+                    except Exception as e2 :
+                        log_error(f"fidélité - double erreur - e1 : {format_error(e1)} - e2 {format_error(e2)}")
+                        break
+                custom_sleep(uniform(3, 5))
+                driver.switch_to.window(driver.window_handles[2])
+                try_play(driver.title)
+                custom_sleep(uniform(3, 5))
+                try:
+                    close_tab(driver.window_handles[2], 1)
+                except Exception as e:
+                    printf(e)
+            printf("fidelity - done")
+        except Exception as e:
+            log_error(e)
+
+    pause = driver.find_element(By.CSS_SELECTOR, f'[class="c-action-toggle c-glyph f-toggle glyph-pause"]') # mettre le truc en pause
+    pause.click()
+    cartes = driver.find_elements(By.CSS_SELECTOR, f'[ng-repeat="item in $ctrl.transcludedItems"]')
+    nb_cartes = len(cartes)
+    checked_list_all = driver.find_elements(By.CSS_SELECTOR, f'[ng-if="$ctrl.complete"]')
+    for i in range(nb_cartes):
+        cartes[i].click() # affiche la bonne carte
+        checked_txt = checked_list_all[i].get_attribute("innerHTML")
+        ok = checked_txt.count("StatusCircleOuter checkmark")
+        total = checked_txt.count("StatusCircleOuter")
+        if (ok != total) :
+            elm = driver.find_elements(By.CLASS_NAME, 'clickable-link')[i]
+            if not "moviesandtv" in elm.get_attribute("innerHTML"): # not the film card
+                elm.click()
+                driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
+                sub_fidelity()
+                close_tab(driver.window_handles[1])
+        custom_sleep(1)
 
 
 def mobile_alert_popup():
@@ -723,7 +717,8 @@ def daily_routine(custom = False):
 
 
 def dev():
-    input("dev pause")
+    pass
+
 
 
 def CustomStart():
