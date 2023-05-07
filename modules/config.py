@@ -151,6 +151,15 @@ g.sql_host = config["SQL"]["host"]
 g.sql_database = config["SQL"]["database"]
 
 
+try :
+    g.database_error_override = config["OTHER"]["database_override"]
+except :
+    pass
+
+try : 
+    g.fast = config["OTHER"]["fast"]
+except :
+    pass
 h = open(g.mot_path, "r", encoding="utf-8")
 lines = h.readlines()
 if len(lines) < 3 : 

@@ -28,6 +28,8 @@ def firefox_driver(mobile=False, headless=False):
     options.set_preference('intl.accept_languages', 'fr-FR, fr')
     options.set_preference("browser.link.open_newwindow", 3)
     options.set_preference("dom.confirm_repost.testing.always_accept", True)
+    if g.fast:
+        options.set_preference("permissions.default.image", 2)
     if headless:
         options.add_argument("-headless")
     if mobile :
@@ -577,8 +579,15 @@ def log_points(account="unknown"):
             webhookSuccess.send(f"{account_name} actuellement à {str(points)} points")
 
     if g.sql_enabled :
-        add_to_database(account_name, points, g.sql_host, g.sql_usr, g.sql_pwd, g.sql_database)
+        try :
+            add_to_database(account_name, points, g.sql_host, g.sql_usr, g.sql_pwd, g.sql_database)
+        except Exception as e:
+            if g.database_error_override:
+                printf("database error.")
+            else : 
+                log_error(e)
 
+                
 def fidelity():
     def sub_fidelity(): 
         try:

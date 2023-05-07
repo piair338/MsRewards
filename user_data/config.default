@@ -31,5 +31,8 @@ usr = root
 pwd = password
 
 [OTHER]
+
 avatar = https://cdn.discordapp.com/icons/793934298977009674/d8055bccef6eca4855c349e808d0d788.webp
 ipv6 = False
+database_override = False
+fast = False

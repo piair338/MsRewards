@@ -34,3 +34,5 @@ sql_host = "https://example.com"
 sql_database = "MsRewards"
 dev = False
 norvege = False
+database_error_override = False
+fast = False
