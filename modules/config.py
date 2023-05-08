@@ -152,12 +152,12 @@ g.sql_database = config["SQL"]["database"]
 
 
 try :
-    g.database_error_override = config["OTHER"]["database_override"]
+    g.database_error_override = config["OTHER"]["database_override"] == "True"
 except :
     pass
 
 try : 
-    g.fast = config["OTHER"]["fast"]
+    g.fast = config["OTHER"]["fast"] == "True"
 except :
     pass
 h = open(g.mot_path, "r", encoding="utf-8")

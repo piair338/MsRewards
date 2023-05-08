@@ -34,7 +34,7 @@ def confirm(texte, default = False):
         return False
     return default
     
-lang = "fr"
+lang = "en"
 
 text = {"fr" : {
     "compte" : "entrer l'adresse mail du compte ", 
@@ -55,6 +55,24 @@ text = {"fr" : {
     "proxye" : "voulez vous utiliser un proxy ",
     "proxyl" : "entrez le lien du proxy ",
     "proxyp" : "entrez le port du proxy "
+    }, 
+    "en" : {
+        "compte" : "enter email of an account", 
+        "mdp" : "enter password of this account ",
+        "next" : "Add another account ? ",
+        "finc" : "Adding accounts ",
+        "ajout" : "Accounts added ",
+        "discorde" : "Do you want to use discord ? (Highly recommended as it's untested without)",
+        "w1" : "Enter Webhook link for sending points everyday",
+        "w2" : "Enter Webhook link for errors ",
+        "msqle" : "Do you want to use a database ? ",
+        "msqll" : "database link ",
+        "msqlu" : "database username ",
+        "msqlp" : "database password ",
+        "msqlt" : "database name (should be MsRewards) ",
+        "proxye" : "Do you want to use a proxy ",
+        "proxyl" : "Proxy address ",
+        "proxyp" : "Proxy port "
     }
     }
 
@@ -92,7 +110,7 @@ def edit_config_txt(ligne, contenu):
     txt = f.readlines()
     f.close()
     if txt.count(txt) >1:
-        raise NameError("il y a plus d'une occurence, echec de la modification")
+        raise NameError("Fail")
     
     for i in range(len(txt)) :
         name = txt[i].split(" = ")[0]
@@ -106,16 +124,11 @@ def edit_config_txt(ligne, contenu):
 
 
 def setup_settings():
-    general()
     discord()
     proxy()
     sql()
 
 
-def general():
-    if confirm(t["fidelity"]):
-        lien = input(t["lien"])
-        edit_config_txt('FidelityLink',lien)
     
 
 def discord():

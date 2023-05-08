@@ -5,7 +5,6 @@ logpath = /your/path/to/loginandpass.csv
 
 [SETTINGS]
 
-FidelityLink = Null
 embeds = False
 Headless = True
 
