@@ -1,7 +1,6 @@
 /old
 geckodriver.log
 .vscode/
-update.sh
 /Git
 page.html
 screenshot.png
@@ -11,5 +10,5 @@ data
 /user_data
 install.sh
 nohup.out
-test.py
 points.csv
+/dev

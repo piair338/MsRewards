@@ -227,14 +227,13 @@ def all_cards():
         driver.refresh()
         liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
         if(len(liste) < 10):
-            log_error("moins de 10 cartes", driver)
+            log_error("Less than 10 cards. Most likely an error with login.", driver)
             return("PAS ASSEZ DE CARTES")
     if (len(liste) < 20): # most likely not in france
-        if not g.norvege :
+        if not g.norvege : # TODO : rename norvege to not_france or smth like that
             g.norvege = True
-            printf("moins de 20 cartes, disabling fidelity")
-            g.fidelity_link = "Disabled because norway"
-            log_error("Verifying if Norway", driver, True)
+            printf("Most likely not in France, thus disabling France specific action")
+            # TODO : check country for fidelity
     for i in range(len(liste)):
         printf(f"carte {i}")
         try : 
@@ -245,7 +244,7 @@ def all_cards():
             printf(f"staled, {len(liste)}")
             checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
         except IndexError:
-            driver.refresh()
+            driver.get("https://rewards.bing.com")
             custom_sleep(10)
             liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
             try : 
@@ -296,7 +295,11 @@ def promo():
             break
         if i > 8 :
             log_error("chelou, plus de 8 truc", driver)
-        driver.execute_script("arguments[0].click();", elm)
+        try :
+            elm.click()
+        except :
+            driver.execute_script("arguments[0].click();", elm)
+            printf("that should't be there (promo)")
         custom_sleep(3)
         if len(driver.window_handles) > 1 :
             driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
@@ -308,6 +311,7 @@ def promo():
             except :
                 printf("no new windows", driver)
                 driver.get("https://rewards.bing.com")
+        driver.refresh()
         custom_sleep(3)
 
 
@@ -429,6 +433,8 @@ def login_part_2(ldriver, cookies = False):
         raise Identity()
     if ('notice' in ldriver.current_url) : 
         ldriver.find_element(By.ID, "id__0").click()
+    if ("proof" in ldriver.current_url):
+        ldriver.find_element(BY.ID, "iLooksGood")
     if cookies:
         save_cookies(ldriver)
     for id in ["KmsiCheckboxField", "id__0", "iLooksGood", "idSIButton9", "iCancel"]:
@@ -627,7 +633,8 @@ def fidelity():
             printf("fidelity - done")
         except Exception as e:
             log_error(e)
-
+    if driver.current_url != "https://rewards.bing.com":
+        driver.get("https://rewards.bing.com")
     pause = driver.find_element(By.CSS_SELECTOR, f'[class="c-action-toggle c-glyph f-toggle glyph-pause"]') # mettre le truc en pause
     pause.click()
     cartes = driver.find_elements(By.CSS_SELECTOR, f'[ng-repeat="item in $ctrl.transcludedItems"]')
@@ -646,7 +653,8 @@ def fidelity():
                 sub_fidelity()
                 close_tab(driver.window_handles[1])
         custom_sleep(1)
-
+        cartes = driver.find_elements(By.CSS_SELECTOR, f'[ng-repeat="item in $ctrl.transcludedItems"]')
+        checked_list_all = driver.find_elements(By.CSS_SELECTOR, f'[ng-if="$ctrl.complete"]')
 
 def mobile_alert_popup():
     try:
