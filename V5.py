@@ -224,16 +224,15 @@ def all_cards():
     except Exception as e:
         printf("no promo card")
     if(len(liste) < 10): #most likely an error during loading
+        if "suspendu" in driver.page_source:
+            raise Banned()
         driver.refresh()
         liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
         if(len(liste) < 10):
             log_error("Less than 10 cards. Most likely an error with login.", driver)
             return("PAS ASSEZ DE CARTES")
     if (len(liste) < 20): # most likely not in france
-        if not g.norvege : # TODO : rename norvege to not_france or smth like that
-            g.norvege = True
-            printf("Most likely not in France, thus disabling France specific action")
-            # TODO : check country for fidelity
+        printf("moins de 20 cartes. Probablement pas en France.")
     for i in range(len(liste)):
         printf(f"carte {i}")
         try : 
@@ -250,7 +249,7 @@ def all_cards():
             try : 
                 checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
             except :
-                log_error("IndexError", driver)
+                log_error(f"IndexError, need more log\ncurrent index : {i} \nmaximal index : {len(liste)}", driver)
                 return("INDEX ERROR")
         if checked:
             custom_sleep(1.5)
@@ -709,6 +708,9 @@ def daily_routine(custom = False):
 
     try:
         all_cards()
+    except Banned:
+        log_error("banned", driver)
+        return("BANNED")
     except Exception as e:
         log_error(e)
 
@@ -838,6 +840,7 @@ else:
             driver.quit()
             display.stop()
         except Exception as e:
+            log_error(f"Error not catched. Skipping this account. " + format_error(e), driver)
             printf(f"Error not catched. Skipping this account. {e}")
             driver.quit()
 
