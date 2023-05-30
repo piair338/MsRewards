@@ -3,7 +3,8 @@ from modules.config import *
 from modules.tools import *
 import modules.globals as g
 
-def setup_proxy(ip, port) :
+
+def setup_proxy(ip: str, port: str) -> None:
     PROXY = f"{ip}:{port}"
     webdriver.DesiredCapabilities.FIREFOX['proxy'] = {
         "httpProxy": PROXY,
@@ -11,7 +12,8 @@ def setup_proxy(ip, port) :
         "proxyType": "MANUAL",
     }
 
-#Deal with rgpd popup as well as some random popup like 'are you satisfied' one
+
+#Deal with RGPD popup as well as some random popup like 'are you satisfied' one
 def rgpd_popup(driver) -> None:
     for i in ["bnp_btn_accept", "bnp_hfly_cta2", "bnp_hfly_close"] :
         try:
@@ -19,8 +21,9 @@ def rgpd_popup(driver) -> None:
         except:
             pass
 
+
 # save webdriver cookies
-def save_cookies(driver):
+def save_cookies(driver) -> None:
     if g.dev:
         f = open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}_unsafe.pkl", "w")
         for i in driver.get_cookies():
@@ -29,8 +32,9 @@ def save_cookies(driver):
     else :
         pickle.dump(driver.get_cookies(), open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}.pkl", "wb"))
 
+
 # load cookies previously saved to the driver
-def load_cookies(driver):
+def load_cookies(driver) -> None:
     if g.dev:
         f = open(f"{'/'.join(__file__.split('/')[:-2])}/user_data/cookies/{g._mail}_unsafe.pkl", "r")
         lines = f.readlines()
@@ -45,7 +49,7 @@ def load_cookies(driver):
 send_keys_wait([selenium element:element, str:keys]) send the different keys to the field element, with a random time between each press to simulate human action.
 keys can be an string, but also selenium keys
 """
-def send_keys_wait(element, keys):
+def send_keys_wait(element, keys: str) -> None:
     for i in keys:
         element.send_keys(i)
         sleep(uniform(0.1, 0.3))
@@ -58,6 +62,6 @@ def wait_until_visible(search_by: str, identifier: str, timeout = 20, browser = 
         WebDriverWait(browser, timeout).until(EC.visibility_of_element_located((search_by,identifier)), "element not found")
         return(True)
     except TimeoutException as e:
-        printf(f"element not found after {timeout}s")
+        printf(f"element {identifier} not found after {timeout}s")
         return(False)
 

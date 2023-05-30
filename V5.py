@@ -248,9 +248,9 @@ def all_cards():
             liste = driver.find_elements(By.CLASS_NAME, "c-card-content")
             try : 
                 checked = ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML"))
-            except :
-                log_error(f"IndexError, need more log\ncurrent index : {i} \nmaximal index : {len(liste)}", driver)
-                return("INDEX ERROR")
+            except IndexError :
+                if i == len(liste) & i > 15 :
+                    checked = False
         if checked:
             custom_sleep(1.5)
             driver.execute_script("arguments[0].scrollIntoView();", liste[i])
@@ -275,7 +275,17 @@ def all_cards():
                         try_play(driver.title)
                         close_tab(driver.window_handles[1])
                         if ("mee-icon-AddMedium" in liste[i].get_attribute("innerHTML")):
+                            driver.execute_script("arguments[0].scrollIntoView();", liste[i])
                             log_error(f"Card {i} Can't be completed. Why MS ?", driver)
+                            liste[i].click()
+                            driver.switch_to.window(driver.window_handles[1])
+                            log_error(f"Cart completion - log - 2", driver)
+                            custom_sleep(10)
+                            log_error(f"Cart completion - log - 3 - after 10 sec", driver)
+                            try:
+                                try_play(driver.title) # go back to the main page
+                            except :
+                                driver.get("https://rewards.bing.com")
                 except :
                     pass
             else : 
@@ -288,17 +298,20 @@ def all_cards():
 
 
 def promo():
-    elm = driver.find_element(By.ID, "promo-item")
     for i in range(10):
+        elm = driver.find_element(By.ID, "promo-item")
+        wait_until_visible(By.ID, "promo-item", 5, driver)
         if not elm:
             break
         if i > 8 :
             log_error("chelou, plus de 8 truc", driver)
         try :
             elm.click()
-        except :
+        except Exception as e:
+            #log_error(e, driver)
             driver.execute_script("arguments[0].click();", elm)
-            printf("that should't be there (promo)")
+            #log_error(e, driver)
+            printf(f"that should't be there (promo), but the workarround seemed to work {e}")
         custom_sleep(3)
         if len(driver.window_handles) > 1 :
             driver.switch_to.window(driver.window_handles[len(driver.window_handles)-1])
@@ -345,6 +358,11 @@ def try_play(nom="inconnu"):
         else:
             printf("There is an error. rqAnswerOption present in page but no action to do. skipping.")
 
+    if "pas connecté à Microsoft Rewards" in driver.page_source:
+        driver.find_element(By.CSS_SELECTOR, '[onclick="setsrchusr()"]').click()
+        custom_sleep(5)
+        printf("not connected, fixed")
+
     try:
         if wait_until_visible(By.ID, "rqStartQuiz", 5, driver):
             custom_sleep(3)
@@ -352,7 +370,7 @@ def try_play(nom="inconnu"):
             answer_number = driver.page_source.count("rqAnswerOption")
             play(answer_number)
         else :
-            raise (NameError("going to next part"))
+            raise(NameError("going to next part"))
     except Exception as e: # if there is no start button, an error is thrown
         if "bt_PollRadio" in driver.page_source:
             try:
@@ -445,7 +463,7 @@ def login_part_2(ldriver, cookies = False):
         except Exception as e:
             pass
     wait_until_visible(By.CSS_SELECTOR, '[data-bi-id="sh-sharedshell-home"]', 20, ldriver)
-    ldriver.get("https://www.bing.com/?setlang=fr&cc=fr&cc=FR")
+    ldriver.get("https://www.bing.com/")
     rgpd_popup(ldriver)
     ldriver.refresh()
     rgpd_popup(ldriver)
