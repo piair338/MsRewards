@@ -298,13 +298,13 @@ def all_cards():
 
 
 def promo():
-    for i in range(10):
+    for i in range(5):
         elm = driver.find_element(By.ID, "promo-item")
         wait_until_visible(By.ID, "promo-item", 5, driver)
         if not elm:
             break
-        if i > 8 :
-            log_error("chelou, plus de 8 truc", driver)
+        if i > 3 :
+            log_error("plus de 3 promo cards, probablement une pa skipable", driver)
         try :
             elm.click()
         except Exception as e:
@@ -652,8 +652,12 @@ def fidelity():
             log_error(e)
     if driver.current_url != "https://rewards.bing.com":
         driver.get("https://rewards.bing.com")
-    pause = driver.find_element(By.CSS_SELECTOR, f'[class="c-action-toggle c-glyph f-toggle glyph-pause"]') # mettre le truc en pause
-    pause.click()
+    try :
+        pause = driver.find_element(By.CSS_SELECTOR, f'[class="c-action-toggle c-glyph f-toggle glyph-pause"]') # mettre le truc en pause
+        pause.click()
+    except Exception as e:
+        printf(f"erreur : probablement pas de cartes {e}")
+        return("no cards")
     cartes = driver.find_elements(By.CSS_SELECTOR, f'[ng-repeat="item in $ctrl.transcludedItems"]')
     nb_cartes = len(cartes)
     checked_list_all = driver.find_elements(By.CSS_SELECTOR, f'[ng-if="$ctrl.complete"]')
