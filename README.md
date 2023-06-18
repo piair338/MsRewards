@@ -1,3 +1,5 @@
+# This project is dead, use https://github.com/farshadz1997/Microsoft-Rewards-bot instead
+
 #  MsReward
 
 
